@@ -47,6 +47,8 @@ header h1{font-size:15px;font-weight:500;letter-spacing:0.05em}
 .type-outsource{background:#F4C0D1;color:#72243E}
 .add-btn{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:1px dashed #ccc;border-radius:4px;color:#bbb;font-size:11px;padding:1px 6px;cursor:pointer;z-index:3;white-space:nowrap}
 .add-btn:hover{color:#555;border-color:#aaa;background:#f5f5f0}
+
+/* モーダル */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:flex-end;justify-content:center}
 .overlay.open{display:flex}
 .modal{background:#fff;border-radius:14px 14px 0 0;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding:20px 20px 32px}
@@ -61,9 +63,14 @@ header h1{font-size:15px;font-weight:500;letter-spacing:0.05em}
 .time-row{display:flex;gap:8px;align-items:center}
 .time-row input{flex:1}
 .time-sep{font-size:14px;color:#999;flex-shrink:0}
-.staff-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;margin-top:4px}
-.staff-check{display:flex;align-items:center;gap:8px;font-size:14px;color:#333;cursor:pointer;padding:6px 0}
-.staff-check input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#4a90d9;flex-shrink:0}
+
+/* スタッフ選択 */
+.staff-section-label{font-size:11px;color:#aaa;font-weight:500;margin:6px 0 4px;grid-column:1/-1}
+.staff-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px}
+.staff-btn{display:flex;align-items:center;justify-content:center;padding:8px 6px;border-radius:7px;border:1.5px solid #e0e0e0;background:#fafafa;color:#555;font-size:13px;cursor:pointer;user-select:none;transition:all 0.15s;text-align:center;line-height:1.3}
+.staff-btn:hover{border-color:#aaa;background:#f0f0ec}
+.staff-btn.selected{border-color:#4a90d9;background:#e8f2fd;color:#1a5fa8;font-weight:500}
+
 .modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
 .btn{padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;border:none}
 .btn-primary{background:#1a1a1a;color:#fff}
@@ -102,23 +109,15 @@ header h1{font-size:15px;font-weight:500;letter-spacing:0.05em}
     <div class="form-row"><label>現場名・作業場所 *</label><input id="f-place" placeholder="例：〇〇病院 3階廊下"></div>
     <div class="form-row"><label>お客様名</label><input id="f-client" placeholder="例：山田商事"></div>
     <div class="form-row"><label>作業種別</label>
-      <select id="f-type" onchange="toggleOutsource()">
+      <select id="f-type">
         <option value="daily">日常清掃</option>
         <option value="regular">定期清掃</option>
         <option value="bird">鳥害対策</option>
         <option value="outsource">外注</option>
       </select>
     </div>
-    <div class="form-row" id="outsource-row" style="display:none"><label>外注先</label>
-      <select id="f-outsource">
-        <option value="">選択してください</option>
-        <option>SUN-X</option><option>SIBS</option><option>One by One</option>
-        <option>増田（伸和洗浄）</option><option>ロープワーク</option>
-        <option>RISE</option><option>ミノアカ</option><option>小池</option>
-      </select>
-    </div>
     <div class="form-row">
-      <label>担当スタッフ（複数選択可）</label>
+      <label>担当スタッフ・外注（タップで選択）</label>
       <div class="staff-grid" id="staff-grid"></div>
     </div>
     <div class="form-row"><label>時間</label>
@@ -140,7 +139,9 @@ header h1{font-size:15px;font-weight:500;letter-spacing:0.05em}
 
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbwV_UNDYqwlGhMeoEQiasU348YX_UEKXys7E0TkZaOMfrcXtTx6-JIisyLVMCW2yj3g/exec';
-const STAFF = ['平野健雄','安藤正樹','伏田幸枝','小林俊樹','石毛貴英','池田久史','三浦達弥','飯田怜飛','飯田栄','SIBS','SUN-X','川口'];
+const STAFF_OWN  = ['平野健雄','安藤正樹','伏田幸枝','小林俊樹','石毛貴英','池田久史','三浦達弥','飯田怜飛','飯田栄'];
+const STAFF_OUT  = ['SUN-X','SIBS','One by One','増田（伸和洗浄）','ロープワーク','RISE','ミノアカ','小池'];
+const ALL_STAFF  = [...STAFF_OWN, ...STAFF_OUT];
 const DAYS = ['日','月','火','水','木','金','土'];
 const TYPE_CLASS = {daily:'type-daily',regular:'type-regular',bird:'type-bird',outsource:'type-outsource'};
 const HOUR_START = 6, HOUR_END = 24, TOTAL_HOURS = 18;
@@ -151,6 +152,7 @@ current = new Date(current.getFullYear(), current.getMonth(), 1);
 let events = {};
 let editingId = null, editingDate = null;
 let cbCount = 0;
+let selectedStaff = [];
 
 function setSync(s, l) {
   document.getElementById('sync-dot').className = 'dot ' + s;
@@ -178,7 +180,6 @@ function jsonp(params) {
   });
 }
 
-// スプレッドシートから全データ取得して画面を更新
 async function loadAll(showLoading) {
   if (showLoading !== false) setSync('loading', '読み込み中...');
   try {
@@ -216,8 +217,7 @@ function buildHalfTimeline(from, to, y, m, todayKey) {
     const dow = date.getDay();
     const key = fmt(y, m, d);
     const isToday = key === todayKey;
-    const isSun = dow === 0, isSat = dow === 6;
-    const cls = (isSun?'sun':isSat?'sat':'') + (isToday?' today':'');
+    const cls = (dow===0?'sun':dow===6?'sat':'') + (isToday?' today':'');
     const dayEvs = events[key] || [];
 
     let bars = '';
@@ -226,11 +226,8 @@ function buildHalfTimeline(from, to, y, m, todayKey) {
       const tc = TYPE_CLASS[ev.type] || 'type-daily';
       const sh = timeToHour(ev.start);
       const eh = timeToHour(ev.end);
-      const who = ev.type === 'outsource'
-        ? (ev.outsource || '')
-        : (Array.isArray(ev.staff) ? ev.staff.filter(Boolean).join('・') : '');
+      const who = Array.isArray(ev.staff) ? ev.staff.filter(Boolean).join('・') : '';
       const label = [ev.place, who].filter(Boolean).join(' ');
-      const timeLabel = ev.start ? (ev.end ? `${ev.start}〜${ev.end} ` : `${ev.start} `) : '';
 
       let leftPct, widthPct;
       if (sh !== null && eh !== null && eh > sh) {
@@ -238,10 +235,9 @@ function buildHalfTimeline(from, to, y, m, todayKey) {
         widthPct = hourToPct(eh) - leftPct;
       } else if (sh !== null) {
         leftPct = hourToPct(sh);
-        widthPct = (100 / TOTAL_HOURS);
+        widthPct = 100 / TOTAL_HOURS;
       } else {
-        leftPct = 0;
-        widthPct = 20;
+        leftPct = 0; widthPct = 20;
       }
 
       let topPx = 7;
@@ -252,8 +248,7 @@ function buildHalfTimeline(from, to, y, m, todayKey) {
 
       bars += `<span class="ev-bar ${tc}"
         style="left:${leftPct.toFixed(2)}%;width:${widthPct.toFixed(2)}%;top:${topPx}px"
-        onclick="openEdit('${key}','${ev.id}')"
-        >${timeLabel}${label}</span>`;
+        onclick="openEdit('${key}','${ev.id}')">${label}</span>`;
     });
 
     const maxTop = occupied.length ? Math.max(...occupied.map(o=>o.top)) : 7;
@@ -261,8 +256,7 @@ function buildHalfTimeline(from, to, y, m, todayKey) {
 
     rows += `<div class="tl-row ${cls}" style="min-height:${rowHeight}px">
       <div class="tl-date" onclick="openAdd('${key}')">
-        <span class="dnum">${d}</span>
-        <span class="dname">${DAYS[dow]}</span>
+        <span class="dnum">${d}</span><span class="dname">${DAYS[dow]}</span>
       </div>
       <div class="tl-bar-area" style="min-height:${rowHeight}px">
         ${bars}
@@ -304,30 +298,39 @@ function render() {
 
 function changeMonth(d) {
   current = new Date(current.getFullYear(), current.getMonth()+d, 1);
-  loadAll(); // 月移動時も最新データを取得
+  loadAll();
 }
 
-function buildStaffGrid(selected) {
-  const sel = Array.isArray(selected) ? selected : [];
-  document.getElementById('staff-grid').innerHTML = STAFF.map(s =>
-    `<label class="staff-check"><input type="checkbox" value="${s}"${sel.includes(s)?' checked':''}> ${s}</label>`
-  ).join('');
+// スタッフボタンのトグル
+function toggleStaffBtn(name) {
+  if (selectedStaff.includes(name)) {
+    selectedStaff = selectedStaff.filter(s => s !== name);
+  } else {
+    selectedStaff.push(name);
+  }
+  renderStaffGrid();
 }
 
-function toggleOutsource() {
-  document.getElementById('outsource-row').style.display =
-    document.getElementById('f-type').value === 'outsource' ? '' : 'none';
+function renderStaffGrid() {
+  function makeBtn(s) {
+    const on = selectedStaff.includes(s);
+    return `<div class="staff-btn${on?' selected':''}" onclick="toggleStaffBtn('${s.replace(/'/g,"\\'")}')">${s}</div>`;
+  }
+  document.getElementById('staff-grid').innerHTML =
+    `<div class="staff-section-label">自社スタッフ</div>` +
+    STAFF_OWN.map(makeBtn).join('') +
+    `<div class="staff-section-label">外注</div>` +
+    STAFF_OUT.map(makeBtn).join('');
 }
 
 function openAdd(dateKey) {
   editingId = null; editingDate = dateKey;
+  selectedStaff = [];
   const [,mo,day] = dateKey.split('-');
   document.getElementById('modal-title').textContent = `${parseInt(mo)}月${parseInt(day)}日 — 現場を追加`;
   ['f-place','f-client','f-amount','f-memo','f-start','f-end'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f-type').value = 'daily';
-  document.getElementById('f-outsource').value = '';
-  document.getElementById('outsource-row').style.display = 'none';
-  buildStaffGrid([]);
+  renderStaffGrid();
   document.getElementById('delete-btn').style.display = 'none';
   document.getElementById('overlay').classList.add('open');
   setTimeout(() => document.getElementById('f-place').focus(), 150);
@@ -337,14 +340,13 @@ function openEdit(dateKey, id) {
   const ev = (events[dateKey]||[]).find(e => e.id===id);
   if (!ev) return;
   editingId = id; editingDate = dateKey;
+  selectedStaff = Array.isArray(ev.staff) ? ev.staff.filter(Boolean) : [];
   const [,mo,day] = dateKey.split('-');
   document.getElementById('modal-title').textContent = `${parseInt(mo)}月${parseInt(day)}日 — 編集`;
   document.getElementById('f-place').value = ev.place||'';
   document.getElementById('f-client').value = ev.client||'';
   document.getElementById('f-type').value = ev.type||'daily';
-  document.getElementById('f-outsource').value = ev.outsource||'';
-  document.getElementById('outsource-row').style.display = ev.type==='outsource' ? '' : 'none';
-  buildStaffGrid(Array.isArray(ev.staff) ? ev.staff : []);
+  renderStaffGrid();
   document.getElementById('f-start').value = ev.start||'';
   document.getElementById('f-end').value = ev.end||'';
   document.getElementById('f-amount').value = ev.amount||'';
@@ -358,16 +360,14 @@ function closeModal() { document.getElementById('overlay').classList.remove('ope
 async function saveEvent() {
   const place = document.getElementById('f-place').value.trim();
   if (!place) { alert('現場名を入力してください'); return; }
-  const staff = Array.from(document.querySelectorAll('#staff-grid input[type="checkbox"]'))
-    .filter(c => c.checked).map(c => c.value);
   const ev = {
     id: editingId || Date.now().toString(36) + Math.random().toString(36).slice(2,5),
     date: editingDate,
     place,
     client: document.getElementById('f-client').value.trim(),
     type: document.getElementById('f-type').value,
-    outsource: document.getElementById('f-outsource').value,
-    staff,
+    outsource: '',
+    staff: selectedStaff,
     start: document.getElementById('f-start').value,
     end: document.getElementById('f-end').value,
     amount: document.getElementById('f-amount').value.trim(),
@@ -378,11 +378,10 @@ async function saveEvent() {
   setSync('loading', '保存中...');
   try {
     await jsonp({ action: 'save', data: ev });
-    // 保存後はサーバーから最新データを取得して画面を更新
     await loadAll(false);
     setSync('ok', '保存済み');
   } catch(e) {
-    setSync('err', '保存失敗 — 再読み込みしてください');
+    setSync('err', '保存失敗');
   }
 }
 
@@ -393,7 +392,6 @@ async function deleteEvent() {
   setSync('loading', '削除中...');
   try {
     await jsonp({ action: 'delete', data: { id: delId } });
-    // 削除後もサーバーから最新データを取得
     await loadAll(false);
     setSync('ok', '削除済み');
   } catch(e) {
@@ -405,7 +403,6 @@ document.getElementById('overlay').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
 
-// ページを開くたびに最新データを取得
 loadAll();
 </script>
 </body>
