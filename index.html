@@ -19,53 +19,56 @@ header h1{font-size:15px;font-weight:500;letter-spacing:0.05em}
 .legend{display:flex;gap:8px;padding:8px 14px;background:#fff;border-bottom:1px solid #e8e8e4;flex-wrap:wrap}
 .legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:#555}
 .legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
-.section-title{font-size:12px;font-weight:600;color:#666;padding:10px 14px 5px;letter-spacing:0.05em;text-transform:uppercase}
+.section-title{font-size:12px;font-weight:600;color:#666;padding:10px 14px 5px;letter-spacing:0.05em}
 .table-wrap{overflow-x:auto;padding:0 14px 4px}
-table{width:100%;border-collapse:collapse;min-width:320px;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #e8e8e4}
+table{width:100%;border-collapse:collapse;min-width:300px;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #e8e8e4}
 thead th{font-size:11px;color:#888;font-weight:500;padding:7px 10px;background:#fafaf8;border-bottom:1px solid #e8e8e4;text-align:left}
-thead th:first-child{width:58px;text-align:center}
+thead th:first-child{width:56px;text-align:center}
 tbody td{padding:5px 8px;border-bottom:0.5px solid #f0f0ec;vertical-align:middle}
-tbody td:first-child{text-align:center;width:58px}
+tbody td:first-child{text-align:center;width:56px}
 tbody tr:last-child td{border-bottom:none}
 tbody tr:hover td{background:#fafaf8}
 tbody tr.today td{background:#e8f4fd}
-.dnum{font-size:13px;font-weight:600;color:#222}
+.dnum{font-size:13px;font-weight:600;color:#222;display:block}
 .dname{font-size:10px;color:#999;display:block}
 .sun .dname,.sun .dnum{color:#e05555}
 .sat .dname,.sat .dnum{color:#4a90d9}
-.pills{display:flex;flex-wrap:wrap;gap:3px;align-items:center}
-.pill{display:inline-flex;align-items:center;font-size:10px;padding:2px 8px;border-radius:4px;cursor:pointer;white-space:nowrap;line-height:1.7;transition:opacity 0.15s}
+.pills{display:flex;flex-wrap:wrap;gap:3px;align-items:center;padding:2px 0}
+.pill{display:inline-flex;align-items:center;font-size:10px;padding:2px 8px;border-radius:4px;cursor:pointer;white-space:nowrap;line-height:1.7}
 .pill:hover{opacity:0.75}
 .type-daily{background:#C0DD97;color:#27500A}
 .type-regular{background:#B5D4F4;color:#0C447C}
 .type-bird{background:#FAC775;color:#633806}
 .type-outsource{background:#F4C0D1;color:#72243E}
-.add-pill{display:inline-flex;align-items:center;font-size:10px;padding:2px 8px;border-radius:4px;border:1px dashed #ccc;color:#999;cursor:pointer;white-space:nowrap;line-height:1.7}
-.add-pill:hover{background:#f5f5f0;color:#555}
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:center;justify-content:center;padding:12px}
+.add-pill{display:inline-flex;align-items:center;font-size:11px;padding:2px 8px;border-radius:4px;border:1px dashed #ccc;color:#aaa;cursor:pointer;white-space:nowrap;line-height:1.7}
+.add-pill:hover{background:#f0f0ec;color:#555}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:flex-end;justify-content:center}
 .overlay.open{display:flex}
-.modal{background:#fff;border-radius:12px;width:100%;max-width:400px;max-height:92vh;overflow-y:auto;padding:20px}
+.modal{background:#fff;border-radius:14px 14px 0 0;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding:20px 20px 32px}
+@media(min-width:520px){
+  .overlay{align-items:center;padding:16px}
+  .modal{border-radius:14px;max-height:88vh}
+}
+.modal-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 16px}
 .modal h3{font-size:15px;font-weight:600;margin-bottom:16px;color:#1a1a1a}
 .form-row{margin-bottom:12px}
 .form-row label{display:block;font-size:11px;color:#888;margin-bottom:5px;font-weight:500;letter-spacing:0.04em}
-.form-row input,.form-row select,.form-row textarea{width:100%;font-size:14px;padding:8px 10px;border-radius:7px;border:1px solid #ddd;background:#fff;color:#1a1a1a;-webkit-appearance:none}
+.form-row input,.form-row select,.form-row textarea{width:100%;font-size:15px;padding:10px 12px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#1a1a1a;-webkit-appearance:none;appearance:none}
 .form-row input:focus,.form-row select:focus,.form-row textarea:focus{outline:none;border-color:#4a90d9;box-shadow:0 0 0 3px rgba(74,144,217,0.12)}
 .form-row textarea{resize:vertical;min-height:52px}
 .time-row{display:flex;gap:8px;align-items:center}
 .time-row input{flex:1}
 .time-sep{font-size:14px;color:#999;flex-shrink:0}
-.staff-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 8px;margin-top:4px}
-.staff-check{display:flex;align-items:center;gap:7px;font-size:13px;color:#333;cursor:pointer;padding:4px 0}
-.staff-check input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#4a90d9;flex-shrink:0}
+.staff-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;margin-top:4px}
+.staff-check{display:flex;align-items:center;gap:8px;font-size:14px;color:#333;cursor:pointer;padding:5px 0}
+.staff-check input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#4a90d9;flex-shrink:0}
 .modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
-.btn{padding:8px 18px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:500;border:none}
+.btn{padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;border:none}
 .btn-primary{background:#1a1a1a;color:#fff}
-.btn-primary:hover{background:#333}
 .btn-cancel{background:#f0f0ec;color:#555}
-.btn-cancel:hover{background:#e5e5e0}
 .btn-delete{background:#fee2e2;color:#b91c1c;margin-right:auto}
-.btn-delete:hover{background:#fecaca}
 .loading-msg{text-align:center;padding:40px;color:#999;font-size:13px}
+.err-msg{text-align:center;padding:20px;color:#e05555;font-size:13px;line-height:1.8}
 </style>
 </head>
 <body>
@@ -91,9 +94,10 @@ tbody tr.today td{background:#e8f4fd}
 <div id="calendar-wrap"><div class="loading-msg">読み込み中...</div></div>
 
 <div class="overlay" id="overlay">
-  <div class="modal" id="modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
     <h3 id="modal-title">現場を追加</h3>
-    <div class="form-row"><label>現場名・作業場所</label><input id="f-place" placeholder="例：〇〇病院 3階廊下"></div>
+    <div class="form-row"><label>現場名・作業場所 *</label><input id="f-place" placeholder="例：〇〇病院 3階廊下"></div>
     <div class="form-row"><label>お客様名</label><input id="f-client" placeholder="例：山田商事"></div>
     <div class="form-row"><label>作業種別</label>
       <select id="f-type" onchange="toggleOutsource()">
@@ -122,7 +126,7 @@ tbody tr.today td{background:#e8f4fd}
         <input id="f-end" type="time">
       </div>
     </div>
-    <div class="form-row"><label>請負金額（円）</label><input id="f-amount" placeholder="例：45000"></div>
+    <div class="form-row"><label>請負金額（円）</label><input id="f-amount" type="number" placeholder="例：45000"></div>
     <div class="form-row"><label>メモ</label><textarea id="f-memo" placeholder="備考など"></textarea></div>
     <div class="modal-btns">
       <button class="btn btn-delete" id="delete-btn" onclick="deleteEvent()" style="display:none">削除</button>
@@ -142,32 +146,55 @@ let current = new Date();
 current = new Date(current.getFullYear(), current.getMonth(), 1);
 let events = {};
 let editingId = null, editingDate = null;
+let cbCount = 0;
 
 function setSync(s, l) {
   document.getElementById('sync-dot').className = 'dot ' + s;
   document.getElementById('sync-label').textContent = l;
 }
 
-async function apiCall(params) {
-  const url = API + '?t=' + Date.now();
-  const res = await fetch(url, {
-    method: 'POST',
-    body: JSON.stringify(params),
-    headers: {'Content-Type':'text/plain'}
+function jsonp(params) {
+  return new Promise((resolve, reject) => {
+    const cbName = '_cb' + (++cbCount);
+    const timeout = setTimeout(() => {
+      delete window[cbName];
+      reject(new Error('timeout'));
+    }, 20000);
+    window[cbName] = (data) => {
+      clearTimeout(timeout);
+      delete window[cbName];
+      const el = document.getElementById(cbName);
+      if (el) el.remove();
+      resolve(data);
+    };
+    const qs = Object.entries({ ...params, callback: cbName })
+      .map(([k,v]) => `${k}=${encodeURIComponent(typeof v==='object'?JSON.stringify(v):v)}`)
+      .join('&');
+    const script = document.createElement('script');
+    script.id = cbName;
+    script.src = `${API}?${qs}&t=${Date.now()}`;
+    script.onerror = () => {
+      clearTimeout(timeout);
+      delete window[cbName];
+      script.remove();
+      reject(new Error('script error'));
+    };
+    document.head.appendChild(script);
   });
-  return res.json();
 }
 
 async function loadAll() {
   setSync('loading', '読み込み中...');
   try {
-    const data = await apiCall({ action: 'getAll' });
+    const data = await jsonp({ action: 'getAll' });
     events = data || {};
     setSync('ok', '同期済み');
+    render();
   } catch(e) {
     setSync('err', '読み込み失敗');
+    document.getElementById('calendar-wrap').innerHTML =
+      '<div class="err-msg">データの読み込みに失敗しました。<br>ページを再読み込みしてください。</div>';
   }
-  render();
 }
 
 function fmt(y, m, d) {
@@ -178,7 +205,8 @@ function render() {
   const y = current.getFullYear(), m = current.getMonth();
   document.getElementById('month-title').textContent = `${y}年${m+1}月`;
   const lastDay = new Date(y, m+1, 0).getDate();
-  const todayKey = fmt(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+  const now = new Date();
+  const todayKey = fmt(now.getFullYear(), now.getMonth(), now.getDate());
 
   function buildHalf(from, to) {
     let rows = '';
@@ -195,10 +223,11 @@ function render() {
       dayEvs.forEach(ev => {
         const tc = TYPE_CLASS[ev.type] || 'type-daily';
         const time = ev.start ? (ev.end ? `${ev.start}〜${ev.end}` : ev.start) : '';
-        const who = ev.type==='outsource' ? (ev.outsource||'') : (Array.isArray(ev.staff)&&ev.staff.length ? ev.staff.join('・') : '');
+        const who = ev.type==='outsource'
+          ? (ev.outsource||'')
+          : (Array.isArray(ev.staff) && ev.staff.filter(Boolean).length ? ev.staff.filter(Boolean).join('・') : '');
         const label = [time, ev.place, who].filter(Boolean).join(' ');
-        const tip = [ev.place, ev.client, who, ev.amount?ev.amount+'円':'', ev.memo].filter(Boolean).join(' / ');
-        rows += `<span class="pill ${tc}" onclick="openEdit('${key}','${ev.id}')" title="${tip}">${label}</span>`;
+        rows += `<span class="pill ${tc}" onclick="openEdit('${key}','${ev.id}')">${label}</span>`;
       });
       rows += `<span class="add-pill" onclick="openAdd('${key}')">＋</span>`;
       rows += `</div></td></tr>`;
@@ -247,7 +276,7 @@ function openAdd(dateKey) {
   buildStaffGrid([]);
   document.getElementById('delete-btn').style.display = 'none';
   document.getElementById('overlay').classList.add('open');
-  document.getElementById('f-place').focus();
+  setTimeout(() => document.getElementById('f-place').focus(), 150);
 }
 
 function openEdit(dateKey, id) {
@@ -290,7 +319,6 @@ async function saveEvent() {
     memo: document.getElementById('f-memo').value.trim()
   };
 
-  // 楽観的更新
   if (!events[editingDate]) events[editingDate] = [];
   if (editingId) {
     events[editingDate] = events[editingDate].map(e => e.id===editingId ? ev : e);
@@ -301,7 +329,7 @@ async function saveEvent() {
 
   setSync('loading', '保存中...');
   try {
-    await apiCall({ action: 'save', event: ev });
+    await jsonp({ action: 'save', data: ev });
     setSync('ok', '保存済み');
   } catch(e) {
     setSync('err', '保存失敗');
@@ -309,14 +337,14 @@ async function saveEvent() {
 }
 
 async function deleteEvent() {
-  if (!confirm('削除しますか？')) return;
+  if (!confirm('この予定を削除しますか？')) return;
   events[editingDate] = (events[editingDate]||[]).filter(e => e.id!==editingId);
   if (!events[editingDate].length) delete events[editingDate];
   closeModal(); render();
 
   setSync('loading', '削除中...');
   try {
-    await apiCall({ action: 'delete', id: editingId });
+    await jsonp({ action: 'delete', data: { id: editingId } });
     setSync('ok', '削除済み');
   } catch(e) {
     setSync('err', '削除失敗');
