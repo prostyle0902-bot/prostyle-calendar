@@ -20,28 +20,54 @@ header h1{font-size:15px;font-weight:500;letter-spacing:0.05em}
 .legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:#555}
 .legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
 .section-title{font-size:12px;font-weight:600;color:#666;padding:10px 14px 5px;letter-spacing:0.05em}
-.table-wrap{overflow-x:auto;padding:0 14px 4px}
-table{width:100%;border-collapse:collapse;min-width:300px;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #e8e8e4}
-thead th{font-size:11px;color:#888;font-weight:500;padding:7px 10px;background:#fafaf8;border-bottom:1px solid #e8e8e4;text-align:left}
-thead th:first-child{width:56px;text-align:center}
-tbody td{padding:5px 8px;border-bottom:0.5px solid #f0f0ec;vertical-align:middle}
-tbody td:first-child{text-align:center;width:56px}
-tbody tr:last-child td{border-bottom:none}
-tbody tr:hover td{background:#fafaf8}
-tbody tr.today td{background:#e8f4fd}
-.dnum{font-size:13px;font-weight:600;color:#222;display:block}
-.dname{font-size:10px;color:#999;display:block}
+ 
+/* タイムライングリッド */
+.timeline-wrap{overflow-x:auto;padding:0 14px 4px;-webkit-overflow-scrolling:touch}
+.timeline-grid{min-width:900px;background:#fff;border-radius:8px;border:1px solid #e8e8e4;overflow:hidden}
+ 
+/* ヘッダー行（時間目盛り） */
+.tl-header{display:flex;border-bottom:1px solid #e8e8e4;background:#fafaf8;position:sticky;top:0;z-index:10}
+.tl-date-col{width:58px;min-width:58px;flex-shrink:0;font-size:10px;color:#aaa;padding:5px 0;border-right:1px solid #e8e8e4;text-align:center}
+.tl-hours{flex:1;display:flex;position:relative}
+.tl-hour{flex:1;font-size:9px;color:#bbb;text-align:left;padding:5px 0 5px 3px;border-right:0.5px solid #efefef;min-width:0}
+.tl-hour:last-child{border-right:none}
+ 
+/* 行 */
+.tl-row{display:flex;border-bottom:0.5px solid #f0f0ec;min-height:36px}
+.tl-row:last-child{border-bottom:none}
+.tl-row:hover{background:#fafaf8}
+.tl-row.today{background:#edf5fc}
+.tl-row.today .tl-date{background:#edf5fc}
+.tl-date{width:58px;min-width:58px;flex-shrink:0;border-right:1px solid #e8e8e4;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 0;cursor:pointer;user-select:none}
+.tl-date:hover{background:#f0f0f0}
+.dnum{font-size:13px;font-weight:600;color:#222}
+.dname{font-size:10px;color:#999}
 .sun .dname,.sun .dnum{color:#e05555}
 .sat .dname,.sat .dnum{color:#4a90d9}
-.pills{display:flex;flex-wrap:wrap;gap:3px;align-items:center;padding:2px 0}
-.pill{display:inline-flex;align-items:center;font-size:10px;padding:2px 8px;border-radius:4px;cursor:pointer;white-space:nowrap;line-height:1.7}
-.pill:hover{opacity:0.75}
+.tl-bar-area{flex:1;position:relative;display:flex;align-items:center;min-height:36px}
+ 
+/* グリッド線 */
+.tl-bar-area::before{
+  content:'';position:absolute;inset:0;
+  background-image:repeating-linear-gradient(
+    to right,
+    transparent,transparent calc((100% / 18) - 0.5px),
+    #f0f0ec calc((100% / 18) - 0.5px),#f0f0ec calc(100% / 18)
+  );
+  pointer-events:none;
+}
+ 
+/* バー */
+.ev-bar{position:absolute;height:22px;border-radius:4px;cursor:pointer;display:flex;align-items:center;padding:0 6px;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2;transition:opacity 0.15s}
+.ev-bar:hover{opacity:0.8}
 .type-daily{background:#C0DD97;color:#27500A}
 .type-regular{background:#B5D4F4;color:#0C447C}
 .type-bird{background:#FAC775;color:#633806}
 .type-outsource{background:#F4C0D1;color:#72243E}
-.add-pill{display:inline-flex;align-items:center;font-size:11px;padding:2px 8px;border-radius:4px;border:1px dashed #ccc;color:#aaa;cursor:pointer;white-space:nowrap;line-height:1.7}
-.add-pill:hover{background:#f0f0ec;color:#555}
+.add-btn{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:1px dashed #ccc;border-radius:4px;color:#bbb;font-size:11px;padding:1px 6px;cursor:pointer;z-index:3;white-space:nowrap}
+.add-btn:hover{color:#555;border-color:#aaa;background:#f5f5f0}
+ 
+/* モーダル */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:flex-end;justify-content:center}
 .overlay.open{display:flex}
 .modal{background:#fff;border-radius:14px 14px 0 0;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding:20px 20px 32px}
@@ -60,9 +86,9 @@ tbody tr.today td{background:#e8f4fd}
 .time-row input{flex:1}
 .time-sep{font-size:14px;color:#999;flex-shrink:0}
 .staff-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;margin-top:4px}
-.staff-check{display:flex;align-items:center;gap:8px;font-size:14px;color:#333;cursor:pointer;padding:5px 0}
+.staff-check{display:flex;align-items:center;gap:8px;font-size:14px;color:#333;cursor:pointer;padding:6px 0}
 .staff-check input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:#4a90d9;flex-shrink:0}
-.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
 .btn{padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;border:none}
 .btn-primary{background:#1a1a1a;color:#fff}
 .btn-cancel{background:#f0f0ec;color:#555}
@@ -72,27 +98,27 @@ tbody tr.today td{background:#e8f4fd}
 </style>
 </head>
 <body>
-
+ 
 <header>
   <h1>業務課 現場管理</h1>
   <div class="sync"><div class="dot loading" id="sync-dot"></div><span id="sync-label">読み込み中...</span></div>
 </header>
-
+ 
 <div class="nav">
   <button class="nav-btn" onclick="changeMonth(-1)">‹ 前月</button>
   <span class="month" id="month-title"></span>
   <button class="nav-btn" onclick="changeMonth(1)">次月 ›</button>
 </div>
-
+ 
 <div class="legend">
   <div class="legend-item"><div class="legend-dot" style="background:#C0DD97"></div>日常清掃</div>
   <div class="legend-item"><div class="legend-dot" style="background:#B5D4F4"></div>定期清掃</div>
   <div class="legend-item"><div class="legend-dot" style="background:#FAC775"></div>鳥害対策</div>
   <div class="legend-item"><div class="legend-dot" style="background:#F4C0D1"></div>外注</div>
 </div>
-
+ 
 <div id="calendar-wrap"><div class="loading-msg">読み込み中...</div></div>
-
+ 
 <div class="overlay" id="overlay">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -116,14 +142,14 @@ tbody tr.today td{background:#e8f4fd}
       </select>
     </div>
     <div class="form-row">
-      <label>担当スタッフ</label>
+      <label>担当スタッフ（複数選択可）</label>
       <div class="staff-grid" id="staff-grid"></div>
     </div>
     <div class="form-row"><label>時間</label>
       <div class="time-row">
-        <input id="f-start" type="time">
+        <input id="f-start" type="time" min="06:00" max="24:00">
         <span class="time-sep">〜</span>
-        <input id="f-end" type="time">
+        <input id="f-end" type="time" min="06:00" max="24:00">
       </div>
     </div>
     <div class="form-row"><label>請負金額（円）</label><input id="f-amount" type="number" placeholder="例：45000"></div>
@@ -135,31 +161,32 @@ tbody tr.today td{background:#e8f4fd}
     </div>
   </div>
 </div>
-
+ 
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbwV_UNDYqwlGhMeoEQiasU348YX_UEKXys7E0TkZaOMfrcXtTx6-JIisyLVMCW2yj3g/exec';
-const STAFF = ['平野健雄','安藤正樹','伏田幸枝','小林俊樹','石毛貴英','池田久史','三浦達弥','飯田怜飛'];
+const STAFF = ['平野健雄','安藤正樹','伏田幸枝','小林俊樹','石毛貴英','池田久史','三浦達弥','飯田怜飛','飯田栄'];
 const DAYS = ['日','月','火','水','木','金','土'];
 const TYPE_CLASS = {daily:'type-daily',regular:'type-regular',bird:'type-bird',outsource:'type-outsource'};
-
+const HOUR_START = 6;   // 6:00
+const HOUR_END   = 24;  // 24:00
+const TOTAL_HOURS = HOUR_END - HOUR_START; // 18時間
+const HOURS = Array.from({length: TOTAL_HOURS}, (_,i) => HOUR_START + i);
+ 
 let current = new Date();
 current = new Date(current.getFullYear(), current.getMonth(), 1);
 let events = {};
 let editingId = null, editingDate = null;
 let cbCount = 0;
-
+ 
 function setSync(s, l) {
   document.getElementById('sync-dot').className = 'dot ' + s;
   document.getElementById('sync-label').textContent = l;
 }
-
+ 
 function jsonp(params) {
   return new Promise((resolve, reject) => {
     const cbName = '_cb' + (++cbCount);
-    const timeout = setTimeout(() => {
-      delete window[cbName];
-      reject(new Error('timeout'));
-    }, 20000);
+    const timeout = setTimeout(() => { delete window[cbName]; reject(new Error('timeout')); }, 20000);
     window[cbName] = (data) => {
       clearTimeout(timeout);
       delete window[cbName];
@@ -168,21 +195,15 @@ function jsonp(params) {
       resolve(data);
     };
     const qs = Object.entries({ ...params, callback: cbName })
-      .map(([k,v]) => `${k}=${encodeURIComponent(typeof v==='object'?JSON.stringify(v):v)}`)
-      .join('&');
+      .map(([k,v]) => `${k}=${encodeURIComponent(typeof v==='object'?JSON.stringify(v):v)}`).join('&');
     const script = document.createElement('script');
     script.id = cbName;
     script.src = `${API}?${qs}&t=${Date.now()}`;
-    script.onerror = () => {
-      clearTimeout(timeout);
-      delete window[cbName];
-      script.remove();
-      reject(new Error('script error'));
-    };
+    script.onerror = () => { clearTimeout(timeout); delete window[cbName]; script.remove(); reject(new Error('error')); };
     document.head.appendChild(script);
   });
 }
-
+ 
 async function loadAll() {
   setSync('loading', '読み込み中...');
   try {
@@ -196,75 +217,143 @@ async function loadAll() {
       '<div class="err-msg">データの読み込みに失敗しました。<br>ページを再読み込みしてください。</div>';
   }
 }
-
+ 
 function fmt(y, m, d) {
   return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
 }
-
+ 
+// 時刻文字列 "HH:MM" → 小数時間
+function timeToHour(t) {
+  if (!t) return null;
+  const [h, mi] = t.split(':').map(Number);
+  return h + mi / 60;
+}
+ 
+// 時間 → パーセント位置
+function hourToPct(h) {
+  const clamped = Math.max(HOUR_START, Math.min(HOUR_END, h));
+  return ((clamped - HOUR_START) / TOTAL_HOURS) * 100;
+}
+ 
+function buildHalfTimeline(from, to, y, m, todayKey) {
+  let rows = '';
+  for (let d = from; d <= to; d++) {
+    const date = new Date(y, m, d);
+    const dow = date.getDay();
+    const key = fmt(y, m, d);
+    const isToday = key === todayKey;
+    const isSun = dow === 0, isSat = dow === 6;
+    const cls = (isSun ? 'sun' : isSat ? 'sat' : '') + (isToday ? ' today' : '');
+    const dayEvs = events[key] || [];
+ 
+    // バーHTML生成
+    let bars = '';
+    // 複数バーが重ならないようにtop位置を調整
+    let occupied = []; // [{left,right,top}]
+    dayEvs.forEach(ev => {
+      const tc = TYPE_CLASS[ev.type] || 'type-daily';
+      const sh = timeToHour(ev.start);
+      const eh = timeToHour(ev.end);
+      const who = ev.type === 'outsource'
+        ? (ev.outsource || '')
+        : (Array.isArray(ev.staff) ? ev.staff.filter(Boolean).join('・') : '');
+      const label = [ev.place, who].filter(Boolean).join(' ');
+ 
+      let leftPct, widthPct;
+      if (sh !== null && eh !== null && eh > sh) {
+        leftPct = hourToPct(sh);
+        widthPct = hourToPct(eh) - leftPct;
+      } else if (sh !== null) {
+        leftPct = hourToPct(sh);
+        widthPct = (100 / TOTAL_HOURS) * 1; // 1時間幅
+      } else {
+        leftPct = 0;
+        widthPct = 20;
+      }
+ 
+      // 重なり検出して上下にずらす
+      let topPx = 7;
+      for (const o of occupied) {
+        if (leftPct < o.right && leftPct + widthPct > o.left) {
+          topPx = o.top + 24;
+        }
+      }
+      occupied.push({ left: leftPct, right: leftPct + widthPct, top: topPx });
+ 
+      const timeLabel = ev.start ? (ev.end ? `${ev.start}〜${ev.end} ` : `${ev.start} `) : '';
+      bars += `<span class="ev-bar ${tc}"
+        style="left:${leftPct.toFixed(2)}%;width:${widthPct.toFixed(2)}%;top:${topPx}px"
+        onclick="openEdit('${key}','${ev.id}')"
+        title="${[ev.place,ev.client,who,ev.amount?ev.amount+'円':'',ev.memo].filter(Boolean).join(' / ')}"
+        >${timeLabel}${label}</span>`;
+    });
+ 
+    // 行の高さ（バーの重なり数に応じて）
+    const maxTop = occupied.length ? Math.max(...occupied.map(o=>o.top)) : 7;
+    const rowHeight = Math.max(36, maxTop + 28);
+ 
+    rows += `<div class="tl-row ${cls}" style="min-height:${rowHeight}px">
+      <div class="tl-date" onclick="openAdd('${key}')">
+        <span class="dnum">${d}</span>
+        <span class="dname">${DAYS[dow]}</span>
+      </div>
+      <div class="tl-bar-area" style="min-height:${rowHeight}px">
+        ${bars}
+        <button class="add-btn" onclick="openAdd('${key}')">＋</button>
+      </div>
+    </div>`;
+  }
+  return rows;
+}
+ 
 function render() {
   const y = current.getFullYear(), m = current.getMonth();
   document.getElementById('month-title').textContent = `${y}年${m+1}月`;
   const lastDay = new Date(y, m+1, 0).getDate();
   const now = new Date();
   const todayKey = fmt(now.getFullYear(), now.getMonth(), now.getDate());
-
-  function buildHalf(from, to) {
-    let rows = '';
-    for (let d = from; d <= to; d++) {
-      const date = new Date(y, m, d);
-      const dow = date.getDay();
-      const key = fmt(y, m, d);
-      const isToday = key === todayKey;
-      const cls = (dow===0?'sun':dow===6?'sat':'') + (isToday?' today':'');
-      const dayEvs = events[key] || [];
-      rows += `<tr class="${cls}">`;
-      rows += `<td><span class="dnum">${d}</span><span class="dname">${DAYS[dow]}</span></td>`;
-      rows += `<td><div class="pills">`;
-      dayEvs.forEach(ev => {
-        const tc = TYPE_CLASS[ev.type] || 'type-daily';
-        const time = ev.start ? (ev.end ? `${ev.start}〜${ev.end}` : ev.start) : '';
-        const who = ev.type==='outsource'
-          ? (ev.outsource||'')
-          : (Array.isArray(ev.staff) && ev.staff.filter(Boolean).length ? ev.staff.filter(Boolean).join('・') : '');
-        const label = [time, ev.place, who].filter(Boolean).join(' ');
-        rows += `<span class="pill ${tc}" onclick="openEdit('${key}','${ev.id}')">${label}</span>`;
-      });
-      rows += `<span class="add-pill" onclick="openAdd('${key}')">＋</span>`;
-      rows += `</div></td></tr>`;
-    }
-    return rows;
+ 
+  const hourHeaders = HOURS.map(h => `<div class="tl-hour">${h}:00</div>`).join('');
+ 
+  function buildSection(from, to, label) {
+    return `
+      <div class="section-title">${label}</div>
+      <div class="timeline-wrap">
+        <div class="timeline-grid">
+          <div class="tl-header">
+            <div class="tl-date-col">日付</div>
+            <div class="tl-hours">${hourHeaders}</div>
+          </div>
+          ${buildHalfTimeline(from, to, y, m, todayKey)}
+        </div>
+      </div>`;
   }
-
-  document.getElementById('calendar-wrap').innerHTML = `
-    <div class="section-title">上半期 — 1日〜15日</div>
-    <div class="table-wrap">
-      <table><thead><tr><th>日付</th><th>現場・作業</th></tr></thead>
-      <tbody>${buildHalf(1, 15)}</tbody></table>
-    </div>
-    <div class="section-title" style="margin-top:12px">下半期 — 16日〜${lastDay}日</div>
-    <div class="table-wrap" style="padding-bottom:24px">
-      <table><thead><tr><th>日付</th><th>現場・作業</th></tr></thead>
-      <tbody>${buildHalf(16, lastDay)}</tbody></table>
-    </div>
-  `;
+ 
+  document.getElementById('calendar-wrap').innerHTML =
+    buildSection(1, 15, '上半期 — 1日〜15日') +
+    `<div style="height:12px"></div>` +
+    buildSection(16, lastDay, `下半期 — 16日〜${lastDay}日`) +
+    `<div style="height:24px"></div>`;
 }
-
+ 
 function changeMonth(d) {
   current = new Date(current.getFullYear(), current.getMonth()+d, 1);
   render();
 }
-
+ 
 function buildStaffGrid(selected) {
-  document.getElementById('staff-grid').innerHTML = STAFF.map(s =>
-    `<label class="staff-check"><input type="checkbox" value="${s}"${(selected||[]).includes(s)?' checked':''}> ${s}</label>`
-  ).join('');
+  const sel = Array.isArray(selected) ? selected : [];
+  document.getElementById('staff-grid').innerHTML = STAFF.map(s => {
+    const checked = sel.includes(s) ? ' checked' : '';
+    return `<label class="staff-check"><input type="checkbox" value="${s}"${checked}> ${s}</label>`;
+  }).join('');
 }
-
+ 
 function toggleOutsource() {
   document.getElementById('outsource-row').style.display =
     document.getElementById('f-type').value === 'outsource' ? '' : 'none';
 }
-
+ 
 function openAdd(dateKey) {
   editingId = null; editingDate = dateKey;
   const [,mo,day] = dateKey.split('-');
@@ -278,7 +367,7 @@ function openAdd(dateKey) {
   document.getElementById('overlay').classList.add('open');
   setTimeout(() => document.getElementById('f-place').focus(), 150);
 }
-
+ 
 function openEdit(dateKey, id) {
   const ev = (events[dateKey]||[]).find(e => e.id===id);
   if (!ev) return;
@@ -290,7 +379,7 @@ function openEdit(dateKey, id) {
   document.getElementById('f-type').value = ev.type||'daily';
   document.getElementById('f-outsource').value = ev.outsource||'';
   document.getElementById('outsource-row').style.display = ev.type==='outsource' ? '' : 'none';
-  buildStaffGrid(ev.staff||[]);
+  buildStaffGrid(Array.isArray(ev.staff) ? ev.staff : []);
   document.getElementById('f-start').value = ev.start||'';
   document.getElementById('f-end').value = ev.end||'';
   document.getElementById('f-amount').value = ev.amount||'';
@@ -298,13 +387,14 @@ function openEdit(dateKey, id) {
   document.getElementById('delete-btn').style.display = '';
   document.getElementById('overlay').classList.add('open');
 }
-
+ 
 function closeModal() { document.getElementById('overlay').classList.remove('open'); }
-
+ 
 async function saveEvent() {
   const place = document.getElementById('f-place').value.trim();
   if (!place) { alert('現場名を入力してください'); return; }
-  const staff = [...document.querySelectorAll('#staff-grid input:checked')].map(c => c.value);
+  const checkboxes = document.querySelectorAll('#staff-grid input[type="checkbox"]');
+  const staff = Array.from(checkboxes).filter(c => c.checked).map(c => c.value);
   const ev = {
     id: editingId || Date.now().toString(36) + Math.random().toString(36).slice(2,5),
     date: editingDate,
@@ -318,7 +408,7 @@ async function saveEvent() {
     amount: document.getElementById('f-amount').value.trim(),
     memo: document.getElementById('f-memo').value.trim()
   };
-
+ 
   if (!events[editingDate]) events[editingDate] = [];
   if (editingId) {
     events[editingDate] = events[editingDate].map(e => e.id===editingId ? ev : e);
@@ -326,7 +416,7 @@ async function saveEvent() {
     events[editingDate].push(ev);
   }
   closeModal(); render();
-
+ 
   setSync('loading', '保存中...');
   try {
     await jsonp({ action: 'save', data: ev });
@@ -335,13 +425,13 @@ async function saveEvent() {
     setSync('err', '保存失敗');
   }
 }
-
+ 
 async function deleteEvent() {
   if (!confirm('この予定を削除しますか？')) return;
   events[editingDate] = (events[editingDate]||[]).filter(e => e.id!==editingId);
   if (!events[editingDate].length) delete events[editingDate];
   closeModal(); render();
-
+ 
   setSync('loading', '削除中...');
   try {
     await jsonp({ action: 'delete', data: { id: editingId } });
@@ -350,11 +440,11 @@ async function deleteEvent() {
     setSync('err', '削除失敗');
   }
 }
-
+ 
 document.getElementById('overlay').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
-
+ 
 loadAll();
 </script>
 </body>
