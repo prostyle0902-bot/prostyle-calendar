@@ -20,24 +20,17 @@ header h1{font-size:15px;font-weight:500;letter-spacing:0.05em}
 .legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:#555}
 .legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
 .section-title{font-size:12px;font-weight:600;color:#666;padding:10px 14px 5px;letter-spacing:0.05em}
-
-/* タイムライングリッド */
 .timeline-wrap{overflow-x:auto;padding:0 14px 4px;-webkit-overflow-scrolling:touch}
 .timeline-grid{min-width:900px;background:#fff;border-radius:8px;border:1px solid #e8e8e4;overflow:hidden}
-
-/* ヘッダー行（時間目盛り） */
-.tl-header{display:flex;border-bottom:1px solid #e8e8e4;background:#fafaf8;position:sticky;top:0;z-index:10}
+.tl-header{display:flex;border-bottom:1px solid #e8e8e4;background:#fafaf8}
 .tl-date-col{width:58px;min-width:58px;flex-shrink:0;font-size:10px;color:#aaa;padding:5px 0;border-right:1px solid #e8e8e4;text-align:center}
-.tl-hours{flex:1;display:flex;position:relative}
+.tl-hours{flex:1;display:flex}
 .tl-hour{flex:1;font-size:9px;color:#bbb;text-align:left;padding:5px 0 5px 3px;border-right:0.5px solid #efefef;min-width:0}
 .tl-hour:last-child{border-right:none}
-
-/* 行 */
 .tl-row{display:flex;border-bottom:0.5px solid #f0f0ec;min-height:36px}
 .tl-row:last-child{border-bottom:none}
 .tl-row:hover{background:#fafaf8}
-.tl-row.today{background:#edf5fc}
-.tl-row.today .tl-date{background:#edf5fc}
+.tl-row.today .tl-date{background:#dbeeff}
 .tl-date{width:58px;min-width:58px;flex-shrink:0;border-right:1px solid #e8e8e4;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 0;cursor:pointer;user-select:none}
 .tl-date:hover{background:#f0f0f0}
 .dnum{font-size:13px;font-weight:600;color:#222}
@@ -45,19 +38,7 @@ header h1{font-size:15px;font-weight:500;letter-spacing:0.05em}
 .sun .dname,.sun .dnum{color:#e05555}
 .sat .dname,.sat .dnum{color:#4a90d9}
 .tl-bar-area{flex:1;position:relative;display:flex;align-items:center;min-height:36px}
-
-/* グリッド線 */
-.tl-bar-area::before{
-  content:'';position:absolute;inset:0;
-  background-image:repeating-linear-gradient(
-    to right,
-    transparent,transparent calc((100% / 18) - 0.5px),
-    #f0f0ec calc((100% / 18) - 0.5px),#f0f0ec calc(100% / 18)
-  );
-  pointer-events:none;
-}
-
-/* バー */
+.tl-bar-area::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(to right,transparent,transparent calc((100% / 18) - 0.5px),#f0f0ec calc((100% / 18) - 0.5px),#f0f0ec calc(100% / 18));pointer-events:none}
 .ev-bar{position:absolute;height:22px;border-radius:4px;cursor:pointer;display:flex;align-items:center;padding:0 6px;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2;transition:opacity 0.15s}
 .ev-bar:hover{opacity:0.8}
 .type-daily{background:#C0DD97;color:#27500A}
@@ -66,15 +47,10 @@ header h1{font-size:15px;font-weight:500;letter-spacing:0.05em}
 .type-outsource{background:#F4C0D1;color:#72243E}
 .add-btn{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:1px dashed #ccc;border-radius:4px;color:#bbb;font-size:11px;padding:1px 6px;cursor:pointer;z-index:3;white-space:nowrap}
 .add-btn:hover{color:#555;border-color:#aaa;background:#f5f5f0}
-
-/* モーダル */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:flex-end;justify-content:center}
 .overlay.open{display:flex}
 .modal{background:#fff;border-radius:14px 14px 0 0;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding:20px 20px 32px}
-@media(min-width:520px){
-  .overlay{align-items:center;padding:16px}
-  .modal{border-radius:14px;max-height:88vh}
-}
+@media(min-width:520px){.overlay{align-items:center;padding:16px}.modal{border-radius:14px;max-height:88vh}}
 .modal-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 16px}
 .modal h3{font-size:15px;font-weight:600;margin-bottom:16px;color:#1a1a1a}
 .form-row{margin-bottom:12px}
@@ -147,9 +123,9 @@ header h1{font-size:15px;font-weight:500;letter-spacing:0.05em}
     </div>
     <div class="form-row"><label>時間</label>
       <div class="time-row">
-        <input id="f-start" type="time" min="06:00" max="24:00">
+        <input id="f-start" type="time">
         <span class="time-sep">〜</span>
-        <input id="f-end" type="time" min="06:00" max="24:00">
+        <input id="f-end" type="time">
       </div>
     </div>
     <div class="form-row"><label>請負金額（円）</label><input id="f-amount" type="number" placeholder="例：45000"></div>
@@ -164,12 +140,10 @@ header h1{font-size:15px;font-weight:500;letter-spacing:0.05em}
 
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbwV_UNDYqwlGhMeoEQiasU348YX_UEKXys7E0TkZaOMfrcXtTx6-JIisyLVMCW2yj3g/exec';
-const STAFF = ['平野健雄','安藤正樹','伏田幸枝','小林俊樹','石毛貴英','池田久史','三浦達弥','飯田怜飛','飯田栄'];
+const STAFF = ['平野健雄','安藤正樹','伏田幸枝','小林俊樹','石毛貴英','池田久史','三浦達弥','飯田怜飛','飯田栄','SIBS','SUN-X','川口'];
 const DAYS = ['日','月','火','水','木','金','土'];
 const TYPE_CLASS = {daily:'type-daily',regular:'type-regular',bird:'type-bird',outsource:'type-outsource'};
-const HOUR_START = 6;   // 6:00
-const HOUR_END   = 24;  // 24:00
-const TOTAL_HOURS = HOUR_END - HOUR_START; // 18時間
+const HOUR_START = 6, HOUR_END = 24, TOTAL_HOURS = 18;
 const HOURS = Array.from({length: TOTAL_HOURS}, (_,i) => HOUR_START + i);
 
 let current = new Date();
@@ -186,7 +160,7 @@ function setSync(s, l) {
 function jsonp(params) {
   return new Promise((resolve, reject) => {
     const cbName = '_cb' + (++cbCount);
-    const timeout = setTimeout(() => { delete window[cbName]; reject(new Error('timeout')); }, 20000);
+    const timeout = setTimeout(() => { delete window[cbName]; reject(new Error('timeout')); }, 25000);
     window[cbName] = (data) => {
       clearTimeout(timeout);
       delete window[cbName];
@@ -204,8 +178,9 @@ function jsonp(params) {
   });
 }
 
-async function loadAll() {
-  setSync('loading', '読み込み中...');
+// スプレッドシートから全データ取得して画面を更新
+async function loadAll(showLoading) {
+  if (showLoading !== false) setSync('loading', '読み込み中...');
   try {
     const data = await jsonp({ action: 'getAll' });
     events = data || {};
@@ -213,8 +188,10 @@ async function loadAll() {
     render();
   } catch(e) {
     setSync('err', '読み込み失敗');
-    document.getElementById('calendar-wrap').innerHTML =
-      '<div class="err-msg">データの読み込みに失敗しました。<br>ページを再読み込みしてください。</div>';
+    if (!Object.keys(events).length) {
+      document.getElementById('calendar-wrap').innerHTML =
+        '<div class="err-msg">データの読み込みに失敗しました。<br>ページを再読み込みしてください。</div>';
+    }
   }
 }
 
@@ -222,17 +199,14 @@ function fmt(y, m, d) {
   return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
 }
 
-// 時刻文字列 "HH:MM" → 小数時間
 function timeToHour(t) {
   if (!t) return null;
   const [h, mi] = t.split(':').map(Number);
   return h + mi / 60;
 }
 
-// 時間 → パーセント位置
 function hourToPct(h) {
-  const clamped = Math.max(HOUR_START, Math.min(HOUR_END, h));
-  return ((clamped - HOUR_START) / TOTAL_HOURS) * 100;
+  return ((Math.max(HOUR_START, Math.min(HOUR_END, h)) - HOUR_START) / TOTAL_HOURS) * 100;
 }
 
 function buildHalfTimeline(from, to, y, m, todayKey) {
@@ -243,13 +217,11 @@ function buildHalfTimeline(from, to, y, m, todayKey) {
     const key = fmt(y, m, d);
     const isToday = key === todayKey;
     const isSun = dow === 0, isSat = dow === 6;
-    const cls = (isSun ? 'sun' : isSat ? 'sat' : '') + (isToday ? ' today' : '');
+    const cls = (isSun?'sun':isSat?'sat':'') + (isToday?' today':'');
     const dayEvs = events[key] || [];
 
-    // バーHTML生成
     let bars = '';
-    // 複数バーが重ならないようにtop位置を調整
-    let occupied = []; // [{left,right,top}]
+    let occupied = [];
     dayEvs.forEach(ev => {
       const tc = TYPE_CLASS[ev.type] || 'type-daily';
       const sh = timeToHour(ev.start);
@@ -258,6 +230,7 @@ function buildHalfTimeline(from, to, y, m, todayKey) {
         ? (ev.outsource || '')
         : (Array.isArray(ev.staff) ? ev.staff.filter(Boolean).join('・') : '');
       const label = [ev.place, who].filter(Boolean).join(' ');
+      const timeLabel = ev.start ? (ev.end ? `${ev.start}〜${ev.end} ` : `${ev.start} `) : '';
 
       let leftPct, widthPct;
       if (sh !== null && eh !== null && eh > sh) {
@@ -265,30 +238,24 @@ function buildHalfTimeline(from, to, y, m, todayKey) {
         widthPct = hourToPct(eh) - leftPct;
       } else if (sh !== null) {
         leftPct = hourToPct(sh);
-        widthPct = (100 / TOTAL_HOURS) * 1; // 1時間幅
+        widthPct = (100 / TOTAL_HOURS);
       } else {
         leftPct = 0;
         widthPct = 20;
       }
 
-      // 重なり検出して上下にずらす
       let topPx = 7;
       for (const o of occupied) {
-        if (leftPct < o.right && leftPct + widthPct > o.left) {
-          topPx = o.top + 24;
-        }
+        if (leftPct < o.right && leftPct + widthPct > o.left) topPx = o.top + 24;
       }
       occupied.push({ left: leftPct, right: leftPct + widthPct, top: topPx });
 
-      const timeLabel = ev.start ? (ev.end ? `${ev.start}〜${ev.end} ` : `${ev.start} `) : '';
       bars += `<span class="ev-bar ${tc}"
         style="left:${leftPct.toFixed(2)}%;width:${widthPct.toFixed(2)}%;top:${topPx}px"
         onclick="openEdit('${key}','${ev.id}')"
-        title="${[ev.place,ev.client,who,ev.amount?ev.amount+'円':'',ev.memo].filter(Boolean).join(' / ')}"
         >${timeLabel}${label}</span>`;
     });
 
-    // 行の高さ（バーの重なり数に応じて）
     const maxTop = occupied.length ? Math.max(...occupied.map(o=>o.top)) : 7;
     const rowHeight = Math.max(36, maxTop + 28);
 
@@ -312,7 +279,6 @@ function render() {
   const lastDay = new Date(y, m+1, 0).getDate();
   const now = new Date();
   const todayKey = fmt(now.getFullYear(), now.getMonth(), now.getDate());
-
   const hourHeaders = HOURS.map(h => `<div class="tl-hour">${h}:00</div>`).join('');
 
   function buildSection(from, to, label) {
@@ -331,22 +297,21 @@ function render() {
 
   document.getElementById('calendar-wrap').innerHTML =
     buildSection(1, 15, '上半期 — 1日〜15日') +
-    `<div style="height:12px"></div>` +
+    '<div style="height:12px"></div>' +
     buildSection(16, lastDay, `下半期 — 16日〜${lastDay}日`) +
-    `<div style="height:24px"></div>`;
+    '<div style="height:24px"></div>';
 }
 
 function changeMonth(d) {
   current = new Date(current.getFullYear(), current.getMonth()+d, 1);
-  render();
+  loadAll(); // 月移動時も最新データを取得
 }
 
 function buildStaffGrid(selected) {
   const sel = Array.isArray(selected) ? selected : [];
-  document.getElementById('staff-grid').innerHTML = STAFF.map(s => {
-    const checked = sel.includes(s) ? ' checked' : '';
-    return `<label class="staff-check"><input type="checkbox" value="${s}"${checked}> ${s}</label>`;
-  }).join('');
+  document.getElementById('staff-grid').innerHTML = STAFF.map(s =>
+    `<label class="staff-check"><input type="checkbox" value="${s}"${sel.includes(s)?' checked':''}> ${s}</label>`
+  ).join('');
 }
 
 function toggleOutsource() {
@@ -393,8 +358,8 @@ function closeModal() { document.getElementById('overlay').classList.remove('ope
 async function saveEvent() {
   const place = document.getElementById('f-place').value.trim();
   if (!place) { alert('現場名を入力してください'); return; }
-  const checkboxes = document.querySelectorAll('#staff-grid input[type="checkbox"]');
-  const staff = Array.from(checkboxes).filter(c => c.checked).map(c => c.value);
+  const staff = Array.from(document.querySelectorAll('#staff-grid input[type="checkbox"]'))
+    .filter(c => c.checked).map(c => c.value);
   const ev = {
     id: editingId || Date.now().toString(36) + Math.random().toString(36).slice(2,5),
     date: editingDate,
@@ -409,32 +374,27 @@ async function saveEvent() {
     memo: document.getElementById('f-memo').value.trim()
   };
 
-  if (!events[editingDate]) events[editingDate] = [];
-  if (editingId) {
-    events[editingDate] = events[editingDate].map(e => e.id===editingId ? ev : e);
-  } else {
-    events[editingDate].push(ev);
-  }
-  closeModal(); render();
-
+  closeModal();
   setSync('loading', '保存中...');
   try {
     await jsonp({ action: 'save', data: ev });
+    // 保存後はサーバーから最新データを取得して画面を更新
+    await loadAll(false);
     setSync('ok', '保存済み');
   } catch(e) {
-    setSync('err', '保存失敗');
+    setSync('err', '保存失敗 — 再読み込みしてください');
   }
 }
 
 async function deleteEvent() {
   if (!confirm('この予定を削除しますか？')) return;
-  events[editingDate] = (events[editingDate]||[]).filter(e => e.id!==editingId);
-  if (!events[editingDate].length) delete events[editingDate];
-  closeModal(); render();
-
+  const delId = editingId;
+  closeModal();
   setSync('loading', '削除中...');
   try {
-    await jsonp({ action: 'delete', data: { id: editingId } });
+    await jsonp({ action: 'delete', data: { id: delId } });
+    // 削除後もサーバーから最新データを取得
+    await loadAll(false);
     setSync('ok', '削除済み');
   } catch(e) {
     setSync('err', '削除失敗');
@@ -445,6 +405,7 @@ document.getElementById('overlay').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
 
+// ページを開くたびに最新データを取得
 loadAll();
 </script>
 </body>
