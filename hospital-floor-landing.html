@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>病院・介護施設向け 床再生サービス | Prostyle株式会社</title>
+
+  <style>
+    :root {
+      --navy: #071b2c;
+      --deep: #0b2f3a;
+      --green: #2f7d68;
+      --mint: #e8f4f0;
+      --gold: #c9a45c;
+      --white: #ffffff;
+      --gray: #f5f7f8;
+      --text: #1f2933;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Hiragino Sans", "Noto Sans JP", sans-serif;
+      color: var(--text);
+      line-height: 1.8;
+      background: var(--white);
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(1120px, 92%);
+      margin: 0 auto;
+    }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      min-height: 92vh;
+      background:
+        linear-gradient(120deg, rgba(7,27,44,.94), rgba(11,47,58,.76)),
+        url("images/floor-after.jpg") center/cover no-repeat;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 520px;
+      height: 520px;
+      right: -160px;
+      bottom: -160px;
+      background: radial-gradient(circle, rgba(201,164,92,.35), transparent 65%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 760px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 8px 18px;
+      border: 1px solid rgba(255,255,255,.4);
+      border-radius: 999px;
+      font-size: 14px;
+      letter-spacing: .08em;
+      margin-bottom: 26px;
+      color: #dbeafe;
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 6vw, 72px);
+      line-height: 1.15;
+      letter-spacing: .04em;
+      margin-bottom: 28px;
+    }
+
+    .hero h1 span {
+      color: var(--gold);
+    }
+
+    .hero p {
+      font-size: clamp(17px, 2vw, 22px);
+      max-width: 680px;
+      margin-bottom: 38px;
+      color: #e5edf2;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 30px;
+      border-radius: 999px;
+      font-weight: 700;
+      transition: .25s;
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      color: var(--navy);
+      box-shadow: 0 14px 30px rgba(201,164,92,.35);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 40px rgba(201,164,92,.45);
+    }
+
+    .btn-outline {
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,.5);
+    }
+
+    .btn-outline:hover {
+      background: rgba(255,255,255,.12);
+    }
+
+    /* COMMON */
+    section {
+      padding: 96px 0;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .section-title .en {
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .18em;
+      margin-bottom: 10px;
+    }
+
+    .section-title h2 {
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.35;
+      color: var(--navy);
+    }
+
+    .section-title p {
+      margin-top: 18px;
+      color: #667085;
+    }
+
+    /* PROBLEM */
+    .problem {
+      background: var(--gray);
+    }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+
+    .problem-card {
+      background: var(--white);
+      padding: 30px;
+      border-radius: 22px;
+      box-shadow: 0 14px 40px rgba(7,27,44,.08);
+      border-top: 4px solid var(--green);
+    }
+
+    .problem-card strong {
+      display: block;
+      font-size: 19px;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+
+    /* BEFORE AFTER */
+    .before-after {
+      background: var(--white);
+    }
+
+    .ba-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .ba-card {
+      border-radius: 28px;
+      overflow: hidden;
+      background: var(--navy);
+      color: var(--white);
+      box-shadow: 0 20px 50px rgba(7,27,44,.18);
+    }
+
+    .ba-card img {
+      height: 360px;
+      width: 100%;
+      object-fit: cover;
+    }
+
+    .ba-body {
+      padding: 28px;
+    }
+
+    .ba-label {
+      display: inline-block;
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .before .ba-label {
+      background: #3b3b3b;
+    }
+
+    .after .ba-label {
+      background: var(--green);
+    }
+
+    .ba-body h3 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    /* SYSTEM */
+    .system {
+      background:
+        linear-gradient(180deg, #ffffff 0%, #e8f4f0 100%);
+    }
+
+    .system-wrap {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .system-image {
+      position: relative;
+      border-radius: 32px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(7,27,44,.2);
+    }
+
+    .system-image img {
+      height: 560px;
+      width: 100%;
+      object-fit: cover;
+    }
+
+    .system-text h2 {
+      font-size: clamp(30px, 4vw, 48px);
+      color: var(--navy);
+      line-height: 1.35;
+      margin-bottom: 24px;
+    }
+
+    .system-text h2 span {
+      color: var(--green);
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 18px;
+      margin-top: 30px;
+    }
+
+    .feature {
+      display: grid;
+      grid-template-columns: 54px 1fr;
+      gap: 18px;
+      align-items: start;
+      background: rgba(255,255,255,.8);
+      padding: 22px;
+      border-radius: 20px;
+      box-shadow: 0 10px 28px rgba(7,27,44,.07);
+    }
+
+    .num {
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      background: var(--navy);
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 20px;
+    }
+
+    .feature h3 {
+      color: var(--navy);
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+
+    /* REASON */
+    .reason {
+      background: var(--navy);
+      color: var(--white);
+    }
+
+    .reason .section-title h2 {
+      color: var(--white);
+    }
+
+    .reason .section-title p {
+      color: #cbd5e1;
+    }
+
+    .reason-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .reason-card {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+      padding: 34px;
+      border-radius: 26px;
+      backdrop-filter: blur(12px);
+    }
+
+    .reason-card h3 {
+      font-size: 22px;
+      margin-bottom: 14px;
+      color: var(--gold);
+    }
+
+    /* FLOW */
+    .flow {
+      background: var(--white);
+    }
+
+    .flow-list {
+      display: grid;
+      gap: 16px;
+      max-width: 880px;
+      margin: 0 auto;
+    }
+
+    .flow-item {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 22px;
+      padding: 26px;
+      border-radius: 22px;
+      background: var(--gray);
+      align-items: center;
+    }
+
+    .flow-step {
+      font-weight: 900;
+      color: var(--green);
+      letter-spacing: .08em;
+    }
+
+    .flow-item h3 {
+      color: var(--navy);
+      font-size: 22px;
+    }
+
+    /* CTA */
+    .final-cta {
+      background:
+        linear-gradient(120deg, rgba(7,27,44,.95), rgba(47,125,104,.86)),
+        url("images/floor-before.jpg") center/cover no-repeat;
+      color: var(--white);
+      text-align: center;
+      padding: 100px 0;
+    }
+
+    .final-cta h2 {
+      font-size: clamp(30px, 5vw, 54px);
+      line-height: 1.35;
+      margin-bottom: 20px;
+    }
+
+    .final-cta p {
+      max-width: 720px;
+      margin: 0 auto 34px;
+      color: #e5edf2;
+      font-size: 18px;
+    }
+
+    footer {
+      background: #03111d;
+      color: #94a3b8;
+      text-align: center;
+      padding: 28px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .problem-grid,
+      .ba-grid,
+      .system-wrap,
+      .reason-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: 86vh;
+      }
+
+      .system-image img,
+      .ba-card img {
+        height: 300px;
+      }
+
+      .flow-item {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <section class="hero">
+    <div class="container hero-content">
+      <div class="badge">Hospital Floor Maintenance</div>
+      <h1>
+        病院の床を、<br>
+        <span>清潔感が続く床</span>へ。
+      </h1>
+      <p>
+        リノリウム床の黒ずみ・ワックスの蓄積・ムラを剥離洗浄でリセット。
+        ウルトラフロアケアシステムにより、美観・衛生・維持コストをまとめて改善します。
+      </p>
+      <div class="cta-row">
+        <a href="#contact" class="btn btn-primary">無料現地診断を依頼する</a>
+        <a href="#beforeafter" class="btn btn-outline">施工事例を見る</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="problem">
+    <div class="container">
+      <div class="section-title">
+        <div class="en">PROBLEM</div>
+        <h2>こんな床のお悩み、ありませんか？</h2>
+        <p>病院・介護施設の床は、施設の印象と衛生管理に直結します。</p>
+      </div>
+
+      <div class="problem-grid">
+        <div class="problem-card">
+          <strong>黒ずみが取れない</strong>
+          日常清掃では落としきれない汚れが蓄積している。
+        </div>
+        <div class="problem-card">
+          <strong>ワックスのムラが目立つ</strong>
+          光沢に差が出て、古く見えてしまう。
+        </div>
+        <div class="problem-card">
+          <strong>剥離コストが高い</strong>
+          定期的な剥離・再ワックスの負担が大きい。
+        </div>
+        <div class="problem-card">
+          <strong>清潔感が伝わらない</strong>
+          患者様やご家族への印象が気になる。
+        </div>
+        <div class="problem-card">
+          <strong>スタッフの清掃負担が大きい</strong>
+          汚れが付きやすく、日常管理に手間がかかる。
+        </div>
+        <div class="problem-card">
+          <strong>長期的な管理方法がない</strong>
+          その場しのぎの清掃になってしまっている。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="before-after" id="beforeafter">
+    <div class="container">
+      <div class="section-title">
+        <div class="en">BEFORE / AFTER</div>
+        <h2>黒ずんだ床を、本来の美しさへ。</h2>
+        <p>蓄積したワックス・汚れを剥離し、床材本来の色味と清潔感を復元します。</p>
+      </div>
+
+      <div class="ba-grid">
+        <div class="ba-card before">
+          <img src="images/floor-before.jpg" alt="施工前のリノリウム床">
+          <div class="ba-body">
+            <span class="ba-label">BEFORE</span>
+            <h3>ワックス蓄積による黒ずみ</h3>
+            <p>歩行頻度の高い箇所を中心に、黒ずみやムラが目立つ状態でした。</p>
+          </div>
+        </div>
+
+        <div class="ba-card after">
+          <img src="images/floor-after.jpg" alt="施工後のリノリウム床">
+          <div class="ba-body">
+            <span class="ba-label">AFTER</span>
+            <h3>明るく清潔感のある床へ</h3>
+            <p>剥離洗浄により、本来の落ち着いたグリーンの床色が復元されました。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="system">
+    <div class="container system-wrap">
+      <div class="system-image">
+        <img src="images/floor-gloss.jpg" alt="ウルトラフロアケアシステム施工後の床">
+      </div>
+
+      <div class="system-text">
+        <h2>
+          従来のワックス管理から、<br>
+          <span>次世代型床管理</span>へ。
+        </h2>
+        <p>
+          ウルトラフロアケアシステムは、単に光沢を出すだけではありません。
+          耐久性・衛生性・清掃効率を高め、病院や介護施設に適した床管理を実現します。
+        </p>
+
+        <div class="feature-list">
+          <div class="feature">
+            <div class="num">01</div>
+            <div>
+              <h3>高耐久被膜</h3>
+              <p>高頻度歩行エリアでも、美観を長期間維持しやすくなります。</p>
+            </div>
+          </div>
+
+          <div class="feature">
+            <div class="num">02</div>
+            <div>
+              <h3>清掃効率アップ</h3>
+              <p>汚れが固着しにくく、日常清掃の負担軽減につながります。</p>
+            </div>
+          </div>
+
+          <div class="feature">
+            <div class="num">03</div>
+            <div>
+              <h3>衛生環境の向上</h3>
+              <p>清潔感ある床を維持しやすく、医療・福祉施設に最適です。</p>
+            </div>
+          </div>
+
+          <div class="feature">
+            <div class="num">04</div>
+            <div>
+              <h3>維持コストの最適化</h3>
+              <p>剥離回数の削減により、長期的な管理コストを抑えます。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="reason">
+    <div class="container">
+      <div class="section-title">
+        <div class="en">WHY CHOOSE US</div>
+        <h2>病院・介護施設に選ばれる理由</h2>
+        <p>美観だけでなく、施設運営の視点で床管理をご提案します。</p>
+      </div>
+
+      <div class="reason-grid">
+        <div class="reason-card">
+          <h3>01 清潔感が信頼につながる</h3>
+          <p>患者様やご家族は、床の印象から施設全体の清潔感を感じ取ります。</p>
+        </div>
+
+        <div class="reason-card">
+          <h3>02 夜間・休日施工も相談可能</h3>
+          <p>病院運営に支障が出にくいよう、現場状況に合わせた施工計画をご提案します。</p>
+        </div>
+
+        <div class="reason-card">
+          <h3>03 コスト改善まで考える</h3>
+          <p>その場限りの清掃ではなく、長期的な維持管理コストまで見据えます。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="flow">
+    <div class="container">
+      <div class="section-title">
+        <div class="en">FLOW</div>
+        <h2>施工の流れ</h2>
+      </div>
+
+      <div class="flow-list">
+        <div class="flow-item">
+          <div class="flow-step">STEP 01</div>
+          <div>
+            <h3>現地調査・床材確認</h3>
+            <p>床材の状態、汚れ、ワックスの蓄積具合を確認します。</p>
+          </div>
+        </div>
+
+        <div class="flow-item">
+          <div class="flow-step">STEP 02</div>
+          <div>
+            <h3>既存ワックスの剥離洗浄</h3>
+            <p>床材に配慮しながら、古い被膜と蓄積汚れを除去します。</p>
+          </div>
+        </div>
+
+        <div class="flow-item">
+          <div class="flow-step">STEP 03</div>
+          <div>
+            <h3>床面の復元洗浄</h3>
+            <p>床本来の色味と質感を引き出します。</p>
+          </div>
+        </div>
+
+        <div class="flow-item">
+          <div class="flow-step">STEP 04</div>
+          <div>
+            <h3>ウルトラフロアケアシステム施工</h3>
+            <p>高耐久で管理しやすい床へ仕上げます。</p>
+          </div>
+        </div>
+
+        <div class="flow-item">
+          <div class="flow-step">STEP 05</div>
+          <div>
+            <h3>維持管理プランのご提案</h3>
+            <p>施設に合わせた日常清掃・定期メンテナンスをご提案します。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="final-cta" id="contact">
+    <div class="container">
+      <h2>床が変わると、<br>施設の印象が変わる。</h2>
+      <p>
+        病院・介護施設・クリニックの床管理でお悩みの方へ。
+        剥離洗浄から長期維持管理まで、Prostyle株式会社が最適な方法をご提案します。
+      </p>
+
+      <div class="cta-row" style="justify-content:center;">
+        <a href="tel:0000000000" class="btn btn-primary">電話で相談する</a>
+        <a href="mailto:info@example.com" class="btn btn-outline">メールで問い合わせる</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    © Prostyle株式会社 All Rights Reserved.
+  </footer>
+
+</body>
+</html>
