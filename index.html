@@ -141,12 +141,7 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
   <button class="nav-btn" onclick="changeMonth(1)">次月 ›</button>
 </div>
 
-<!-- 残り休日カウンター -->
-<div class="holiday-counter">
-  <div class="holiday-counter-title">残り休日数（〆期間）</div>
-  <div class="holiday-counter-period" id="period-label"></div>
-  <div class="holiday-chips" id="holiday-chips"></div>
-</div>
+<!-- 残り休日カウンター（上半期・下半期に分けてJSで描画） -->
 
 <div class="legend">
   <div class="legend-item"><div class="legend-dot" style="background:#C0DD97"></div>日常清掃</div>
@@ -280,11 +275,20 @@ function fmt(y, m, d) {
 }
 
 // 〆期間（16日〜翌月15日）を計算
-function getPeriod(y, m) {
-  // 表示中の月の16日〜翌月15日
-  const start = fmt(y, m, 16);
+// 上半期（1〜15日）の〆期間：前月16日〜当月15日
+function getPeriodFirst(y, m) {
+  const prevM = m === 0 ? 11 : m - 1;
+  const prevY = m === 0 ? y - 1 : y;
+  const start = fmt(prevY, prevM, 16);
+  const end = fmt(y, m, 15);
+  return { start, end, startY: prevY, startM: prevM, endY: y, endM: m };
+}
+
+// 下半期（16〜末日）の〆期間：当月16日〜翌月15日
+function getPeriodSecond(y, m) {
   const nextM = m === 11 ? 0 : m + 1;
   const nextY = m === 11 ? y + 1 : y;
+  const start = fmt(y, m, 16);
   const end = fmt(nextY, nextM, 15);
   return { start, end, startY: y, startM: m, endY: nextY, endM: nextM };
 }
@@ -303,15 +307,9 @@ function countHolidaysInPeriod(period) {
   return counts;
 }
 
-function renderHolidayCounter() {
-  const y = current.getFullYear(), m = current.getMonth();
-  const period = getPeriod(y, m);
+function makeChips(period) {
   const counts = countHolidaysInPeriod(period);
-
-  document.getElementById('period-label').textContent =
-    `${period.startY}年${period.startM+1}月16日 〜 ${period.endY}年${period.endM+1}月15日`;
-
-  const chips = STAFF_HOLIDAY.map(s => {
+  return STAFF_HOLIDAY.map(s => {
     const used = counts[s] || 0;
     const remain = MAX_HOLIDAYS - used;
     const cls = remain > 0 ? '' : ' ok';
@@ -320,7 +318,22 @@ function renderHolidayCounter() {
       <span class="chip-count${cls}">残${remain}日</span>
     </div>`;
   }).join('');
-  document.getElementById('holiday-chips').innerHTML = chips;
+}
+
+function renderHolidayCounter() {
+  const y = current.getFullYear(), m = current.getMonth();
+
+  // 上半期：前月16日〜当月15日
+  const p1 = getPeriodFirst(y, m);
+  const label1 = `${p1.startY}年${p1.startM+1}月16日 〜 ${p1.endY}年${p1.endM+1}月15日`;
+  document.getElementById('period-label-first').textContent = label1;
+  document.getElementById('holiday-chips-first').innerHTML = makeChips(p1);
+
+  // 下半期：当月16日〜翌月15日
+  const p2 = getPeriodSecond(y, m);
+  const label2 = `${p2.startY}年${p2.startM+1}月16日 〜 ${p2.endY}年${p2.endM+1}月15日`;
+  document.getElementById('period-label-second').textContent = label2;
+  document.getElementById('holiday-chips-second').innerHTML = makeChips(p2);
 }
 
 function timeToHour(t) {
@@ -406,8 +419,15 @@ function render() {
   const todayKey = fmt(now.getFullYear(), now.getMonth(), now.getDate());
   const hourHeaders = HOURS.map(h => `<div class="tl-hour">${h}:00</div>`).join('');
 
-  function buildSection(from, to, label) {
+  function buildSection(from, to, label, counterId) {
+    const counterHtml = `
+      <div class="holiday-counter">
+        <div class="holiday-counter-title">残り休日数（〆期間）</div>
+        <div class="holiday-counter-period" id="period-label-${counterId}"></div>
+        <div class="holiday-chips" id="holiday-chips-${counterId}"></div>
+      </div>`;
     return `
+      ${counterHtml}
       <div class="section-title">${label}</div>
       <div class="timeline-wrap">
         <div class="timeline-grid">
@@ -421,9 +441,9 @@ function render() {
   }
 
   document.getElementById('calendar-wrap').innerHTML =
-    buildSection(1, 15, '上半期 — 1日〜15日') +
+    buildSection(1, 15, '上半期 — 1日〜15日', 'first') +
     '<div style="height:12px"></div>' +
-    buildSection(16, lastDay, `下半期 — 16日〜${lastDay}日`) +
+    buildSection(16, lastDay, `下半期 — 16日〜${lastDay}日`, 'second') +
     '<div style="height:24px"></div>';
 
   renderHolidayCounter();
