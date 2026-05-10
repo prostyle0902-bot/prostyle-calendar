@@ -68,6 +68,7 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 .tl-holiday-row{display:flex;flex-wrap:wrap;gap:3px;padding:2px 6px 3px;border-top:0.5px solid #f8f0f0;min-height:0}
 .tl-holiday-row:empty{display:none}
 .holiday-tag{font-size:11px;padding:2px 7px;border-radius:3px;background:#fee2e2;color:#b91c1c;cursor:pointer;white-space:nowrap}
+.free-tag{font-size:11px;padding:2px 7px;border-radius:3px;background:#e8f4fd;color:#1a5fa8;white-space:nowrap}
 .holiday-tag:hover{background:#fecaca}
 
 /* モーダル */
@@ -392,6 +393,18 @@ function buildHalfTimeline(from, to, y, m, todayKey) {
       `<span class="holiday-tag" onclick="openHolidayModal('${key}')" title="クリックで編集">${s}</span>`
     ).join('');
 
+    // その日の現場に入っているスタッフを収集
+    const assignedStaff = new Set();
+    dayEvs.forEach(ev => {
+      if (Array.isArray(ev.staff)) ev.staff.filter(Boolean).forEach(s => assignedStaff.add(s));
+    });
+
+    // 休みでも現場にも入っていないSTAFF_HOLIDAYの5名 → 手空き
+    const freeTags = STAFF_HOLIDAY
+      .filter(s => !dayHols.includes(s) && !assignedStaff.has(s))
+      .map(s => `<span class="free-tag">${s}</span>`)
+      .join('');
+
     rows += `<div class="tl-row ${cls}">
       <div class="tl-date" onclick="openAdd('${key}')">
         <span class="dnum">${d}</span><span class="dname">${DAYS[dow]}</span>
@@ -403,6 +416,7 @@ function buildHalfTimeline(from, to, y, m, todayKey) {
         </div>
         <div class="tl-holiday-row" id="hrow-${key}">
           ${holidayTags}
+          ${freeTags}
           <span class="holiday-tag" style="background:#f5f5f0;color:#bbb;border:1px dashed #ddd" onclick="openHolidayModal('${key}')">＋ 休み</span>
         </div>
       </div>
