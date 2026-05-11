@@ -48,6 +48,7 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 .tl-date:hover{background:#f0f0f0}
 .dnum{font-size:15px;font-weight:600;color:#222}
 .dname{font-size:12px;color:#999}
+.holiday-jp{font-size:10px;color:#e05555;font-weight:600;display:block}
 .sun .dname,.sun .dnum{color:#e05555}
 .sat .dname,.sat .dnum{color:#4a90d9}
 
@@ -211,6 +212,25 @@ const STAFF_OWN = ['平野健雄','安藤正樹','伏田幸枝','小林俊樹','
 const STAFF_HOLIDAY = ['平野健雄','安藤正樹','伏田幸枝','小林俊樹','石毛貴英']; // 休日管理対象
 const STAFF_OUT = ['SUN-X','SIBS','One by One','増田（伸和洗浄）','ロープワーク','RISE','ミノアカ','小池','サンクトラスト'];
 const DAYS = ['日','月','火','水','木','金','土'];
+
+// 日本の祝日（2025〜2027年）
+const HOLIDAYS_JP = new Set([
+  // 2025年
+  '2025-01-01','2025-01-13','2025-02-11','2025-02-23','2025-02-24',
+  '2025-03-20','2025-04-29','2025-05-03','2025-05-04','2025-05-05','2025-05-06',
+  '2025-07-21','2025-08-11','2025-09-15','2025-09-22','2025-09-23',
+  '2025-10-13','2025-11-03','2025-11-23','2025-11-24',
+  // 2026年
+  '2026-01-01','2026-01-12','2026-02-11','2026-02-23',
+  '2026-03-20','2026-04-29','2026-05-03','2026-05-04','2026-05-05','2026-05-06',
+  '2026-07-20','2026-08-11','2026-09-21','2026-09-22','2026-09-23',
+  '2026-10-12','2026-11-03','2026-11-23',
+  // 2027年
+  '2027-01-01','2027-01-11','2027-02-11','2027-02-23',
+  '2027-03-21','2027-03-22','2027-04-29','2027-05-03','2027-05-04','2027-05-05',
+  '2027-07-19','2027-08-11','2027-09-20','2027-09-23',
+  '2027-10-11','2027-11-03','2027-11-23',
+]);
 const TYPE_CLASS = {daily:'type-daily',regular:'type-regular',bird:'type-bird',outsource:'type-outsource'};
 const HOUR_START = 6, HOUR_END = 24, TOTAL_HOURS = 18;
 const HOURS = Array.from({length: TOTAL_HOURS}, (_,i) => HOUR_START + i);
@@ -405,9 +425,13 @@ function buildHalfTimeline(from, to, y, m, todayKey) {
       .map(s => `<span class="free-tag">${s}</span>`)
       .join('');
 
-    rows += `<div class="tl-row ${cls}">
+    const isHolidayJp = HOLIDAYS_JP.has(key);
+    const holidayJpTag = isHolidayJp ? `<span class="holiday-jp">祝</span>` : '';
+    const rowCls = cls + (isHolidayJp ? ' holiday-jp-row' : '');
+
+    rows += `<div class="tl-row ${rowCls}">
       <div class="tl-date" onclick="openAdd('${key}')">
-        <span class="dnum">${d}</span><span class="dname">${DAYS[dow]}</span>
+        <span class="dnum" style="${isHolidayJp?'color:#e05555':''}">${d}</span><span class="dname">${DAYS[dow]}</span>${holidayJpTag}
       </div>
       <div class="tl-right">
         <div class="tl-bar-area" style="min-height:${barHeight}px">
