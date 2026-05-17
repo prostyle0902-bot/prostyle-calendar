@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>">
+link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -384,7 +384,7 @@ function buildHalfTimeline(from, to, y, m, todayKey) {
 
     let bars = '';
     let occupied = [];
-    dayEvs.forEach(ev => {
+    dayEvs.filter(ev => ev.type !== 'outsource').forEach(ev => {
       const tc = TYPE_CLASS[ev.type] || 'type-daily';
       const sh = timeToHour(ev.start);
       const eh = timeToHour(ev.end);
