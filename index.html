@@ -17,92 +17,60 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 .nav-btn{background:none;border:1px solid #ccc;border-radius:6px;padding:7px 16px;cursor:pointer;font-size:15px;color:#333}
 .nav-btn:hover{background:#f0f0ec}
 .month{font-size:20px;font-weight:600}
-
-/* 残り休日カウンター */
 .holiday-counter{background:#fff;border-bottom:1px solid #e8e8e4;padding:8px 14px}
-.holiday-counter-title{font-size:13px;color:#aaa;font-weight:500;margin-bottom:6px}
-.holiday-counter-period{font-size:12px;color:#bbb;margin-bottom:6px}
+.holiday-counter-title{font-size:13px;color:#aaa;font-weight:500;margin-bottom:4px}
+.holiday-counter-period{font-size:11px;color:#bbb;margin-bottom:5px}
 .holiday-chips{display:flex;flex-wrap:wrap;gap:5px}
-.holiday-chip{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:13px;border:1px solid #e0e0e0;background:#fafafa;cursor:pointer}
-.holiday-chip:hover{background:#f0f0ec}
+.holiday-chip{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:12px;border:1px solid #e0e0e0;background:#fafafa}
 .holiday-chip .chip-name{color:#333;font-weight:500}
-.holiday-chip .chip-count{color:#fff;background:#e05555;border-radius:10px;padding:2px 7px;font-size:12px;font-weight:600}
+.holiday-chip .chip-count{color:#fff;background:#e05555;border-radius:10px;padding:1px 6px;font-size:11px;font-weight:600}
 .holiday-chip .chip-count.ok{background:#7bc67e}
-
 .legend{display:flex;gap:8px;padding:8px 14px;background:#fff;border-bottom:1px solid #e8e8e4;flex-wrap:wrap}
-.legend-item{display:flex;align-items:center;gap:4px;font-size:13px;color:#555}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:12px;color:#555}
 .legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
 .section-title{font-size:14px;font-weight:600;color:#666;padding:10px 14px 5px;letter-spacing:0.05em}
 .timeline-wrap{overflow-x:auto;padding:0 14px 4px;-webkit-overflow-scrolling:touch}
 .timeline-grid{min-width:900px;background:#fff;border-radius:8px;border:1px solid #e8e8e4;overflow:hidden}
 .tl-header{display:flex;border-bottom:1px solid #e8e8e4;background:#fafaf8}
-.tl-date-col{width:64px;min-width:64px;flex-shrink:0;font-size:12px;color:#aaa;padding:5px 0;border-right:1px solid #e8e8e4;text-align:center}
+.tl-date-col{width:62px;min-width:62px;flex-shrink:0;font-size:11px;color:#aaa;padding:5px 0;border-right:1px solid #e8e8e4;text-align:center}
 .tl-hours{flex:1;display:flex}
-.tl-hour{flex:1;font-size:11px;color:#bbb;text-align:left;padding:5px 0 5px 3px;border-right:0.5px solid #efefef;min-width:0}
+.tl-hour{flex:1;font-size:10px;color:#bbb;text-align:left;padding:5px 0 5px 3px;border-right:0.5px solid #efefef;min-width:0}
 .tl-hour:last-child{border-right:none}
+.tl-outsource-header{width:110px;min-width:110px;font-size:11px;color:#aaa;font-weight:500;padding:5px 6px;border-left:1px solid #e8e8e4;text-align:center}
 .tl-row{display:flex;border-bottom:0.5px solid #f0f0ec}
 .tl-row:last-child{border-bottom:none}
 .tl-row:hover{background:#fafaf8}
 .tl-row.today .tl-date{background:#dbeeff}
-.tl-date{width:58px;min-width:58px;flex-shrink:0;border-right:1px solid #e8e8e4;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 0;cursor:pointer;user-select:none}
+.tl-date{width:62px;min-width:62px;flex-shrink:0;border-right:1px solid #e8e8e4;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 0;cursor:pointer;user-select:none}
 .tl-date:hover{background:#f0f0f0}
-.dnum{font-size:15px;font-weight:600;color:#222}
-.dname{font-size:12px;color:#999}
-.holiday-jp{font-size:10px;color:#e05555;font-weight:600;display:block}
+.dnum{font-size:14px;font-weight:600;color:#222}
+.dname{font-size:11px;color:#999}
+.holiday-jp-label{font-size:10px;color:#e05555;font-weight:600}
 .sun .dname,.sun .dnum{color:#e05555}
 .sat .dname,.sat .dnum{color:#4a90d9}
-
-/* タイムライン＋休日エリア */
 .tl-right{flex:1;display:flex;flex-direction:column;min-width:0}
 .tl-bar-area{flex:1;position:relative;display:flex;align-items:center;min-height:32px}
 .tl-bar-area::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(to right,transparent,transparent calc((100% / 18) - 0.5px),#f0f0ec calc((100% / 18) - 0.5px),#f0f0ec calc(100% / 18));pointer-events:none}
-.ev-bar{position:absolute;height:26px;border-radius:4px;cursor:pointer;display:flex;align-items:center;padding:0 8px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2;transition:opacity 0.15s}
+.ev-bar{position:absolute;height:24px;border-radius:4px;cursor:pointer;display:flex;align-items:center;padding:0 7px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2;transition:opacity 0.15s}
 .ev-bar:hover{opacity:0.8}
 .type-daily{background:#C0DD97;color:#27500A}
 .type-regular{background:#B5D4F4;color:#0C447C}
 .type-bird{background:#FAC775;color:#633806}
 .type-outsource{background:#F4C0D1;color:#72243E}
 .type-pending{background:#FF4444;color:#fff;font-weight:600}
-.add-btn{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:1px dashed #ccc;border-radius:4px;color:#bbb;font-size:13px;padding:2px 8px;cursor:pointer;z-index:3;white-space:nowrap}
-.tl-outsource-col{width:110px;min-width:110px;flex-shrink:0;border-left:1px solid #e8e8e4;padding:4px 6px;display:flex;flex-direction:column;gap:3px;justify-content:center}
-.outsource-item{font-size:10px;padding:2px 6px;border-radius:4px;background:#F4C0D1;color:#72243E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
-.outsource-item:hover{opacity:0.8}
-.tl-outsource-header{width:110px;min-width:110px;font-size:11px;color:#aaa;font-weight:500;padding:5px 6px;border-left:1px solid #e8e8e4;text-align:center}
+.add-btn{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:1px dashed #ccc;border-radius:4px;color:#bbb;font-size:12px;padding:2px 7px;cursor:pointer;z-index:3;white-space:nowrap}
 .add-btn:hover{color:#555;border-color:#aaa;background:#f5f5f0}
-
-/* 休日表示行 */
 .tl-holiday-row{display:flex;flex-wrap:wrap;gap:3px;padding:2px 6px 3px;border-top:0.5px solid #f8f0f0;min-height:0}
 .tl-holiday-row:empty{display:none}
 .holiday-tag{font-size:11px;padding:2px 7px;border-radius:3px;background:#fee2e2;color:#b91c1c;cursor:pointer;white-space:nowrap}
-.free-tag{font-size:11px;padding:2px 7px;border-radius:3px;background:#e8f4fd;color:#1a5fa8;white-space:nowrap}
 .holiday-tag:hover{background:#fecaca}
-
-/* モーダル */
+.free-tag{font-size:11px;padding:2px 7px;border-radius:3px;background:#e8f4fd;color:#1a5fa8;white-space:nowrap}
+.tl-outsource-col{width:110px;min-width:110px;flex-shrink:0;border-left:1px solid #e8e8e4;padding:4px 6px;display:flex;flex-direction:column;gap:3px;justify-content:center}
+.outsource-item{font-size:10px;padding:2px 6px;border-radius:4px;background:#F4C0D1;color:#72243E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.outsource-item:hover{opacity:0.8}
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:flex-end;justify-content:center}
 .overlay.open{display:flex}
 .modal{background:#fff;border-radius:14px 14px 0 0;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding:20px 20px 32px}
-
-/* スマホ用フォント拡大 */
-@media(max-width:600px){
-  body{font-size:16px}
-  .month{font-size:20px}
-  .dnum{font-size:15px;font-weight:700}
-  .dname{font-size:12px}
-  .ev-bar{font-size:12px;height:26px;padding:0 7px}
-  .tl-hour{font-size:11px}
-  .tl-date-col{font-size:12px}
-  .section-title{font-size:14px;padding:12px 14px 6px}
-  .holiday-tag{font-size:11px;padding:2px 7px}
-  .holiday-chip{font-size:13px;padding:4px 10px}
-  .holiday-chip .chip-count{font-size:12px;padding:2px 7px}
-  .holiday-counter-title{font-size:13px}
-  .holiday-counter-period{font-size:12px}
-  .legend-item{font-size:13px}
-  .nav-btn{font-size:15px;padding:7px 16px}
-  .add-btn{font-size:13px;padding:2px 8px}
-  .tl-date{width:66px;min-width:66px}
-  .timeline-grid{min-width:700px}
-}
 @media(min-width:520px){.overlay{align-items:center;padding:16px}.modal{border-radius:14px;max-height:88vh}}
 .modal-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 16px}
 .modal h3{font-size:15px;font-weight:600;margin-bottom:16px;color:#1a1a1a}
@@ -112,27 +80,33 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 .form-row input:focus,.form-row select:focus,.form-row textarea:focus{outline:none;border-color:#4a90d9;box-shadow:0 0 0 3px rgba(74,144,217,0.12)}
 .form-row textarea{resize:vertical;min-height:52px}
 .time-row{display:flex;gap:8px;align-items:center}
-.time-row input{flex:1}
+.time-row select{flex:1}
 .time-sep{font-size:14px;color:#999;flex-shrink:0}
 .staff-section-label{font-size:11px;color:#aaa;font-weight:500;margin:6px 0 4px;grid-column:1/-1}
-.staff-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px}
-.staff-btn{display:flex;align-items:center;justify-content:center;padding:8px 6px;border-radius:7px;border:1.5px solid #e0e0e0;background:#fafafa;color:#555;font-size:13px;cursor:pointer;user-select:none;transition:all 0.15s;text-align:center;line-height:1.3}
-.staff-btn:hover{border-color:#aaa;background:#f0f0ec}
-.staff-btn.selected{border-color:#4a90d9;background:#e8f2fd;color:#1a5fa8;font-weight:500}
+.btn-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px}
+.toggle-btn{display:flex;align-items:center;justify-content:center;padding:8px 6px;border-radius:7px;border:1.5px solid #e0e0e0;background:#fafafa;color:#555;font-size:13px;cursor:pointer;user-select:none;transition:all 0.15s;text-align:center}
+.toggle-btn:hover{border-color:#aaa;background:#f0f0ec}
+.toggle-btn.selected{border-color:#4a90d9;background:#e8f2fd;color:#1a5fa8;font-weight:500}
+.holiday-staff-btn{padding:8px 6px;border-radius:7px;border:1.5px solid #e0e0e0;background:#fafafa;color:#555;font-size:13px;cursor:pointer;text-align:center;transition:all 0.15s}
+.holiday-staff-btn.selected{border-color:#e05555;background:#fee2e2;color:#b91c1c;font-weight:500}
 .modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
 .btn{padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;border:none}
 .btn-primary{background:#1a1a1a;color:#fff}
 .btn-cancel{background:#f0f0ec;color:#555}
 .btn-delete{background:#fee2e2;color:#b91c1c;margin-right:auto}
-
-/* 休日モーダル */
-.holiday-staff-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px}
-.holiday-staff-btn{padding:8px 6px;border-radius:7px;border:1.5px solid #e0e0e0;background:#fafafa;color:#555;font-size:13px;cursor:pointer;text-align:center;transition:all 0.15s}
-.holiday-staff-btn:hover{border-color:#e05555;background:#fee2e2}
-.holiday-staff-btn.selected{border-color:#e05555;background:#fee2e2;color:#b91c1c;font-weight:500}
-
 .loading-msg{text-align:center;padding:40px;color:#999;font-size:13px}
 .err-msg{text-align:center;padding:20px;color:#e05555;font-size:13px;line-height:1.8}
+@media(max-width:600px){
+  body{font-size:15px}
+  .month{font-size:19px}
+  .dnum{font-size:14px}
+  .dname{font-size:11px}
+  .ev-bar{font-size:11px;height:24px}
+  .tl-hour{font-size:10px}
+  .section-title{font-size:14px}
+  .holiday-tag,.free-tag{font-size:11px}
+  .holiday-chip{font-size:12px}
+}
 </style>
 </head>
 <body>
@@ -148,8 +122,6 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
   <button class="nav-btn" onclick="changeMonth(1)">次月 ›</button>
 </div>
 
-<!-- 残り休日カウンター（上半期・下半期に分けてJSで描画） -->
-
 <div class="legend">
   <div class="legend-item"><div class="legend-dot" style="background:#C0DD97"></div>日常清掃</div>
   <div class="legend-item"><div class="legend-dot" style="background:#B5D4F4"></div>定期清掃</div>
@@ -161,7 +133,7 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 
 <div id="calendar-wrap"><div class="loading-msg">読み込み中...</div></div>
 
-<!-- 現場追加モーダル -->
+<!-- 現場モーダル -->
 <div class="overlay" id="overlay">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -179,17 +151,18 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
     </div>
     <div class="form-row">
       <label>担当スタッフ・外注（タップで選択）</label>
-      <div class="staff-grid" id="staff-grid"></div>
+      <div class="btn-grid" id="staff-grid"></div>
+    </div>
+    <div class="form-row">
+      <label>使用車両（複数選択可）</label>
+      <div class="btn-grid" id="car-grid"></div>
     </div>
     <div class="form-row"><label>時間</label>
       <div class="time-row">
-        <select id="f-start" style="flex:1;font-size:15px;padding:10px 8px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#1a1a1a;-webkit-appearance:none;appearance:none"></select>
+        <select id="f-start"></select>
         <span class="time-sep">〜</span>
-        <select id="f-end" style="flex:1;font-size:15px;padding:10px 8px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#1a1a1a;-webkit-appearance:none;appearance:none"></select>
+        <select id="f-end"></select>
       </div>
-    </div>
-    <div class="form-row"><label>使用車両（複数選択可）</label>
-      <div id="car-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px"></div>
     </div>
     <div class="form-row"><label>請負金額（円）</label><input id="f-amount" type="number" placeholder="例：45000"></div>
     <div class="form-row"><label>メモ</label><textarea id="f-memo" placeholder="備考など"></textarea></div>
@@ -201,14 +174,14 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
   </div>
 </div>
 
-<!-- 休日登録モーダル -->
+<!-- 休日モーダル -->
 <div class="overlay" id="holiday-overlay">
   <div class="modal">
     <div class="modal-handle"></div>
     <h3 id="holiday-modal-title">休日を登録</h3>
     <div class="form-row">
       <label>休むスタッフ（タップで選択・解除）</label>
-      <div class="holiday-staff-grid" id="holiday-staff-grid"></div>
+      <div class="btn-grid" id="holiday-staff-grid"></div>
     </div>
     <div class="modal-btns">
       <button class="btn btn-cancel" onclick="closeHolidayModal()">閉じる</button>
@@ -218,12 +191,40 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbwV_UNDYqwlGhMeoEQiasU348YX_UEKXys7E0TkZaOMfrcXtTx6-JIisyLVMCW2yj3g/exec';
-const STAFF_OWN = ['平野健雄','安藤正樹','伏田幸枝','小林俊樹','石毛貴英','池田久史','三浦達弥','飯田怜飛','飯田栄'];
-const STAFF_HOLIDAY = ['平野健雄','安藤正樹','伏田幸枝','小林俊樹','石毛貴英']; // 休日管理対象
-const STAFF_OUT = ['SUN-X','SIBS','One by One','増田（伸和洗浄）','ロープワーク','RISE','ミノアカ','小池','サンクトラスト'];
-const DAYS = ['日','月','火','水','木','金','土'];
+const STAFF_OWN  = ['平野健雄','安藤正樹','伏田幸枝','小林俊樹','石毛貴英','池田久史','三浦達弥','飯田怜飛','飯田栄'];
+const STAFF_OUT  = ['SUN-X','SIBS','One by One','増田（伸和洗浄）','ロープワーク','RISE','ミノアカ','小池','サンクトラスト'];
+const STAFF_HOLIDAY = ['平野健雄','安藤正樹','伏田幸枝','小林俊樹','石毛貴英'];
 const CARS = ['ロング','ショート','バン','ハイゼット','エブリー'];
+const DAYS = ['日','月','火','水','木','金','土'];
+const MAX_HOLIDAYS = 9;
 
+const HOLIDAYS_JP = new Set([
+  '2025-01-01','2025-01-13','2025-02-11','2025-02-23','2025-02-24',
+  '2025-03-20','2025-04-29','2025-05-03','2025-05-04','2025-05-05','2025-05-06',
+  '2025-07-21','2025-08-11','2025-09-15','2025-09-22','2025-09-23',
+  '2025-10-13','2025-11-03','2025-11-23','2025-11-24',
+  '2026-01-01','2026-01-12','2026-02-11','2026-02-23',
+  '2026-03-20','2026-04-29','2026-05-03','2026-05-04','2026-05-05','2026-05-06',
+  '2026-07-20','2026-08-11','2026-09-21','2026-09-22','2026-09-23',
+  '2026-10-12','2026-11-03','2026-11-23',
+  '2027-01-01','2027-01-11','2027-02-11','2027-02-23',
+  '2027-03-21','2027-03-22','2027-04-29','2027-05-03','2027-05-04','2027-05-05',
+  '2027-07-19','2027-08-11','2027-09-20','2027-09-23',
+  '2027-10-11','2027-11-03','2027-11-23',
+]);
+
+const TYPE_CLASS = {daily:'type-daily',regular:'type-regular',bird:'type-bird',outsource:'type-outsource',pending:'type-pending'};
+const HOUR_START = 6, HOUR_END = 24, TOTAL_HOURS = 18;
+const HOURS = Array.from({length: TOTAL_HOURS}, (_,i) => HOUR_START + i);
+
+let current = new Date();
+current = new Date(current.getFullYear(), current.getMonth(), 1);
+let events = {}, holidays = {};
+let editingId = null, editingDate = null, holidayDate = null;
+let selectedStaff = [], selectedCars = [];
+let cbCount = 0;
+
+// ===== 時間選択肢 =====
 function buildTimeOptions() {
   let opts = '<option value="">--</option>';
   for (let h = 6; h <= 24; h++) {
@@ -243,38 +244,7 @@ function initTimeSelects() {
   document.getElementById('f-end').innerHTML = opts;
 }
 
-// 日本の祝日（2025〜2027年）
-const HOLIDAYS_JP = new Set([
-  // 2025年
-  '2025-01-01','2025-01-13','2025-02-11','2025-02-23','2025-02-24',
-  '2025-03-20','2025-04-29','2025-05-03','2025-05-04','2025-05-05','2025-05-06',
-  '2025-07-21','2025-08-11','2025-09-15','2025-09-22','2025-09-23',
-  '2025-10-13','2025-11-03','2025-11-23','2025-11-24',
-  // 2026年
-  '2026-01-01','2026-01-12','2026-02-11','2026-02-23',
-  '2026-03-20','2026-04-29','2026-05-03','2026-05-04','2026-05-05','2026-05-06',
-  '2026-07-20','2026-08-11','2026-09-21','2026-09-22','2026-09-23',
-  '2026-10-12','2026-11-03','2026-11-23',
-  // 2027年
-  '2027-01-01','2027-01-11','2027-02-11','2027-02-23',
-  '2027-03-21','2027-03-22','2027-04-29','2027-05-03','2027-05-04','2027-05-05',
-  '2027-07-19','2027-08-11','2027-09-20','2027-09-23',
-  '2027-10-11','2027-11-03','2027-11-23',
-]);
-const TYPE_CLASS = {daily:'type-daily',regular:'type-regular',bird:'type-bird',outsource:'type-outsource',pending:'type-pending'};
-const HOUR_START = 6, HOUR_END = 24, TOTAL_HOURS = 18;
-const HOURS = Array.from({length: TOTAL_HOURS}, (_,i) => HOUR_START + i);
-const MAX_HOLIDAYS = 9;
-
-let current = new Date();
-current = new Date(current.getFullYear(), current.getMonth(), 1);
-let events = {};
-let holidays = {}; // { "2026-05-08": ["平野健雄","安藤正樹"] }
-let editingId = null, editingDate = null;
-let holidayDate = null;
-let cbCount = 0;
-let selectedStaff = [];
-
+// ===== API =====
 function setSync(s, l) {
   document.getElementById('sync-dot').className = 'dot ' + s;
   document.getElementById('sync-label').textContent = l;
@@ -321,70 +291,9 @@ async function loadAll(showLoading) {
   }
 }
 
+// ===== ユーティリティ =====
 function fmt(y, m, d) {
   return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-}
-
-// 〆期間（16日〜翌月15日）を計算
-// 上半期（1〜15日）の〆期間：前月16日〜当月15日
-function getPeriodFirst(y, m) {
-  const prevM = m === 0 ? 11 : m - 1;
-  const prevY = m === 0 ? y - 1 : y;
-  const start = fmt(prevY, prevM, 16);
-  const end = fmt(y, m, 15);
-  return { start, end, startY: prevY, startM: prevM, endY: y, endM: m };
-}
-
-// 下半期（16〜末日）の〆期間：当月16日〜翌月15日
-function getPeriodSecond(y, m) {
-  const nextM = m === 11 ? 0 : m + 1;
-  const nextY = m === 11 ? y + 1 : y;
-  const start = fmt(y, m, 16);
-  const end = fmt(nextY, nextM, 15);
-  return { start, end, startY: y, startM: m, endY: nextY, endM: nextM };
-}
-
-// 期間内の休日数をスタッフごとに集計
-function countHolidaysInPeriod(period) {
-  const counts = {};
-  STAFF_HOLIDAY.forEach(s => counts[s] = 0);
-  Object.entries(holidays).forEach(([date, staffList]) => {
-    if (date >= period.start && date <= period.end) {
-      staffList.forEach(s => {
-        if (counts[s] !== undefined) counts[s]++;
-      });
-    }
-  });
-  return counts;
-}
-
-function makeChips(period) {
-  const counts = countHolidaysInPeriod(period);
-  return STAFF_HOLIDAY.map(s => {
-    const used = counts[s] || 0;
-    const remain = MAX_HOLIDAYS - used;
-    const cls = remain > 0 ? '' : ' ok';
-    return `<div class="holiday-chip">
-      <span class="chip-name">${s}</span>
-      <span class="chip-count${cls}">残${remain}日</span>
-    </div>`;
-  }).join('');
-}
-
-function renderHolidayCounter() {
-  const y = current.getFullYear(), m = current.getMonth();
-
-  // 上半期：前月16日〜当月15日
-  const p1 = getPeriodFirst(y, m);
-  const label1 = `${p1.startY}年${p1.startM+1}月16日 〜 ${p1.endY}年${p1.endM+1}月15日`;
-  document.getElementById('period-label-first').textContent = label1;
-  document.getElementById('holiday-chips-first').innerHTML = makeChips(p1);
-
-  // 下半期：当月16日〜翌月15日
-  const p2 = getPeriodSecond(y, m);
-  const label2 = `${p2.startY}年${p2.startM+1}月16日 〜 ${p2.endY}年${p2.endM+1}月15日`;
-  document.getElementById('period-label-second').textContent = label2;
-  document.getElementById('holiday-chips-second').innerHTML = makeChips(p2);
 }
 
 function timeToHour(t) {
@@ -397,17 +306,69 @@ function hourToPct(h) {
   return ((Math.max(HOUR_START, Math.min(HOUR_END, h)) - HOUR_START) / TOTAL_HOURS) * 100;
 }
 
-function buildHalfTimeline(from, to, y, m, todayKey) {
+// ===== 休日カウンター =====
+function strToDate(dateStr) {
+  if (!dateStr) return null;
+  const p = dateStr.split('-');
+  return p.length < 3 ? null : new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
+}
+
+function countHolidaysInPeriod(start, end) {
+  const counts = {};
+  STAFF_HOLIDAY.forEach(s => counts[s] = 0);
+  Object.entries(holidays).forEach(([date, staffList]) => {
+    if (date >= start && date <= end) {
+      staffList.forEach(s => { if (counts[s] !== undefined) counts[s]++; });
+    }
+  });
+  return counts;
+}
+
+function makeChipsHtml(start, end) {
+  const counts = countHolidaysInPeriod(start, end);
+  return STAFF_HOLIDAY.map(s => {
+    const remain = MAX_HOLIDAYS - (counts[s] || 0);
+    return `<div class="holiday-chip"><span class="chip-name">${s}</span><span class="chip-count${remain<=0?' ok':''}"">残${remain}日</span></div>`;
+  }).join('');
+}
+
+function makeCounterHtml(y, m, isFirst) {
+  let start, end, label;
+  if (isFirst) {
+    const prevM = m === 0 ? 11 : m - 1;
+    const prevY = m === 0 ? y - 1 : y;
+    start = fmt(prevY, prevM, 16);
+    end = fmt(y, m, 15);
+    label = `${prevY}年${prevM+1}月16日 〜 ${y}年${m+1}月15日`;
+  } else {
+    const nextM = m === 11 ? 0 : m + 1;
+    const nextY = m === 11 ? y + 1 : y;
+    start = fmt(y, m, 16);
+    end = fmt(nextY, nextM, 15);
+    label = `${y}年${m+1}月16日 〜 ${nextY}年${nextM+1}月15日`;
+  }
+  return `<div class="holiday-counter">
+    <div class="holiday-counter-title">残り休日数（〆期間）</div>
+    <div class="holiday-counter-period">${label}</div>
+    <div class="holiday-chips">${makeChipsHtml(start, end)}</div>
+  </div>`;
+}
+
+// ===== カレンダー描画 =====
+function buildHalf(from, to, y, m, todayKey) {
   let rows = '';
   for (let d = from; d <= to; d++) {
     const date = new Date(y, m, d);
     const dow = date.getDay();
     const key = fmt(y, m, d);
     const isToday = key === todayKey;
-    const cls = (dow===0?'sun':dow===6?'sat':'') + (isToday?' today':'');
+    const isHolidayJp = HOLIDAYS_JP.has(key);
+    const isSun = dow === 0, isSat = dow === 6;
+    const cls = (isSun?'sun':isSat?'sat':'') + (isToday?' today':'');
     const dayEvs = events[key] || [];
     const dayHols = holidays[key] || [];
 
+    // バー（外注・未定以外のタイムライン表示）
     let bars = '';
     let occupied = [];
     dayEvs.filter(ev => ev.type !== 'outsource').forEach(ev => {
@@ -420,17 +381,15 @@ function buildHalfTimeline(from, to, y, m, todayKey) {
 
       let leftPct, widthPct;
       if (sh !== null && eh !== null && eh > sh) {
-        leftPct = hourToPct(sh);
-        widthPct = hourToPct(eh) - leftPct;
+        leftPct = hourToPct(sh); widthPct = hourToPct(eh) - leftPct;
       } else if (sh !== null) {
-        leftPct = hourToPct(sh);
-        widthPct = 100 / TOTAL_HOURS;
+        leftPct = hourToPct(sh); widthPct = 100 / TOTAL_HOURS;
       } else {
         leftPct = 0; widthPct = 20;
       }
       let topPx = 5;
       for (const o of occupied) {
-        if (leftPct < o.right && leftPct + widthPct > o.left) topPx = o.top + 24;
+        if (leftPct < o.right && leftPct + widthPct > o.left) topPx = o.top + 26;
       }
       occupied.push({ left: leftPct, right: leftPct + widthPct, top: topPx });
       bars += `<span class="ev-bar ${tc}" style="left:${leftPct.toFixed(2)}%;width:${widthPct.toFixed(2)}%;top:${topPx}px" onclick="openEdit('${key}','${ev.id}')">${label}</span>`;
@@ -439,47 +398,36 @@ function buildHalfTimeline(from, to, y, m, todayKey) {
     const maxTop = occupied.length ? Math.max(...occupied.map(o=>o.top)) : 5;
     const barHeight = Math.max(32, maxTop + 28);
 
-    // 休日タグ
-    const holidayTags = dayHols.map(s =>
-      `<span class="holiday-tag" onclick="openHolidayModal('${key}')" title="クリックで編集">${s}</span>`
-    ).join('');
-
-    // その日の現場に入っているスタッフを収集
-    const assignedStaff = new Set();
-    dayEvs.forEach(ev => {
-      if (Array.isArray(ev.staff)) ev.staff.filter(Boolean).forEach(s => assignedStaff.add(s));
-    });
-
-    // 休みでも現場にも入っていないSTAFF_HOLIDAYの5名 → 手空き
-    const freeTags = STAFF_HOLIDAY
-      .filter(s => !dayHols.includes(s) && !assignedStaff.has(s))
-      .map(s => `<span class="free-tag">${s}</span>`)
-      .join('');
-
-    const isHolidayJp = HOLIDAYS_JP.has(key);
-    const holidayJpTag = isHolidayJp ? `<span class="holiday-jp">祝</span>` : '';
-    const rowCls = cls + (isHolidayJp ? ' holiday-jp-row' : '');
-
-    // 外注データを収集
-    const outsourceEvs = dayEvs.filter(ev => ev.type === 'outsource');
-    const outsourceItems = outsourceEvs.map(ev => {
+    // 外注列
+    const outsourceItems = dayEvs.filter(ev => ev.type === 'outsource').map(ev => {
       const who = Array.isArray(ev.staff) ? ev.staff.filter(Boolean).join('・') : '';
-      const label = [who, ev.place].filter(Boolean).join(' / ');
+      const label = [who, ev.place].filter(Boolean).join('/');
       return `<span class="outsource-item" onclick="openEdit('${key}','${ev.id}')">${label}</span>`;
     }).join('');
 
-    rows += `<div class="tl-row ${rowCls}">
+    // 休み・手空きタグ
+    const assignedStaff = new Set();
+    dayEvs.forEach(ev => { if (Array.isArray(ev.staff)) ev.staff.filter(Boolean).forEach(s => assignedStaff.add(s)); });
+    const holidayTags = dayHols.map(s => `<span class="holiday-tag" onclick="openHolidayModal('${key}')">${s}</span>`).join('');
+    const freeTags = STAFF_HOLIDAY.filter(s => !dayHols.includes(s) && !assignedStaff.has(s)).map(s => `<span class="free-tag">${s}</span>`).join('');
+
+    // 祝日表示
+    const holidayJpLabel = isHolidayJp ? `<span class="holiday-jp-label">祝</span>` : '';
+    const dnumColor = (isHolidayJp || isSun) ? 'color:#e05555' : (isSat ? 'color:#4a90d9' : '');
+
+    rows += `<div class="tl-row ${cls}">
       <div class="tl-date" onclick="openAdd('${key}')">
-        <span class="dnum" style="${isHolidayJp?'color:#e05555':''}">${d}</span><span class="dname">${DAYS[dow]}</span>${holidayJpTag}
+        <span class="dnum" style="${dnumColor}">${d}</span>
+        <span class="dname">${DAYS[dow]}</span>
+        ${holidayJpLabel}
       </div>
       <div class="tl-right">
         <div class="tl-bar-area" style="min-height:${barHeight}px">
           ${bars}
           <button class="add-btn" onclick="openAdd('${key}')">＋ 現場</button>
         </div>
-        <div class="tl-holiday-row" id="hrow-${key}">
-          ${holidayTags}
-          ${freeTags}
+        <div class="tl-holiday-row">
+          ${holidayTags}${freeTags}
           <span class="holiday-tag" style="background:#f5f5f0;color:#bbb;border:1px dashed #ddd" onclick="openHolidayModal('${key}')">＋ 休み</span>
         </div>
       </div>
@@ -497,15 +445,9 @@ function render() {
   const todayKey = fmt(now.getFullYear(), now.getMonth(), now.getDate());
   const hourHeaders = HOURS.map(h => `<div class="tl-hour">${h}:00</div>`).join('');
 
-  function buildSection(from, to, label, counterId) {
-    const counterHtml = `
-      <div class="holiday-counter">
-        <div class="holiday-counter-title">残り休日数（〆期間）</div>
-        <div class="holiday-counter-period" id="period-label-${counterId}"></div>
-        <div class="holiday-chips" id="holiday-chips-${counterId}"></div>
-      </div>`;
+  function buildSection(from, to, label, isFirst) {
     return `
-      ${counterHtml}
+      ${makeCounterHtml(y, m, isFirst)}
       <div class="section-title">${label}</div>
       <div class="timeline-wrap">
         <div class="timeline-grid">
@@ -514,18 +456,16 @@ function render() {
             <div class="tl-hours">${hourHeaders}</div>
             <div class="tl-outsource-header">外注</div>
           </div>
-          ${buildHalfTimeline(from, to, y, m, todayKey)}
+          ${buildHalf(from, to, y, m, todayKey)}
         </div>
       </div>`;
   }
 
   document.getElementById('calendar-wrap').innerHTML =
-    buildSection(1, 15, '上半期 — 1日〜15日', 'first') +
+    buildSection(1, 15, '上半期 — 1日〜15日', true) +
     '<div style="height:12px"></div>' +
-    buildSection(16, lastDay, `下半期 — 16日〜${lastDay}日`, 'second') +
+    buildSection(16, lastDay, `下半期 — 16日〜${lastDay}日`, false) +
     '<div style="height:24px"></div>';
-
-  renderHolidayCounter();
 }
 
 function changeMonth(d) {
@@ -533,56 +473,50 @@ function changeMonth(d) {
   loadAll();
 }
 
-// スタッフボタン（現場用）
-function renderCarGrid(selected) {
-  const sel = Array.isArray(selected) ? selected : [];
-  document.getElementById('car-grid').innerHTML = CARS.map(c => {
-    const on = sel.includes(c);
-    return `<div class="staff-btn${on?' selected':''}" onclick="toggleCar('${c}')">${c}</div>`;
-  }).join('');
-}
-
-let selectedCars = [];
-function toggleCar(name) {
-  selectedCars = selectedCars.includes(name)
-    ? selectedCars.filter(s => s !== name)
-    : [...selectedCars, name];
-  renderCarGrid(selectedCars);
-}
-
-function toggleStaffBtn(name) {
-  selectedStaff = selectedStaff.includes(name)
-    ? selectedStaff.filter(s => s !== name)
-    : [...selectedStaff, name];
-  renderStaffGrid();
-}
-
+// ===== スタッフ・車両グリッド =====
 function renderStaffGrid() {
   function makeBtn(s) {
     const on = selectedStaff.includes(s);
-    return `<div class="staff-btn${on?' selected':''}" onclick="toggleStaffBtn('${s.replace(/'/g,"\\'")}')">${s}</div>`;
+    return `<div class="toggle-btn${on?' selected':''}" onclick="toggleStaff('${s.replace(/'/g,"\\'")}')\">${s}</div>`;
   }
   document.getElementById('staff-grid').innerHTML =
     `<div class="staff-section-label">自社スタッフ</div>` + STAFF_OWN.map(makeBtn).join('') +
     `<div class="staff-section-label">外注</div>` + STAFF_OUT.map(makeBtn).join('');
 }
 
+function toggleStaff(name) {
+  selectedStaff = selectedStaff.includes(name) ? selectedStaff.filter(s=>s!==name) : [...selectedStaff, name];
+  renderStaffGrid();
+}
+
+function renderCarGrid() {
+  document.getElementById('car-grid').innerHTML = CARS.map(c => {
+    const on = selectedCars.includes(c);
+    return `<div class="toggle-btn${on?' selected':''}" onclick="toggleCar('${c}')">${c}</div>`;
+  }).join('');
+}
+
+function toggleCar(name) {
+  selectedCars = selectedCars.includes(name) ? selectedCars.filter(s=>s!==name) : [...selectedCars, name];
+  renderCarGrid();
+}
+
+// ===== モーダル =====
 function openAdd(dateKey) {
   editingId = null; editingDate = dateKey;
-  selectedStaff = [];
-  selectedCars = [];
+  selectedStaff = []; selectedCars = [];
   const [,mo,day] = dateKey.split('-');
   document.getElementById('modal-title').textContent = `${parseInt(mo)}月${parseInt(day)}日 — 現場を追加`;
-  ['f-place','f-client','f-amount','f-memo'].forEach(id => document.getElementById(id).value = '');
-  initTimeSelects();
+  document.getElementById('f-place').value = '';
+  document.getElementById('f-client').value = '';
+  document.getElementById('f-type').value = 'daily';
+  document.getElementById('f-amount').value = '';
+  document.getElementById('f-memo').value = '';
   document.getElementById('f-start').value = '';
   document.getElementById('f-end').value = '';
-  document.getElementById('f-type').value = 'daily';
-  document.getElementById('f-outsource') && (document.getElementById('f-outsource').value = '');
-  const orEl = document.getElementById('outsource-row'); if(orEl) orEl.style.display = 'none';
-  renderStaffGrid();
-  renderCarGrid([]);
   document.getElementById('delete-btn').style.display = 'none';
+  renderStaffGrid();
+  renderCarGrid();
   document.getElementById('overlay').classList.add('open');
   setTimeout(() => document.getElementById('f-place').focus(), 150);
 }
@@ -592,47 +526,44 @@ function openEdit(dateKey, id) {
   if (!ev) return;
   editingId = id; editingDate = dateKey;
   selectedStaff = Array.isArray(ev.staff) ? ev.staff.filter(Boolean) : [];
+  selectedCars = Array.isArray(ev.cars) ? ev.cars.filter(Boolean) : [];
   const [,mo,day] = dateKey.split('-');
   document.getElementById('modal-title').textContent = `${parseInt(mo)}月${parseInt(day)}日 — 編集`;
   document.getElementById('f-place').value = ev.place||'';
   document.getElementById('f-client').value = ev.client||'';
   document.getElementById('f-type').value = ev.type||'daily';
-  renderStaffGrid();
-  initTimeSelects();
-  document.getElementById('f-start').value = ev.start||'';
-  document.getElementById('f-end').value = ev.end||'';
   document.getElementById('f-amount').value = ev.amount||'';
   document.getElementById('f-memo').value = ev.memo||'';
-  selectedCars = Array.isArray(ev.cars) ? ev.cars : [];
-  renderCarGrid(selectedCars);
+  document.getElementById('f-start').value = ev.start||'';
+  document.getElementById('f-end').value = ev.end||'';
   document.getElementById('delete-btn').style.display = '';
+  renderStaffGrid();
+  renderCarGrid();
   document.getElementById('overlay').classList.add('open');
 }
 
 function closeModal() { document.getElementById('overlay').classList.remove('open'); }
 
-// 休日モーダル
+// ===== 休日モーダル =====
 function openHolidayModal(dateKey) {
   holidayDate = dateKey;
   const [,mo,day] = dateKey.split('-');
   document.getElementById('holiday-modal-title').textContent = `${parseInt(mo)}月${parseInt(day)}日 — 休日登録`;
-  renderHolidayStaffGrid();
+  renderHolidayGrid();
   document.getElementById('holiday-overlay').classList.add('open');
 }
 
-function renderHolidayStaffGrid() {
+function renderHolidayGrid() {
   const dayHols = holidays[holidayDate] || [];
   document.getElementById('holiday-staff-grid').innerHTML = STAFF_HOLIDAY.map(s => {
     const on = dayHols.includes(s);
-    return `<div class="holiday-staff-btn${on?' selected':''}" onclick="toggleHoliday('${s.replace(/'/g,"\\'")}')">${s}</div>`;
+    return `<div class="holiday-staff-btn${on?' selected':''}" onclick="toggleHoliday('${s}')">${s}</div>`;
   }).join('');
 }
 
 async function toggleHoliday(name) {
   const dayHols = holidays[holidayDate] || [];
   const isOn = dayHols.includes(name);
-
-  // 楽観的更新
   if (isOn) {
     holidays[holidayDate] = dayHols.filter(s => s !== name);
     if (!holidays[holidayDate].length) delete holidays[holidayDate];
@@ -640,34 +571,18 @@ async function toggleHoliday(name) {
     if (!holidays[holidayDate]) holidays[holidayDate] = [];
     holidays[holidayDate].push(name);
   }
-  renderHolidayStaffGrid();
-  renderHolidayCounter();
-
-  // タグ部分だけ即時更新
-  const hrow = document.getElementById(`hrow-${holidayDate}`);
-  if (hrow) {
-    const dayHolsNew = holidays[holidayDate] || [];
-    hrow.innerHTML = dayHolsNew.map(s =>
-      `<span class="holiday-tag" onclick="openHolidayModal('${holidayDate}')">${s}</span>`
-    ).join('') +
-    `<span class="holiday-tag" style="background:#f5f5f0;color:#bbb;border:1px dashed #ddd" onclick="openHolidayModal('${holidayDate}')">＋ 休み</span>`;
-  }
-
+  renderHolidayGrid();
+  render();
   setSync('loading', '保存中...');
   try {
-    if (isOn) {
-      await jsonp({ action: 'deleteHoliday', data: { date: holidayDate, staff: name } });
-    } else {
-      await jsonp({ action: 'saveHoliday', data: { date: holidayDate, staff: name } });
-    }
+    await jsonp({ action: isOn?'deleteHoliday':'saveHoliday', data: { date: holidayDate, staff: name } });
     setSync('ok', '保存済み');
-  } catch(e) {
-    setSync('err', '保存失敗');
-  }
+  } catch(e) { setSync('err', '保存失敗'); }
 }
 
 function closeHolidayModal() { document.getElementById('holiday-overlay').classList.remove('open'); }
 
+// ===== 保存・削除 =====
 async function saveEvent() {
   const place = document.getElementById('f-place').value.trim();
   if (!place) { alert('現場名を入力してください'); return; }
@@ -678,9 +593,9 @@ async function saveEvent() {
     type: document.getElementById('f-type').value,
     outsource: '',
     staff: selectedStaff,
+    cars: selectedCars,
     start: document.getElementById('f-start').value,
     end: document.getElementById('f-end').value,
-    cars: selectedCars,
     amount: document.getElementById('f-amount').value.trim(),
     memo: document.getElementById('f-memo').value.trim()
   };
