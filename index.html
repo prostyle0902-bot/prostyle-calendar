@@ -570,11 +570,18 @@ function renderStaffGrid() {
 function openAdd(dateKey) {
   editingId = null; editingDate = dateKey;
   selectedStaff = [];
+  selectedCars = [];
   const [,mo,day] = dateKey.split('-');
   document.getElementById('modal-title').textContent = `${parseInt(mo)}月${parseInt(day)}日 — 現場を追加`;
-  ['f-place','f-client','f-amount','f-memo','f-start','f-end'].forEach(id => document.getElementById(id).value = '');
+  ['f-place','f-client','f-amount','f-memo'].forEach(id => document.getElementById(id).value = '');
+  initTimeSelects();
+  document.getElementById('f-start').value = '';
+  document.getElementById('f-end').value = '';
   document.getElementById('f-type').value = 'daily';
+  document.getElementById('f-outsource') && (document.getElementById('f-outsource').value = '');
+  document.getElementById('outsource-row').style.display = 'none';
   renderStaffGrid();
+  renderCarGrid([]);
   document.getElementById('delete-btn').style.display = 'none';
   document.getElementById('overlay').classList.add('open');
   setTimeout(() => document.getElementById('f-place').focus(), 150);
