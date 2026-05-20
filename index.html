@@ -579,7 +579,7 @@ function openAdd(dateKey) {
   document.getElementById('f-end').value = '';
   document.getElementById('f-type').value = 'daily';
   document.getElementById('f-outsource') && (document.getElementById('f-outsource').value = '');
-  document.getElementById('outsource-row').style.display = 'none';
+  const orEl = document.getElementById('outsource-row'); if(orEl) orEl.style.display = 'none';
   renderStaffGrid();
   renderCarGrid([]);
   document.getElementById('delete-btn').style.display = 'none';
@@ -708,6 +708,7 @@ async function deleteEvent() {
 document.getElementById('overlay').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
 document.getElementById('holiday-overlay').addEventListener('click', function(e) { if(e.target===this) closeHolidayModal(); });
 
+initTimeSelects();
 loadAll();
 </script>
 </body>
