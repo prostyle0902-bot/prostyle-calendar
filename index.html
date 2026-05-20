@@ -159,9 +159,9 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
     </div>
     <div class="form-row"><label>時間</label>
       <div class="time-row">
-        <select id="f-start"></select>
+        <input id="f-start" type="time">
         <span class="time-sep">〜</span>
-        <select id="f-end"></select>
+        <input id="f-end" type="time">
       </div>
     </div>
     <div class="form-row"><label>請負金額（円）</label><input id="f-amount" type="number" placeholder="例：45000"></div>
@@ -223,26 +223,6 @@ let events = {}, holidays = {};
 let editingId = null, editingDate = null, holidayDate = null;
 let selectedStaff = [], selectedCars = [];
 let cbCount = 0;
-
-// ===== 時間選択肢 =====
-function buildTimeOptions() {
-  let opts = '<option value="">--</option>';
-  for (let h = 6; h <= 24; h++) {
-    for (let m = 0; m < 60; m += 15) {
-      if (h === 24 && m > 0) break;
-      const hh = String(h).padStart(2,'0');
-      const mm = String(m).padStart(2,'0');
-      opts += `<option value="${hh}:${mm}">${hh}:${mm}</option>`;
-    }
-  }
-  return opts;
-}
-
-function initTimeSelects() {
-  const opts = buildTimeOptions();
-  document.getElementById('f-start').innerHTML = opts;
-  document.getElementById('f-end').innerHTML = opts;
-}
 
 // ===== API =====
 function setSync(s, l) {
@@ -623,7 +603,6 @@ async function deleteEvent() {
 document.getElementById('overlay').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
 document.getElementById('holiday-overlay').addEventListener('click', function(e) { if(e.target===this) closeHolidayModal(); });
 
-initTimeSelects();
 loadAll();
 </script>
 </body>
