@@ -183,10 +183,13 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
     </div>
     <div class="form-row"><label>時間</label>
       <div class="time-row">
-        <input id="f-start" type="time" step="900">
+        <select id="f-start" style="flex:1;font-size:15px;padding:10px 8px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#1a1a1a;-webkit-appearance:none;appearance:none"></select>
         <span class="time-sep">〜</span>
-        <input id="f-end" type="time" step="900">
+        <select id="f-end" style="flex:1;font-size:15px;padding:10px 8px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#1a1a1a;-webkit-appearance:none;appearance:none"></select>
       </div>
+    </div>
+    <div class="form-row"><label>使用車両（複数選択可）</label>
+      <div id="car-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px"></div>
     </div>
     <div class="form-row"><label>請負金額（円）</label><input id="f-amount" type="number" placeholder="例：45000"></div>
     <div class="form-row"><label>メモ</label><textarea id="f-memo" placeholder="備考など"></textarea></div>
@@ -219,6 +222,26 @@ const STAFF_OWN = ['平野健雄','安藤正樹','伏田幸枝','小林俊樹','
 const STAFF_HOLIDAY = ['平野健雄','安藤正樹','伏田幸枝','小林俊樹','石毛貴英']; // 休日管理対象
 const STAFF_OUT = ['SUN-X','SIBS','One by One','増田（伸和洗浄）','ロープワーク','RISE','ミノアカ','小池','サンクトラスト'];
 const DAYS = ['日','月','火','水','木','金','土'];
+const CARS = ['ロング','ショート','バン','ハイゼット','エブリー'];
+
+function buildTimeOptions() {
+  let opts = '<option value="">--</option>';
+  for (let h = 6; h <= 24; h++) {
+    for (let m = 0; m < 60; m += 15) {
+      if (h === 24 && m > 0) break;
+      const hh = String(h).padStart(2,'0');
+      const mm = String(m).padStart(2,'0');
+      opts += `<option value="${hh}:${mm}">${hh}:${mm}</option>`;
+    }
+  }
+  return opts;
+}
+
+function initTimeSelects() {
+  const opts = buildTimeOptions();
+  document.getElementById('f-start').innerHTML = opts;
+  document.getElementById('f-end').innerHTML = opts;
+}
 
 // 日本の祝日（2025〜2027年）
 const HOLIDAYS_JP = new Set([
@@ -392,7 +415,8 @@ function buildHalfTimeline(from, to, y, m, todayKey) {
       const sh = timeToHour(ev.start);
       const eh = timeToHour(ev.end);
       const who = Array.isArray(ev.staff) ? ev.staff.filter(Boolean).join('・') : '';
-      const label = [ev.place, who].filter(Boolean).join(' ');
+      const carStr = Array.isArray(ev.cars) && ev.cars.length ? `[${ev.cars.join('・')}]` : '';
+      const label = [ev.place, who, carStr].filter(Boolean).join(' ');
 
       let leftPct, widthPct;
       if (sh !== null && eh !== null && eh > sh) {
@@ -510,6 +534,22 @@ function changeMonth(d) {
 }
 
 // スタッフボタン（現場用）
+function renderCarGrid(selected) {
+  const sel = Array.isArray(selected) ? selected : [];
+  document.getElementById('car-grid').innerHTML = CARS.map(c => {
+    const on = sel.includes(c);
+    return `<div class="staff-btn${on?' selected':''}" onclick="toggleCar('${c}')">${c}</div>`;
+  }).join('');
+}
+
+let selectedCars = [];
+function toggleCar(name) {
+  selectedCars = selectedCars.includes(name)
+    ? selectedCars.filter(s => s !== name)
+    : [...selectedCars, name];
+  renderCarGrid(selectedCars);
+}
+
 function toggleStaffBtn(name) {
   selectedStaff = selectedStaff.includes(name)
     ? selectedStaff.filter(s => s !== name)
@@ -551,10 +591,13 @@ function openEdit(dateKey, id) {
   document.getElementById('f-client').value = ev.client||'';
   document.getElementById('f-type').value = ev.type||'daily';
   renderStaffGrid();
+  initTimeSelects();
   document.getElementById('f-start').value = ev.start||'';
   document.getElementById('f-end').value = ev.end||'';
   document.getElementById('f-amount').value = ev.amount||'';
   document.getElementById('f-memo').value = ev.memo||'';
+  selectedCars = Array.isArray(ev.cars) ? ev.cars : [];
+  renderCarGrid(selectedCars);
   document.getElementById('delete-btn').style.display = '';
   document.getElementById('overlay').classList.add('open');
 }
@@ -630,6 +673,7 @@ async function saveEvent() {
     staff: selectedStaff,
     start: document.getElementById('f-start').value,
     end: document.getElementById('f-end').value,
+    cars: selectedCars,
     amount: document.getElementById('f-amount').value.trim(),
     memo: document.getElementById('f-memo').value.trim()
   };
