@@ -157,6 +157,9 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
       <label>使用車両（複数選択可）</label>
       <div class="btn-grid" id="car-grid"></div>
     </div>
+    <div class="form-row"><label>出社時間</label>
+      <input id="f-departure" type="time" placeholder="例：07:30">
+    </div>
     <div class="form-row"><label>時間</label>
       <div class="time-row">
         <input id="f-start" type="time">
@@ -357,7 +360,8 @@ function buildHalf(from, to, y, m, todayKey) {
       const eh = timeToHour(ev.end);
       const who = Array.isArray(ev.staff) ? ev.staff.filter(Boolean).join('・') : '';
       const carStr = Array.isArray(ev.cars) && ev.cars.length ? `[${ev.cars.join('・')}]` : '';
-      const label = [ev.place, who, carStr].filter(Boolean).join(' ');
+      const depStr = ev.departure ? `${ev.departure}出社` : '';
+      const label = [depStr, ev.place, who, carStr].filter(Boolean).join(' ');
 
       let leftPct, widthPct;
       if (sh !== null && eh !== null && eh > sh) {
@@ -492,6 +496,7 @@ function openAdd(dateKey) {
   document.getElementById('f-type').value = 'daily';
   document.getElementById('f-amount').value = '';
   document.getElementById('f-memo').value = '';
+  document.getElementById('f-departure').value = '';
   document.getElementById('f-start').value = '';
   document.getElementById('f-end').value = '';
   document.getElementById('delete-btn').style.display = 'none';
@@ -514,6 +519,7 @@ function openEdit(dateKey, id) {
   document.getElementById('f-type').value = ev.type||'daily';
   document.getElementById('f-amount').value = ev.amount||'';
   document.getElementById('f-memo').value = ev.memo||'';
+  document.getElementById('f-departure').value = ev.departure||'';
   document.getElementById('f-start').value = ev.start||'';
   document.getElementById('f-end').value = ev.end||'';
   document.getElementById('delete-btn').style.display = '';
@@ -574,6 +580,7 @@ async function saveEvent() {
     outsource: '',
     staff: selectedStaff,
     cars: selectedCars,
+    departure: document.getElementById('f-departure').value,
     start: document.getElementById('f-start').value,
     end: document.getElementById('f-end').value,
     amount: document.getElementById('f-amount').value.trim(),
