@@ -360,7 +360,7 @@ function buildHalf(from, to, y, m, todayKey) {
       const eh = timeToHour(ev.end);
       const who = Array.isArray(ev.staff) ? ev.staff.filter(Boolean).join('・') : '';
       const carStr = Array.isArray(ev.cars) && ev.cars.length ? `[${ev.cars.join('・')}]` : '';
-      const depStr = ev.departure ? `${ev.departure}出社` : '';
+      const depStr = ev.departure ? `<span style="color:#FF4444;font-weight:600">${ev.departure}出社</span>` : '';
       const label = [depStr, ev.place, who, carStr].filter(Boolean).join(' ');
 
       let leftPct, widthPct;
