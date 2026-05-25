@@ -18,6 +18,8 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 .nav-btn:hover{background:#f0f0ec}
 .month{font-size:20px;font-weight:600}
 .holiday-counter{background:#fff;border-bottom:1px solid #e8e8e4;padding:8px 14px}
+.holiday-counter-fixed{position:sticky;top:53px;z-index:40;background:#fff;border-bottom:1px solid #e8e8e4;padding:6px 14px;display:none}
+.holiday-counter-fixed.visible{display:block}
 .holiday-counter-title{font-size:13px;color:#aaa;font-weight:500;margin-bottom:4px}
 .holiday-counter-period{font-size:11px;color:#bbb;margin-bottom:5px}
 .holiday-chips{display:flex;flex-wrap:wrap;gap:5px}
@@ -116,6 +118,9 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
   <div class="sync"><div class="dot loading" id="sync-dot"></div><span id="sync-label">読み込み中...</span></div>
 </header>
 
+<div class="holiday-counter-fixed" id="fixed-counter">
+  <div class="holiday-chips" id="fixed-chips"></div>
+</div>
 <div class="nav">
   <button class="nav-btn" onclick="changeMonth(-1)">‹ 前月</button>
   <span class="month" id="month-title"></span>
@@ -430,8 +435,15 @@ function render() {
   const hourHeaders = HOURS.map(h => `<div class="tl-hour">${h}:00</div>`).join('');
 
   function buildSection(from, to, label, isFirst) {
+    const sectionId = isFirst ? 'section-first' : 'section-second';
+    const chipsId = isFirst ? 'chips-first' : 'chips-second';
+    const counterHtml = makeCounterHtml(y, m, isFirst).replace(
+      'class="holiday-chips"',
+      `class="holiday-chips" id="${chipsId}"`
+    );
     return `
-      ${makeCounterHtml(y, m, isFirst)}
+      <div id="${sectionId}">
+      ${counterHtml}
       <div class="section-title">${label}</div>
       <div class="timeline-wrap">
         <div class="timeline-grid">
@@ -446,9 +458,9 @@ function render() {
   }
 
   document.getElementById('calendar-wrap').innerHTML =
-    buildSection(1, 15, '上半期 — 1日〜15日', true) +
+    buildSection(1, 15, '上半期 — 1日〜15日', true) + '</div>' +
     '<div style="height:12px"></div>' +
-    buildSection(16, lastDay, `下半期 — 16日〜${lastDay}日`, false) +
+    buildSection(16, lastDay, `下半期 — 16日〜${lastDay}日`, false) + '</div>' +
     '<div style="height:24px"></div>';
 }
 
