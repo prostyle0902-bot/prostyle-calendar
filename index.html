@@ -118,17 +118,8 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 </header>
 
 <div class="holiday-counter-fixed" id="fixed-counter">
-  <div style="font-size:11px;color:#aaa;margin-bottom:4px">残り休日数</div>
-  <div style="display:flex;gap:16px;flex-wrap:wrap">
-    <div>
-      <div style="font-size:10px;color:#bbb;margin-bottom:3px" id="fixed-label-first"></div>
-      <div class="holiday-chips" id="fixed-chips-first"></div>
-    </div>
-    <div>
-      <div style="font-size:10px;color:#bbb;margin-bottom:3px" id="fixed-label-second"></div>
-      <div class="holiday-chips" id="fixed-chips-second"></div>
-    </div>
-  </div>
+  <div style="font-size:10px;color:#bbb;margin-bottom:3px" id="fixed-label"></div>
+  <div class="holiday-chips" id="fixed-chips"></div>
 </div>
 <div class="nav">
   <button class="nav-btn" onclick="changeMonth(-1)">‹ 前月</button>
@@ -282,16 +273,23 @@ async function loadAll(showLoading) {
   } catch(e) {
     setSync('err', '読み込み失敗');
     if (!Object.keys(events).length) {
-      // 固定カウンターを更新
+      // 固定カウンター用データを保存
   const p1start = fmt(m===0?y-1:y, m===0?11:m-1, 16);
   const p1end = fmt(y, m, 15);
   const p2start = fmt(y, m, 16);
   const p2nextM = m===11?0:m+1, p2nextY = m===11?y+1:y;
   const p2end = fmt(p2nextY, p2nextM, 15);
-  document.getElementById('fixed-label-first').textContent = `${m===0?y-1:y}年${(m===0?11:m-1)+1}月16日〜${y}年${m+1}月15日`;
-  document.getElementById('fixed-label-second').textContent = `${y}年${m+1}月16日〜${p2nextY}年${p2nextM+1}月15日`;
-  document.getElementById('fixed-chips-first').innerHTML = makeChipsHtml(p1start, p1end);
-  document.getElementById('fixed-chips-second').innerHTML = makeChipsHtml(p2start, p2end);
+  window._counterFirst = {
+    label: `${m===0?y-1:y}年${(m===0?11:m-1)+1}月16日〜${y}年${m+1}月15日`,
+    chips: makeChipsHtml(p1start, p1end)
+  };
+  window._counterSecond = {
+    label: `${y}年${m+1}月16日〜${p2nextY}年${p2nextM+1}月15日`,
+    chips: makeChipsHtml(p2start, p2end)
+  };
+  // 初期表示は上半期
+  document.getElementById('fixed-label').textContent = window._counterFirst.label;
+  document.getElementById('fixed-chips').innerHTML = window._counterFirst.chips;
 
   document.getElementById('calendar-wrap').innerHTML =
         '<div class="err-msg">データの読み込みに失敗しました。<br>ページを再読み込みしてください。</div>';
@@ -477,16 +475,23 @@ function render() {
       </div>`;
   }
 
-  // 固定カウンターを更新
+  // 固定カウンター用データを保存
   const p1start = fmt(m===0?y-1:y, m===0?11:m-1, 16);
   const p1end = fmt(y, m, 15);
   const p2start = fmt(y, m, 16);
   const p2nextM = m===11?0:m+1, p2nextY = m===11?y+1:y;
   const p2end = fmt(p2nextY, p2nextM, 15);
-  document.getElementById('fixed-label-first').textContent = `${m===0?y-1:y}年${(m===0?11:m-1)+1}月16日〜${y}年${m+1}月15日`;
-  document.getElementById('fixed-label-second').textContent = `${y}年${m+1}月16日〜${p2nextY}年${p2nextM+1}月15日`;
-  document.getElementById('fixed-chips-first').innerHTML = makeChipsHtml(p1start, p1end);
-  document.getElementById('fixed-chips-second').innerHTML = makeChipsHtml(p2start, p2end);
+  window._counterFirst = {
+    label: `${m===0?y-1:y}年${(m===0?11:m-1)+1}月16日〜${y}年${m+1}月15日`,
+    chips: makeChipsHtml(p1start, p1end)
+  };
+  window._counterSecond = {
+    label: `${y}年${m+1}月16日〜${p2nextY}年${p2nextM+1}月15日`,
+    chips: makeChipsHtml(p2start, p2end)
+  };
+  // 初期表示は上半期
+  document.getElementById('fixed-label').textContent = window._counterFirst.label;
+  document.getElementById('fixed-chips').innerHTML = window._counterFirst.chips;
 
   document.getElementById('calendar-wrap').innerHTML =
     buildSection(1, 15, '上半期 — 1日〜15日', true) + '</div>' +
