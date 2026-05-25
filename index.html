@@ -13,12 +13,11 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 .sync{font-size:13px;display:flex;align-items:center;gap:5px;opacity:0.8}
 .dot{width:7px;height:7px;border-radius:50%;background:#888;flex-shrink:0}
 .dot.ok{background:#7bc67e}.dot.err{background:#f28b82}.dot.loading{background:#ffb74d}
-.nav{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#fff;border-bottom:1px solid #e8e8e4;position:sticky;top:53px;z-index:45}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#fff;border-bottom:1px solid #e8e8e4}
 .nav-btn{background:none;border:1px solid #ccc;border-radius:6px;padding:7px 16px;cursor:pointer;font-size:15px;color:#333}
 .nav-btn:hover{background:#f0f0ec}
 .month{font-size:20px;font-weight:600}
-.holiday-counter{background:#fff;border-bottom:1px solid #e8e8e4;padding:6px 14px}
-.holiday-counter-fixed{position:sticky;top:143px;z-index:43;background:#fff7f0;border-bottom:1px solid #e8e8e4;padding:6px 14px}
+.holiday-counter{background:#fff;border-bottom:1px solid #e8e8e4;padding:8px 14px}
 .holiday-counter-title{font-size:13px;color:#aaa;font-weight:500;margin-bottom:4px}
 .holiday-counter-period{font-size:11px;color:#bbb;margin-bottom:5px}
 .holiday-chips{display:flex;flex-wrap:wrap;gap:5px}
@@ -26,7 +25,7 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 .holiday-chip .chip-name{color:#333;font-weight:500}
 .holiday-chip .chip-count{color:#fff;background:#e05555;border-radius:10px;padding:1px 6px;font-size:11px;font-weight:600}
 .holiday-chip .chip-count.ok{background:#7bc67e}
-.legend{display:flex;gap:8px;padding:8px 14px;background:#fff;border-bottom:1px solid #e8e8e4;flex-wrap:wrap;position:sticky;top:106px;z-index:44}
+.legend{display:flex;gap:8px;padding:8px 14px;background:#fff;border-bottom:1px solid #e8e8e4;flex-wrap:wrap}
 .legend-item{display:flex;align-items:center;gap:4px;font-size:12px;color:#555}
 .legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
 .section-title{font-size:14px;font-weight:600;color:#666;padding:10px 14px 5px;letter-spacing:0.05em}
@@ -118,8 +117,16 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 </header>
 
 <div class="holiday-counter-fixed" id="fixed-counter">
-  <div style="font-size:10px;color:#bbb;margin-bottom:3px" id="fixed-label"></div>
-  <div class="holiday-chips" id="fixed-chips"></div>
+  <div style="display:flex;gap:16px;flex-wrap:wrap">
+    <div>
+      <div style="font-size:10px;color:#bbb;margin-bottom:3px" id="fixed-label-first"></div>
+      <div class="holiday-chips" id="fixed-chips-first"></div>
+    </div>
+    <div>
+      <div style="font-size:10px;color:#bbb;margin-bottom:3px" id="fixed-label-second"></div>
+      <div class="holiday-chips" id="fixed-chips-second"></div>
+    </div>
+  </div>
 </div>
 <div class="nav">
   <button class="nav-btn" onclick="changeMonth(-1)">‹ 前月</button>
@@ -273,23 +280,16 @@ async function loadAll(showLoading) {
   } catch(e) {
     setSync('err', '読み込み失敗');
     if (!Object.keys(events).length) {
-      // 固定カウンター用データを保存
+      // 固定カウンターを更新
   const p1start = fmt(m===0?y-1:y, m===0?11:m-1, 16);
   const p1end = fmt(y, m, 15);
   const p2start = fmt(y, m, 16);
   const p2nextM = m===11?0:m+1, p2nextY = m===11?y+1:y;
   const p2end = fmt(p2nextY, p2nextM, 15);
-  window._counterFirst = {
-    label: `${m===0?y-1:y}年${(m===0?11:m-1)+1}月16日〜${y}年${m+1}月15日`,
-    chips: makeChipsHtml(p1start, p1end)
-  };
-  window._counterSecond = {
-    label: `${y}年${m+1}月16日〜${p2nextY}年${p2nextM+1}月15日`,
-    chips: makeChipsHtml(p2start, p2end)
-  };
-  // 初期表示は上半期
-  document.getElementById('fixed-label').textContent = window._counterFirst.label;
-  document.getElementById('fixed-chips').innerHTML = window._counterFirst.chips;
+  document.getElementById('fixed-label-first').textContent = `${m===0?y-1:y}年${(m===0?11:m-1)+1}月16日〜${y}年${m+1}月15日`;
+  document.getElementById('fixed-label-second').textContent = `${y}年${m+1}月16日〜${p2nextY}年${p2nextM+1}月15日`;
+  document.getElementById('fixed-chips-first').innerHTML = makeChipsHtml(p1start, p1end);
+  document.getElementById('fixed-chips-second').innerHTML = makeChipsHtml(p2start, p2end);
 
   document.getElementById('calendar-wrap').innerHTML =
         '<div class="err-msg">データの読み込みに失敗しました。<br>ページを再読み込みしてください。</div>';
@@ -475,23 +475,16 @@ function render() {
       </div>`;
   }
 
-  // 固定カウンター用データを保存
+  // 固定カウンターを更新
   const p1start = fmt(m===0?y-1:y, m===0?11:m-1, 16);
   const p1end = fmt(y, m, 15);
   const p2start = fmt(y, m, 16);
   const p2nextM = m===11?0:m+1, p2nextY = m===11?y+1:y;
   const p2end = fmt(p2nextY, p2nextM, 15);
-  window._counterFirst = {
-    label: `${m===0?y-1:y}年${(m===0?11:m-1)+1}月16日〜${y}年${m+1}月15日`,
-    chips: makeChipsHtml(p1start, p1end)
-  };
-  window._counterSecond = {
-    label: `${y}年${m+1}月16日〜${p2nextY}年${p2nextM+1}月15日`,
-    chips: makeChipsHtml(p2start, p2end)
-  };
-  // 初期表示は上半期
-  document.getElementById('fixed-label').textContent = window._counterFirst.label;
-  document.getElementById('fixed-chips').innerHTML = window._counterFirst.chips;
+  document.getElementById('fixed-label-first').textContent = `${m===0?y-1:y}年${(m===0?11:m-1)+1}月16日〜${y}年${m+1}月15日`;
+  document.getElementById('fixed-label-second').textContent = `${y}年${m+1}月16日〜${p2nextY}年${p2nextM+1}月15日`;
+  document.getElementById('fixed-chips-first').innerHTML = makeChipsHtml(p1start, p1end);
+  document.getElementById('fixed-chips-second').innerHTML = makeChipsHtml(p2start, p2end);
 
   document.getElementById('calendar-wrap').innerHTML =
     buildSection(1, 15, '上半期 — 1日〜15日', true) + '</div>' +
