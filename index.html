@@ -138,6 +138,7 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
   <div class="modal">
     <div class="modal-handle"></div>
     <h3 id="modal-title">現場を追加</h3>
+    <div class="form-row"><label>日付</label><input id="f-date" type="date"></div>
     <div class="form-row"><label>現場名・作業場所 *</label><input id="f-place" placeholder="例：〇〇病院 3階廊下"></div>
     <div class="form-row"><label>お客様名</label><input id="f-client" placeholder="例：山田商事"></div>
     <div class="form-row"><label>作業種別</label>
@@ -514,6 +515,7 @@ function openAdd(dateKey) {
   selectedStaff = []; selectedCars = [];
   const [,mo,day] = dateKey.split('-');
   document.getElementById('modal-title').textContent = `${parseInt(mo)}月${parseInt(day)}日 — 現場を追加`;
+  document.getElementById('f-date').value = editingDate;
   document.getElementById('f-place').value = '';
   document.getElementById('f-client').value = '';
   document.getElementById('f-type').value = 'daily';
@@ -537,6 +539,7 @@ function openEdit(dateKey, id) {
   selectedCars = Array.isArray(ev.cars) ? ev.cars.filter(Boolean) : [];
   const [,mo,day] = dateKey.split('-');
   document.getElementById('modal-title').textContent = `${parseInt(mo)}月${parseInt(day)}日 — 編集`;
+  document.getElementById('f-date').value = ev.date||'';
   document.getElementById('f-place').value = ev.place||'';
   document.getElementById('f-client').value = ev.client||'';
   document.getElementById('f-type').value = ev.type||'daily';
@@ -595,9 +598,10 @@ function closeHolidayModal() { document.getElementById('holiday-overlay').classL
 async function saveEvent() {
   const place = document.getElementById('f-place').value.trim();
   if (!place) { alert('現場名を入力してください'); return; }
+  const newDate = document.getElementById('f-date').value || editingDate;
   const ev = {
     id: editingId || Date.now().toString(36) + Math.random().toString(36).slice(2,5),
-    date: editingDate, place,
+    date: newDate, place,
     client: document.getElementById('f-client').value.trim(),
     type: document.getElementById('f-type').value,
     outsource: '',
