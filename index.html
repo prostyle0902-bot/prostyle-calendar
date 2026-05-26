@@ -97,15 +97,39 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 .loading-msg{text-align:center;padding:40px;color:#999;font-size:13px}
 .err-msg{text-align:center;padding:20px;color:#e05555;font-size:13px;line-height:1.8}
 @media(max-width:600px){
-  body{font-size:15px}
-  .month{font-size:19px}
-  .dnum{font-size:14px}
-  .dname{font-size:11px}
-  .ev-bar{font-size:11px;height:24px}
-  .tl-hour{font-size:10px}
-  .section-title{font-size:14px}
-  .holiday-tag,.free-tag{font-size:11px}
-  .holiday-chip{font-size:12px}
+  body{font-size:16px}
+  .month{font-size:20px;font-weight:700}
+  .nav-btn{font-size:15px;padding:8px 16px}
+  .section-title{font-size:15px;padding:12px 14px 6px}
+  .legend-item{font-size:13px}
+  .holiday-counter-title{font-size:14px}
+  .holiday-counter-period{font-size:12px}
+  .holiday-chip{font-size:13px;padding:5px 12px}
+  .holiday-chip .chip-count{font-size:12px;padding:2px 8px}
+  /* スマホではタイムラインを非表示、リスト表示に切り替え */
+  .timeline-wrap{display:none}
+  .tl-header{display:none}
+  .mobile-list{display:block}
+  .mobile-row{padding:10px 14px;border-bottom:1px solid #f0f0ec;background:#fff}
+  .mobile-row:hover{background:#fafaf8}
+  .mobile-date{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .mobile-dnum{font-size:16px;font-weight:700;color:#222;min-width:28px}
+  .mobile-dname{font-size:13px;color:#999}
+  .mobile-holiday-jp{font-size:12px;color:#e05555;font-weight:600}
+  .mobile-events{display:flex;flex-direction:column;gap:4px}
+  .mobile-ev{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;font-size:14px;cursor:pointer}
+  .mobile-ev-time{font-size:12px;color:#888;min-width:80px;flex-shrink:0}
+  .mobile-ev-name{flex:1;font-weight:500}
+  .mobile-ev-staff{font-size:12px;color:#666}
+  .mobile-outsource{margin-top:4px}
+  .mobile-outsource-item{display:inline-flex;padding:4px 8px;border-radius:6px;background:#F4C0D1;color:#72243E;font-size:13px;margin:2px 2px 2px 0;cursor:pointer}
+  .mobile-holiday-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+  .holiday-tag{font-size:13px;padding:3px 8px}
+  .free-tag{font-size:13px;padding:3px 8px}
+  .mobile-add-btn{display:inline-flex;align-items:center;padding:4px 10px;border-radius:6px;border:1px dashed #ccc;color:#aaa;font-size:13px;cursor:pointer;margin-top:4px}
+}
+@media(min-width:601px){
+  .mobile-list{display:none}
 }
 </style>
 </head>
@@ -430,6 +454,62 @@ function buildHalf(from, to, y, m, todayKey) {
   return rows;
 }
 
+function buildMobileHalf(from, to, y, m, todayKey) {
+  let rows = '';
+  for (let d = from; d <= to; d++) {
+    const date = new Date(y, m, d);
+    const dow = date.getDay();
+    const key = fmt(y, m, d);
+    const isToday = key === todayKey;
+    const isHolidayJp = HOLIDAYS_JP.has(key);
+    const isSun = dow === 0, isSat = dow === 6;
+    const dayEvs = events[key] || [];
+    const dayHols = holidays[key] || [];
+
+    const dnumColor = (isHolidayJp||isSun)?'color:#e05555':(isSat?'color:#4a90d9':'');
+    const bgColor = isToday?'background:#edf5fc':'';
+    const holidayJpLabel = isHolidayJp ? `<span class="mobile-holiday-jp">祝</span>` : '';
+
+    // 現場イベント（外注以外）
+    const assignedStaff = new Set();
+    const evItems = dayEvs.filter(ev=>ev.type!=='outsource').map(ev => {
+      const tc = TYPE_CLASS[ev.type]||'type-daily';
+      if (Array.isArray(ev.staff)) ev.staff.filter(Boolean).forEach(s=>assignedStaff.add(s));
+      const who = Array.isArray(ev.staff)?ev.staff.filter(Boolean).join('・'):'';
+      const dep = ev.departure?`${ev.departure}出社 `:'';
+      const time = ev.start?(ev.end?`${ev.start}〜${ev.end}`:ev.start):'';
+      const cars = Array.isArray(ev.cars)&&ev.cars.length?`[${ev.cars.join('・')}]`:'';
+      return `<div class="mobile-ev ${tc}" onclick="openEdit('${key}','${ev.id}')">
+        <span class="mobile-ev-time">${dep}${time}</span>
+        <div><div class="mobile-ev-name">${ev.place}</div><div class="mobile-ev-staff">${[who,cars].filter(Boolean).join(' ')}</div></div>
+      </div>`;
+    }).join('');
+
+    // 外注
+    const outsourceItems = dayEvs.filter(ev=>ev.type==='outsource').map(ev=>{
+      const who = Array.isArray(ev.staff)?ev.staff.filter(Boolean).join('・'):'';
+      return `<span class="mobile-outsource-item" onclick="openEdit('${key}','${ev.id}')">${[who,ev.place].filter(Boolean).join('/')}</span>`;
+    }).join('');
+
+    // 休み・手空き
+    const holidayTags = dayHols.map(s=>`<span class="holiday-tag" onclick="openHolidayModal('${key}')">${s}</span>`).join('');
+    const freeTags = STAFF_HOLIDAY.filter(s=>!dayHols.includes(s)&&!assignedStaff.has(s)).map(s=>`<span class="free-tag">${s}</span>`).join('');
+
+    rows += `<div class="mobile-row" style="${bgColor}">
+      <div class="mobile-date">
+        <span class="mobile-dnum" style="${dnumColor}">${d}</span>
+        <span class="mobile-dname">${DAYS[dow]}</span>
+        ${holidayJpLabel}
+        <button class="mobile-add-btn" onclick="openAdd('${key}')">＋ 現場</button>
+      </div>
+      <div class="mobile-events">${evItems}</div>
+      ${outsourceItems?`<div class="mobile-outsource">${outsourceItems}</div>`:''}
+      <div class="mobile-holiday-row">${holidayTags}${freeTags}<span class="holiday-tag" style="background:#f5f5f0;color:#bbb;border:1px dashed #ddd" onclick="openHolidayModal('${key}')">＋ 休み</span></div>
+    </div>`;
+  }
+  return rows;
+}
+
 function render() {
   const y = current.getFullYear(), m = current.getMonth();
   document.getElementById('month-title').textContent = `${y}年${m+1}月`;
@@ -458,6 +538,9 @@ function render() {
           </div>
           ${buildHalf(from, to, y, m, todayKey)}
         </div>
+      </div>
+      <div class="mobile-list">
+        ${buildMobileHalf(from, to, y, m, todayKey)}
       </div>`;
   }
 
