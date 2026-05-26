@@ -116,18 +116,6 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
   <div class="sync"><div class="dot loading" id="sync-dot"></div><span id="sync-label">読み込み中...</span></div>
 </header>
 
-<div class="holiday-counter-fixed" id="fixed-counter">
-  <div style="display:flex;gap:16px;flex-wrap:wrap">
-    <div>
-      <div style="font-size:10px;color:#bbb;margin-bottom:3px" id="fixed-label-first"></div>
-      <div class="holiday-chips" id="fixed-chips-first"></div>
-    </div>
-    <div>
-      <div style="font-size:10px;color:#bbb;margin-bottom:3px" id="fixed-label-second"></div>
-      <div class="holiday-chips" id="fixed-chips-second"></div>
-    </div>
-  </div>
-</div>
 <div class="nav">
   <button class="nav-btn" onclick="changeMonth(-1)">‹ 前月</button>
   <span class="month" id="month-title"></span>
@@ -286,10 +274,7 @@ async function loadAll(showLoading) {
   const p2start = fmt(y, m, 16);
   const p2nextM = m===11?0:m+1, p2nextY = m===11?y+1:y;
   const p2end = fmt(p2nextY, p2nextM, 15);
-  document.getElementById('fixed-label-first').textContent = `${m===0?y-1:y}年${(m===0?11:m-1)+1}月16日〜${y}年${m+1}月15日`;
-  document.getElementById('fixed-label-second').textContent = `${y}年${m+1}月16日〜${p2nextY}年${p2nextM+1}月15日`;
-  document.getElementById('fixed-chips-first').innerHTML = makeChipsHtml(p1start, p1end);
-  document.getElementById('fixed-chips-second').innerHTML = makeChipsHtml(p2start, p2end);
+
 
   document.getElementById('calendar-wrap').innerHTML =
         '<div class="err-msg">データの読み込みに失敗しました。<br>ページを再読み込みしてください。</div>';
@@ -481,10 +466,7 @@ function render() {
   const p2start = fmt(y, m, 16);
   const p2nextM = m===11?0:m+1, p2nextY = m===11?y+1:y;
   const p2end = fmt(p2nextY, p2nextM, 15);
-  document.getElementById('fixed-label-first').textContent = `${m===0?y-1:y}年${(m===0?11:m-1)+1}月16日〜${y}年${m+1}月15日`;
-  document.getElementById('fixed-label-second').textContent = `${y}年${m+1}月16日〜${p2nextY}年${p2nextM+1}月15日`;
-  document.getElementById('fixed-chips-first').innerHTML = makeChipsHtml(p1start, p1end);
-  document.getElementById('fixed-chips-second').innerHTML = makeChipsHtml(p2start, p2end);
+
 
   document.getElementById('calendar-wrap').innerHTML =
     buildSection(1, 15, '上半期 — 1日〜15日', true) + '</div>' +
