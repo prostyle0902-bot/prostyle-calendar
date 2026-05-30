@@ -17,8 +17,8 @@ header h1{font-size:17px;font-weight:500}
 .nav-btn{background:none;border:1px solid #ccc;border-radius:6px;padding:7px 16px;cursor:pointer;font-size:14px;color:#333}
 .nav-btn:hover{background:#f0f0ec}
 .month{font-size:19px;font-weight:600}
-
-/* 店舗カラー */
+.legend{display:flex;gap:6px;padding:8px 14px;background:#fff;border-bottom:1px solid #e8e8e4;flex-wrap:wrap}
+.legend-item{font-size:11px;padding:2px 8px;border-radius:4px}
 .store-tako{background:#FFE0B2;color:#E65100}
 .store-hana{background:#FCE4EC;color:#880E4F}
 .store-ryu{background:#E8F5E9;color:#1B5E20}
@@ -27,58 +27,46 @@ header h1{font-size:17px;font-weight:500}
 .store-cleaning{background:#F3E5F5;color:#4A148C}
 .store-yakitate{background:#FBE9E7;color:#BF360C}
 .store-sawara{background:#E0F7FA;color:#006064}
-
-.calendar-wrap{padding:0 0 24px}
 .section-title{font-size:13px;font-weight:600;color:#666;padding:10px 14px 5px}
 .table-wrap{overflow-x:auto;padding:0 14px 4px;-webkit-overflow-scrolling:touch}
-table.shift-table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;border:1px solid #e8e8e4;overflow:hidden;min-width:700px}
-table.shift-table th{font-size:11px;color:#888;font-weight:500;padding:8px 10px;background:#fafaf8;border-bottom:1px solid #e8e8e4;text-align:left;white-space:nowrap}
-table.shift-table th.date-col{width:70px;text-align:center}
-table.shift-table td{padding:5px 8px;border-bottom:0.5px solid #f0f0ec;vertical-align:top;font-size:12px}
-table.shift-table td.date-cell{text-align:center;width:70px;cursor:pointer}
-table.shift-table td.date-cell:hover{background:#f5f5f0}
-table.shift-table tr:last-child td{border-bottom:none}
+table.shift-table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;border:1px solid #e8e8e4;overflow:hidden;min-width:800px}
+table.shift-table th{font-size:11px;color:#888;font-weight:500;padding:8px 6px;background:#fafaf8;border-bottom:1px solid #e8e8e4;text-align:center;white-space:nowrap}
+table.shift-table th.date-col{width:60px}
+table.shift-table td{padding:4px 5px;border-bottom:0.5px solid #f0f0ec;vertical-align:top;min-width:90px}
+table.shift-table td.date-cell{text-align:center;width:60px;min-width:60px}
 table.shift-table tr.today td{background:#edf5fc}
-table.shift-table tr.sun .dname,.shift-table tr.sun .dnum{color:#e05555}
-table.shift-table tr.sat .dname,.shift-table tr.sat .dnum{color:#4a90d9}
 .dnum{font-size:13px;font-weight:600;display:block}
-.dname{font-size:10px;color:#999;display:block}
-.holiday-jp-s{font-size:9px;color:#e05555;font-weight:600}
-
-.store-cell{padding:4px 6px;border-left:1px solid #f0f0ec}
-.shift-pill{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:4px;font-size:11px;margin:2px 2px 2px 0;cursor:pointer;white-space:nowrap}
+.dname{font-size:10px;display:block}
+.sun .dname,.sun .dnum{color:#e05555}
+.sat .dname,.sat .dnum{color:#4a90d9}
+.hj{font-size:9px;color:#e05555;font-weight:600}
+.shift-pill{display:block;padding:2px 5px;border-radius:4px;font-size:10px;margin-bottom:2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .shift-pill:hover{opacity:0.8}
-.add-pill{display:inline-flex;align-items:center;font-size:10px;padding:2px 6px;border-radius:4px;border:1px dashed #ccc;color:#bbb;cursor:pointer;white-space:nowrap;margin:2px 0}
-.add-pill:hover{background:#f5f5f0;color:#555}
-
-/* モーダル */
+.add-s{display:block;font-size:10px;color:#ccc;cursor:pointer;padding:1px 3px}
+.add-s:hover{color:#888}
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:flex-end;justify-content:center}
 .overlay.open{display:flex}
 .modal{background:#fff;border-radius:14px 14px 0 0;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding:20px 20px 32px}
-@media(min-width:520px){.overlay{align-items:center;padding:16px}.modal{border-radius:14px;max-height:88vh}}
-.modal-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 16px}
-.modal h3{font-size:15px;font-weight:600;margin-bottom:16px}
-.form-row{margin-bottom:12px}
-.form-row label{display:block;font-size:11px;color:#888;margin-bottom:5px;font-weight:500}
-.form-row input,.form-row select,.form-row textarea{width:100%;font-size:15px;padding:10px 12px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#1a1a1a;-webkit-appearance:none;appearance:none}
-.form-row input:focus,.form-row select:focus{outline:none;border-color:#4a90d9;box-shadow:0 0 0 3px rgba(74,144,217,0.12)}
+@media(min-width:520px){.overlay{align-items:center;padding:16px}.modal{border-radius:14px}}
+.modal-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 14px}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:14px}
+.form-row{margin-bottom:11px}
+.form-row label{display:block;font-size:11px;color:#888;margin-bottom:4px;font-weight:500}
+.form-row input,.form-row select{width:100%;font-size:15px;padding:10px 12px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#1a1a1a;-webkit-appearance:none;appearance:none}
+.form-row input:focus,.form-row select:focus{outline:none;border-color:#4a90d9}
 .time-row{display:flex;gap:8px;align-items:center}
 .time-row input{flex:1}
-.time-sep{font-size:14px;color:#999;flex-shrink:0}
-.staff-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px}
-.staff-btn{padding:8px 6px;border-radius:7px;border:1.5px solid #e0e0e0;background:#fafafa;color:#555;font-size:13px;cursor:pointer;text-align:center;transition:all 0.15s}
-.staff-btn:hover{border-color:#aaa;background:#f0f0ec}
-.staff-btn.selected{border-color:#4a90d9;background:#e8f2fd;color:#1a5fa8;font-weight:500}
-.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.time-sep{font-size:14px;color:#999}
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px}
+.check-label{display:flex;align-items:center;gap:8px;font-size:14px;color:#333;padding:7px 10px;border-radius:7px;border:1px solid #eee;cursor:pointer;background:#fafafa}
+.check-label:hover{background:#f0f0ec}
+.check-label input[type=checkbox]{width:18px;height:18px;accent-color:#4a90d9;flex-shrink:0;cursor:pointer}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
 .btn{padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;border:none}
 .btn-primary{background:#1a1a1a;color:#fff}
 .btn-cancel{background:#f0f0ec;color:#555}
 .btn-delete{background:#fee2e2;color:#b91c1c;margin-right:auto}
 .loading-msg{text-align:center;padding:40px;color:#999;font-size:13px}
-
-/* 店舗凡例 */
-.legend{display:flex;gap:6px;padding:8px 14px;background:#fff;border-bottom:1px solid #e8e8e4;flex-wrap:wrap}
-.legend-item{display:flex;align-items:center;gap:4px;font-size:11px;padding:2px 7px;border-radius:4px}
 </style>
 </head>
 <body>
@@ -107,27 +95,26 @@ table.shift-table tr.sat .dname,.shift-table tr.sat .dnum{color:#4a90d9}
 
 <div id="calendar-wrap"><div class="loading-msg">読み込み中...</div></div>
 
-<!-- シフト入力モーダル -->
 <div class="overlay" id="overlay">
   <div class="modal">
     <div class="modal-handle"></div>
     <h3 id="modal-title">シフトを追加</h3>
     <div class="form-row"><label>日付</label><input id="f-date" type="date"></div>
     <div class="form-row"><label>店舗</label>
-      <select id="f-store" onchange="renderStaffGrid()">
-        <option value="タコとハイボール">タコとハイボール</option>
-        <option value="韓国酒場ハナ">韓国酒場ハナ</option>
-        <option value="りゅうちゃん">りゅうちゃん</option>
-        <option value="もも焼きJAPAN">もも焼きJAPAN</option>
-        <option value="バッシング">バッシング</option>
-        <option value="横丁清掃">横丁清掃</option>
-        <option value="焼きたて屋鹿島">焼きたて屋鹿島</option>
-        <option value="さわら十三里屋">さわら十三里屋</option>
+      <select id="f-store" onchange="updateStaffList()">
+        <option>タコとハイボール</option>
+        <option>韓国酒場ハナ</option>
+        <option>りゅうちゃん</option>
+        <option>もも焼きJAPAN</option>
+        <option>バッシング</option>
+        <option>横丁清掃</option>
+        <option>焼きたて屋鹿島</option>
+        <option>さわら十三里屋</option>
       </select>
     </div>
     <div class="form-row">
-      <label>スタッフ（複数選択可）</label>
-      <div class="staff-grid" id="staff-grid"></div>
+      <label>スタッフ</label>
+      <div class="check-grid" id="staff-checks"></div>
     </div>
     <div class="form-row"><label>時間</label>
       <div class="time-row">
@@ -138,9 +125,9 @@ table.shift-table tr.sat .dname,.shift-table tr.sat .dnum{color:#4a90d9}
     </div>
     <div class="form-row"><label>メモ</label><input id="f-memo" placeholder="備考など"></div>
     <div class="modal-btns">
-      <button class="btn btn-delete" id="delete-btn" onclick="deleteShift()" style="display:none">削除</button>
+      <button class="btn btn-delete" id="delete-btn" onclick="doDelete()" style="display:none">削除</button>
       <button class="btn btn-cancel" onclick="closeModal()">キャンセル</button>
-      <button class="btn btn-primary" onclick="saveShift()">保存</button>
+      <button class="btn btn-primary" onclick="doSave()">保存</button>
     </div>
   </div>
 </div>
@@ -149,16 +136,16 @@ table.shift-table tr.sat .dname,.shift-table tr.sat .dnum{color:#4a90d9}
 const API = 'https://script.google.com/macros/s/AKfycbwV_UNDYqwlGhMeoEQiasU348YX_UEKXys7E0TkZaOMfrcXtTx6-JIisyLVMCW2yj3g/exec';
 const DAYS = ['日','月','火','水','木','金','土'];
 
-const STORES = [
-  { key:'タコとハイボール', cls:'store-tako', staff:['ハルシャニ','ナディーシャ','松岡実麻'] },
-  { key:'韓国酒場ハナ',     cls:'store-hana', staff:['レナ','ナディーシャ'] },
-  { key:'りゅうちゃん',     cls:'store-ryu',  staff:['河野竜二','網代愛','新河美和','栗林里江','篠塚柚紀'] },
-  { key:'もも焼きJAPAN',    cls:'store-momo', staff:['土屋芳広'] },
-  { key:'バッシング',       cls:'store-bassing', staff:['石井義則','中村利人','山崎悠人','本田光江'] },
-  { key:'横丁清掃',         cls:'store-cleaning', staff:['橋本桂子','小金澤登美江'] },
-  { key:'焼きたて屋鹿島',   cls:'store-yakitate', staff:['及川晶雄','小林メグ','荒宏信'] },
-  { key:'さわら十三里屋',   cls:'store-sawara', staff:['八木秀子','籾山結泉','下河邊なお子','小堀真桜'] },
-];
+const STORES = {
+  'タコとハイボール': { cls:'store-tako', staff:['ハルシャニ','ナディーシャ','松岡実麻'] },
+  '韓国酒場ハナ':     { cls:'store-hana', staff:['レナ','ナディーシャ'] },
+  'りゅうちゃん':     { cls:'store-ryu',  staff:['河野竜二','網代愛','新河美和','栗林里江','篠塚柚紀'] },
+  'もも焼きJAPAN':    { cls:'store-momo', staff:['土屋芳広'] },
+  'バッシング':       { cls:'store-bassing', staff:['石井義則','中村利人','山崎悠人','本田光江'] },
+  '横丁清掃':         { cls:'store-cleaning', staff:['橋本桂子','小金澤登美江'] },
+  '焼きたて屋鹿島':   { cls:'store-yakitate', staff:['及川晶雄','小林メグ','荒宏信'] },
+  'さわら十三里屋':   { cls:'store-sawara', staff:['八木秀子','籾山結泉','下河邊なお子','小堀真桜'] },
+};
 
 const HOLIDAYS_JP = new Set([
   '2025-01-01','2025-01-13','2025-02-11','2025-02-23','2025-02-24',
@@ -179,7 +166,6 @@ let current = new Date();
 current = new Date(current.getFullYear(), current.getMonth(), 1);
 let shifts = {};
 let editingId = null, editingDate = null;
-let selectedStaff = [];
 let cbCount = 0;
 
 function setSync(s, l) {
@@ -188,117 +174,103 @@ function setSync(s, l) {
 }
 
 function jsonp(params) {
-  return new Promise((resolve, reject) => {
-    const cbName = '_cb' + (++cbCount);
-    const timeout = setTimeout(() => { delete window[cbName]; reject(new Error('timeout')); }, 25000);
-    window[cbName] = (data) => {
+  return new Promise(function(resolve, reject) {
+    var cbName = '_cb' + (++cbCount);
+    var timeout = setTimeout(function() { delete window[cbName]; reject(new Error('timeout')); }, 25000);
+    window[cbName] = function(data) {
       clearTimeout(timeout);
       delete window[cbName];
-      const el = document.getElementById(cbName);
+      var el = document.getElementById(cbName);
       if (el) el.remove();
       resolve(data);
     };
-    const qs = Object.entries({ ...params, callback: cbName })
-      .map(([k,v]) => `${k}=${encodeURIComponent(typeof v==='object'?JSON.stringify(v):v)}`).join('&');
-    const script = document.createElement('script');
+    var qs = Object.keys(params).concat(['callback']).map(function(k) {
+      var v = k === 'callback' ? cbName : params[k];
+      return k + '=' + encodeURIComponent(typeof v === 'object' ? JSON.stringify(v) : v);
+    }).join('&');
+    var script = document.createElement('script');
     script.id = cbName;
-    script.src = `${API}?${qs}&t=${Date.now()}`;
-    script.onerror = () => { clearTimeout(timeout); delete window[cbName]; script.remove(); reject(new Error('error')); };
+    script.src = API + '?' + qs + '&t=' + Date.now();
+    script.onerror = function() { clearTimeout(timeout); delete window[cbName]; script.remove(); reject(new Error('error')); };
     document.head.appendChild(script);
   });
+}
+
+function fmt(y, m, d) {
+  return y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
 }
 
 async function loadAll(showLoading) {
   if (showLoading !== false) setSync('loading', '読み込み中...');
   try {
-    const data = await jsonp({ action: 'getShifts' });
+    var data = await jsonp({ action: 'getShifts' });
     shifts = data || {};
     setSync('ok', '同期済み');
     render();
   } catch(e) {
     setSync('err', '読み込み失敗');
-    document.getElementById('calendar-wrap').innerHTML =
-      '<div class="loading-msg">読み込みに失敗しました。再読み込みしてください。</div>';
   }
 }
 
-function fmt(y, m, d) {
-  return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-}
-
-function getStoreCls(storeName) {
-  const s = STORES.find(s => s.key === storeName);
-  return s ? s.cls : 'store-tako';
-}
-
 function render() {
-  const y = current.getFullYear(), m = current.getMonth();
-  document.getElementById('month-title').textContent = `${y}年${m+1}月`;
-  const lastDay = new Date(y, m+1, 0).getDate();
-  const now = new Date();
-  const todayKey = fmt(now.getFullYear(), now.getMonth(), now.getDate());
+  var y = current.getFullYear(), m = current.getMonth();
+  document.getElementById('month-title').textContent = y + '年' + (m+1) + '月';
+  var lastDay = new Date(y, m+1, 0).getDate();
+  var now = new Date();
+  var todayKey = fmt(now.getFullYear(), now.getMonth(), now.getDate());
+  var storeKeys = Object.keys(STORES);
 
-  function buildTable(from, to) {
-    let rows = '';
-    for (let d = from; d <= to; d++) {
-      const date = new Date(y, m, d);
-      const dow = date.getDay();
-      const key = fmt(y, m, d);
-      const isToday = key === todayKey;
-      const isHolidayJp = HOLIDAYS_JP.has(key);
-      const isSun = dow===0, isSat = dow===6;
-      const cls = (isSun?'sun':isSat?'sat':'') + (isToday?' today':'');
-      const dayShifts = shifts[key] || [];
-      const dnumStyle = (isHolidayJp||isSun)?'color:#e05555':(isSat?'color:#4a90d9':'');
+  var storeHeaders = storeKeys.map(function(k) {
+    return '<th><span class="legend-item ' + STORES[k].cls + '">' + k + '</span></th>';
+  }).join('');
 
-      // 店舗ごとにシフトをまとめる
-      const storeCells = STORES.map(store => {
-        const storeShifts = dayShifts.filter(s => s.store === store.key);
-        const pills = storeShifts.map(s => {
-          const time = s.start?(s.end?`${s.start}〜${s.end}`:s.start):'';
-          const label = [s.staff, time].filter(Boolean).join(' ');
-          return `<span class="shift-pill ${store.cls}" onclick="openEdit('${key}','${s.id}')">${label}</span>`;
+  function buildRows(from, to) {
+    var rows = '';
+    for (var d = from; d <= to; d++) {
+      var date = new Date(y, m, d);
+      var dow = date.getDay();
+      var key = fmt(y, m, d);
+      var isToday = key === todayKey;
+      var isHJ = HOLIDAYS_JP.has(key);
+      var isSun = dow===0, isSat = dow===6;
+      var rowCls = (isSun?'sun':isSat?'sat':'') + (isToday?' today':'');
+      var dnumStyle = (isHJ||isSun)?'color:#e05555':(isSat?'color:#4a90d9':'');
+      var dayShifts = shifts[key] || [];
+
+      var storeCols = storeKeys.map(function(storeKey) {
+        var storeShifts = dayShifts.filter(function(s){ return s.store === storeKey; });
+        var pills = storeShifts.map(function(s) {
+          var time = s.start ? (s.end ? s.start+'〜'+s.end : s.start) : '';
+          var label = s.staff + (time ? ' '+time : '');
+          return '<span class="shift-pill ' + STORES[storeKey].cls + '" onclick="openEdit(\'' + key + '\',\'' + s.id + '\')">' + label + '</span>';
         }).join('');
-        return `<td class="store-cell">
-          ${pills}
-          <span class="add-pill" onclick="openAdd('${key}','${store.key}')">＋</span>
-        </td>`;
+        return '<td>' + pills + '<span class="add-s" onclick="openAdd(\'' + key + '\',\'' + storeKey + '\')">＋</span></td>';
       }).join('');
 
-      rows += `<tr class="${cls}">
-        <td class="date-cell" onclick="openAdd('${key}','')">
-          <span class="dnum" style="${dnumStyle}">${d}</span>
-          <span class="dname">${DAYS[dow]}</span>
-          ${isHolidayJp?`<span class="holiday-jp-s">祝</span>`:''}
-        </td>
-        ${storeCells}
-      </tr>`;
+      rows += '<tr class="' + rowCls + '">'
+        + '<td class="date-cell">'
+        + '<span class="dnum" style="' + dnumStyle + '">' + d + '</span>'
+        + '<span class="dname">' + DAYS[dow] + '</span>'
+        + (isHJ ? '<span class="hj">祝</span>' : '')
+        + '</td>'
+        + storeCols
+        + '</tr>';
     }
     return rows;
   }
 
-  const storeHeaders = STORES.map(s =>
-    `<th><span class="legend-item ${s.cls}" style="padding:2px 6px;border-radius:4px;font-size:11px">${s.key}</span></th>`
-  ).join('');
-
   function buildSection(from, to, label) {
-    return `
-      <div class="section-title">${label}</div>
-      <div class="table-wrap">
-        <table class="shift-table">
-          <thead><tr>
-            <th class="date-col">日付</th>
-            ${storeHeaders}
-          </tr></thead>
-          <tbody>${buildTable(from, to)}</tbody>
-        </table>
-      </div>`;
+    return '<div class="section-title">' + label + '</div>'
+      + '<div class="table-wrap"><table class="shift-table">'
+      + '<thead><tr><th class="date-col">日付</th>' + storeHeaders + '</tr></thead>'
+      + '<tbody>' + buildRows(from, to) + '</tbody>'
+      + '</table></div>';
   }
 
   document.getElementById('calendar-wrap').innerHTML =
     buildSection(1, 15, '上半期 — 1日〜15日') +
     '<div style="height:12px"></div>' +
-    buildSection(16, lastDay, `下半期 — 16日〜${lastDay}日`) +
+    buildSection(16, lastDay, '下半期 — 16日〜' + lastDay + '日') +
     '<div style="height:24px"></div>';
 }
 
@@ -307,83 +279,81 @@ function changeMonth(d) {
   loadAll();
 }
 
-function getStaffForStore(storeName) {
-  const s = STORES.find(s => s.key === storeName);
-  return s ? s.staff : [];
-}
-
-function toggleStaffByIndex(idx) {
-  const storeName = document.getElementById('f-store').value;
-  const staffList = getStaffForStore(storeName);
-  const name = staffList[idx];
-  if (!name) return;
-  if (selectedStaff.includes(name)) {
-    selectedStaff = selectedStaff.filter(function(s){ return s !== name; });
-  } else {
-    selectedStaff.push(name);
-  }
-  renderStaffGrid();
-}
-
-function renderStaffGrid() {
-  const storeName = document.getElementById('f-store').value;
-  const staffList = getStaffForStore(storeName);
+function updateStaffList(checkedList) {
+  var storeName = document.getElementById('f-store').value;
+  var staffList = STORES[storeName] ? STORES[storeName].staff : [];
+  var checked = checkedList || [];
   var html = '';
   for (var i = 0; i < staffList.length; i++) {
     var s = staffList[i];
-    var on = selectedStaff.indexOf(s) >= 0;
-    html += '<div class="staff-btn' + (on ? ' selected' : '') + '" onclick="toggleStaffByIndex(' + i + ')">' + s + '</div>';
+    var isChecked = checked.indexOf(s) >= 0;
+    html += '<label class="check-label">'
+      + '<input type="checkbox" value="' + s + '"' + (isChecked ? ' checked' : '') + '>'
+      + s + '</label>';
   }
-  document.getElementById('staff-grid').innerHTML = html;
+  document.getElementById('staff-checks').innerHTML = html;
+}
+
+function getCheckedStaff() {
+  var checkboxes = document.querySelectorAll('#staff-checks input[type=checkbox]:checked');
+  var result = [];
+  for (var i = 0; i < checkboxes.length; i++) {
+    result.push(checkboxes[i].value);
+  }
+  return result;
 }
 
 function openAdd(dateKey, storeName) {
   editingId = null; editingDate = dateKey;
-  selectedStaff = [];
-  document.getElementById('modal-title').textContent = (() => {
-    const [,mo,day] = dateKey.split('-');
-    return `${parseInt(mo)}月${parseInt(day)}日 — シフトを追加`;
-  })();
+  var parts = dateKey.split('-');
+  document.getElementById('modal-title').textContent = parseInt(parts[1]) + '月' + parseInt(parts[2]) + '日 — シフトを追加';
   document.getElementById('f-date').value = dateKey;
   document.getElementById('f-store').value = storeName || 'タコとハイボール';
   document.getElementById('f-start').value = '';
   document.getElementById('f-end').value = '';
   document.getElementById('f-memo').value = '';
   document.getElementById('delete-btn').style.display = 'none';
-  renderStaffGrid();
+  updateStaffList([]);
   document.getElementById('overlay').classList.add('open');
 }
 
 function openEdit(dateKey, id) {
-  const ev = (shifts[dateKey]||[]).find(s => s.id===id);
+  var dayShifts = shifts[dateKey] || [];
+  var ev = null;
+  for (var i = 0; i < dayShifts.length; i++) {
+    if (dayShifts[i].id === id) { ev = dayShifts[i]; break; }
+  }
   if (!ev) return;
   editingId = id; editingDate = dateKey;
-  selectedStaff = ev.staff ? ev.staff.split('・').filter(Boolean) : [];
-  const [,mo,day] = dateKey.split('-');
-  document.getElementById('modal-title').textContent = `${parseInt(mo)}月${parseInt(day)}日 — 編集`;
-  document.getElementById('f-date').value = ev.date||dateKey;
-  document.getElementById('f-store').value = ev.store||'タコとハイボール';
-  document.getElementById('f-start').value = ev.start||'';
-  document.getElementById('f-end').value = ev.end||'';
-  document.getElementById('f-memo').value = ev.memo||'';
+  var parts = dateKey.split('-');
+  document.getElementById('modal-title').textContent = parseInt(parts[1]) + '月' + parseInt(parts[2]) + '日 — 編集';
+  document.getElementById('f-date').value = ev.date || dateKey;
+  document.getElementById('f-store').value = ev.store || 'タコとハイボール';
+  document.getElementById('f-start').value = ev.start || '';
+  document.getElementById('f-end').value = ev.end || '';
+  document.getElementById('f-memo').value = ev.memo || '';
   document.getElementById('delete-btn').style.display = '';
-  renderStaffGrid();
+  var staffArr = ev.staff ? ev.staff.split('・') : [];
+  updateStaffList(staffArr);
   document.getElementById('overlay').classList.add('open');
 }
 
-function closeModal() { document.getElementById('overlay').classList.remove('open'); }
+function closeModal() {
+  document.getElementById('overlay').classList.remove('open');
+}
 
-async function saveShift() {
-  if (selectedStaff.length === 0) { alert('スタッフを選択してください'); return; }
-  const newDate = document.getElementById('f-date').value || editingDate;
-  const ev = {
+async function doSave() {
+  var checkedStaff = getCheckedStaff();
+  if (checkedStaff.length === 0) { alert('スタッフを選択してください'); return; }
+  var newDate = document.getElementById('f-date').value || editingDate;
+  var ev = {
     id: editingId || Date.now().toString(36) + Math.random().toString(36).slice(2,5),
     date: newDate,
     store: document.getElementById('f-store').value,
-    staff: selectedStaff.join('・'),
+    staff: checkedStaff.join('・'),
     start: document.getElementById('f-start').value,
     end: document.getElementById('f-end').value,
-    memo: document.getElementById('f-memo').value.trim()
+    memo: document.getElementById('f-memo').value
   };
   closeModal();
   setSync('loading', '保存中...');
@@ -394,9 +364,9 @@ async function saveShift() {
   } catch(e) { setSync('err', '保存失敗'); }
 }
 
-async function deleteShift() {
+async function doDelete() {
   if (!confirm('このシフトを削除しますか？')) return;
-  const delId = editingId;
+  var delId = editingId;
   closeModal();
   setSync('loading', '削除中...');
   try {
