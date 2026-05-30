@@ -315,18 +315,25 @@ function getStaffForStore(storeName) {
 function renderStaffGrid() {
   const storeName = document.getElementById('f-store').value;
   const staffList = getStaffForStore(storeName);
-  document.getElementById('staff-grid').innerHTML = staffList.map(s => {
+  document.getElementById('staff-grid').innerHTML = staffList.map((s, i) => {
     const on = selectedStaff.includes(s);
-    return `<div class="staff-btn${on?' selected':''}" onclick="toggleStaff('${s}')">${s}</div>`;
+    return `<div class="staff-btn${on?' selected':''}" data-staff-index="${i}">${s}</div>`;
   }).join('');
 }
 
-function toggleStaff(name) {
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('[data-staff-index]');
+  if (!btn) return;
+  const storeName = document.getElementById('f-store').value;
+  const staffList = getStaffForStore(storeName);
+  const idx = parseInt(btn.getAttribute('data-staff-index'));
+  const name = staffList[idx];
+  if (!name) return;
   selectedStaff = selectedStaff.includes(name)
     ? selectedStaff.filter(s => s !== name)
     : [...selectedStaff, name];
   renderStaffGrid();
-}
+});
 
 function openAdd(dateKey, storeName) {
   editingId = null; editingDate = dateKey;
