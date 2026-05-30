@@ -57,10 +57,9 @@ table.shift-table tr.today td{background:#edf5fc}
 .time-row{display:flex;gap:8px;align-items:center}
 .time-row input{flex:1}
 .time-sep{font-size:14px;color:#999}
-.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px}
-.check-label{display:flex;align-items:center;gap:8px;font-size:14px;color:#333;padding:7px 10px;border-radius:7px;border:1px solid #eee;cursor:pointer;background:#fafafa}
-.check-label:hover{background:#f0f0ec}
-.check-label input[type=checkbox]{width:18px;height:18px;accent-color:#4a90d9;flex-shrink:0;cursor:pointer}
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px}
+.check-btn{font-size:14px;color:#555;padding:10px 8px;border-radius:8px;border:2px solid #e0e0e0;background:#fafafa;text-align:center;cursor:pointer;user-select:none;-webkit-user-select:none}
+.check-btn.on{border-color:#4a90d9;background:#e8f2fd;color:#1a5fa8;font-weight:600}
 .modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
 .btn{padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;border:none}
 .btn-primary{background:#1a1a1a;color:#fff}
@@ -279,28 +278,39 @@ function changeMonth(d) {
   loadAll();
 }
 
+var currentStaffList = [];
+var selectedStaffSet = [];
+
 function updateStaffList(checkedList) {
   var storeName = document.getElementById('f-store').value;
-  var staffList = STORES[storeName] ? STORES[storeName].staff : [];
-  var checked = checkedList || [];
+  currentStaffList = STORES[storeName] ? STORES[storeName].staff.slice() : [];
+  selectedStaffSet = checkedList ? checkedList.slice() : [];
+  renderStaffButtons();
+}
+
+function renderStaffButtons() {
   var html = '';
-  for (var i = 0; i < staffList.length; i++) {
-    var s = staffList[i];
-    var isChecked = checked.indexOf(s) >= 0;
-    html += '<label class="check-label">'
-      + '<input type="checkbox" value="' + s + '"' + (isChecked ? ' checked' : '') + '>'
-      + s + '</label>';
+  for (var i = 0; i < currentStaffList.length; i++) {
+    var s = currentStaffList[i];
+    var on = selectedStaffSet.indexOf(s) >= 0;
+    html += '<div class="check-btn' + (on ? ' on' : '') + '" onclick="toggleStaffBtn(' + i + ')">' + s + '</div>';
   }
   document.getElementById('staff-checks').innerHTML = html;
 }
 
-function getCheckedStaff() {
-  var checkboxes = document.querySelectorAll('#staff-checks input[type=checkbox]:checked');
-  var result = [];
-  for (var i = 0; i < checkboxes.length; i++) {
-    result.push(checkboxes[i].value);
+function toggleStaffBtn(idx) {
+  var name = currentStaffList[idx];
+  var pos = selectedStaffSet.indexOf(name);
+  if (pos >= 0) {
+    selectedStaffSet.splice(pos, 1);
+  } else {
+    selectedStaffSet.push(name);
   }
-  return result;
+  renderStaffButtons();
+}
+
+function getCheckedStaff() {
+  return selectedStaffSet.slice();
 }
 
 function openAdd(dateKey, storeName) {
