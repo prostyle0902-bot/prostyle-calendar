@@ -66,6 +66,9 @@ table.shift-table tr.today td{background:#edf5fc}
 .btn-cancel{background:#f0f0ec;color:#555}
 .btn-delete{background:#fee2e2;color:#b91c1c;margin-right:auto}
 .loading-msg{text-align:center;padding:40px;color:#999;font-size:13px}
+.filter-bar{display:flex;gap:6px;padding:8px 14px;background:#fff;border-bottom:1px solid #e8e8e4;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+.filter-btn{flex-shrink:0;font-size:12px;padding:5px 12px;border-radius:20px;border:1.5px solid #ddd;background:#fafafa;color:#555;cursor:pointer}
+.filter-btn.active{border-color:#1a1a1a;background:#1a1a1a;color:#fff;font-weight:500}
 @media(max-width:600px){
   .table-wrap{display:none}
   .mobile-shift{display:block}
@@ -108,6 +111,8 @@ table.shift-table tr.today td{background:#edf5fc}
   <span class="legend-item store-yakitate">焼きたて屋</span>
   <span class="legend-item store-sawara">十三里屋</span>
 </div>
+
+<div class="filter-bar" id="filter-bar"></div>
 
 <div id="calendar-wrap"><div class="loading-msg">読み込み中...</div></div>
 
@@ -183,6 +188,24 @@ current = new Date(current.getFullYear(), current.getMonth(), 1);
 let shifts = {};
 let editingId = null, editingDate = null;
 let cbCount = 0;
+let activeFilter = ''; // '' = 全店舗
+
+function buildFilterBar() {
+  var storeKeys = Object.keys(STORES);
+  var html = '<div class="filter-btn' + (activeFilter===''?' active':'') + '" onclick="setFilter('')">全店舗</div>';
+  for (var i = 0; i < storeKeys.length; i++) {
+    var k = storeKeys[i];
+    var on = activeFilter === k;
+    html += '<div class="filter-btn ' + STORES[k].cls + (on?' active':'') + '" onclick="setFilter('' + k.replace(/'/g,"\'") + '')">' + k + '</div>';
+  }
+  document.getElementById('filter-bar').innerHTML = html;
+}
+
+function setFilter(storeName) {
+  activeFilter = storeName;
+  buildFilterBar();
+  render();
+}
 
 function setSync(s, l) {
   document.getElementById('sync-dot').className = 'dot ' + s;
@@ -287,29 +310,36 @@ function render() {
       var dnumStyle = (isHJ||isSun)?'color:#e05555':(isSat?'color:#4a90d9':'');
       var dayShifts = shifts[key] || [];
 
-      // 店舗ごとにまとめる
+      // フィルター適用
+      var targetStores = activeFilter ? [activeFilter] : Object.keys(STORES);
       var storeRows = '';
-      var storeKeys = Object.keys(STORES);
-      for (var si = 0; si < storeKeys.length; si++) {
-        var storeKey = storeKeys[si];
+      for (var si = 0; si < targetStores.length; si++) {
+        var storeKey = targetStores[si];
         var storeShifts = dayShifts.filter(function(s){ return s.store === storeKey; });
-        if (storeShifts.length === 0) continue;
-        var pills = storeShifts.map(function(s) {
-          var time = s.start ? (s.end ? s.start+'〜'+s.end : s.start) : '';
-          var label = s.staff + (time ? ' ' + time : '');
-          return '<span class="mobile-shift-item ' + STORES[storeKey].cls + '" onclick="openEdit('' + key + '','' + s.id + '')">' + label + '</span>';
-        }).join('');
-        storeRows += '<div class="mobile-store-row">'
-          + '<span class="mobile-store-label ' + STORES[storeKey].cls + '">' + storeKey + '</span>'
-          + pills + '</div>';
+        if (storeShifts.length === 0 && activeFilter) {
+          // フィルター時は空でも追加ボタン表示
+          storeRows += '<div class="mobile-store-row">'
+            + '<span class="mobile-store-label ' + STORES[storeKey].cls + '">' + storeKey + '</span>'
+            + '</div>';
+        } else if (storeShifts.length > 0) {
+          var pills = storeShifts.map(function(s) {
+            var time = s.start ? (s.end ? s.start+'〜'+s.end : s.start) : '';
+            var label = s.staff + (time ? ' ' + time : '');
+            return '<span class="mobile-shift-item ' + STORES[storeKey].cls + '" onclick="openEdit('' + key + '','' + s.id + '')">' + label + '</span>';
+          }).join('');
+          storeRows += '<div class="mobile-store-row">'
+            + (activeFilter ? '' : '<span class="mobile-store-label ' + STORES[storeKey].cls + '">' + storeKey + '</span>')
+            + pills + '</div>';
+        }
       }
 
+      var defaultStore = activeFilter || '';
       rows += '<div class="mobile-row' + (isToday?' today':'') + '">'
         + '<div class="mobile-date-row">'
         + '<span class="mobile-dnum" style="' + dnumStyle + '">' + d + '</span>'
         + '<span class="mobile-dname">' + DAYS[dow] + '</span>'
         + (isHJ ? '<span class="mobile-hj">祝</span>' : '')
-        + '<span class="mobile-add" onclick="openAdd('' + key + '','')">＋ シフト追加</span>'
+        + '<span class="mobile-add" onclick="openAdd('' + key + '','' + defaultStore + '')">＋ 追加</span>'
         + '</div>'
         + storeRows
         + '</div>';
@@ -339,7 +369,7 @@ function changeMonth(d) {
 }
 
 var currentStaffList = [];
-var selectedStaffSet = [];
+var selectedStaffName = '';
 
 function buildTimeOpts(startH, endH) {
   var html = '<option value="">--</option>';
@@ -371,7 +401,13 @@ function updateTimeSelects(startVal, endVal) {
 function updateStaffList(checkedList) {
   var storeName = document.getElementById('f-store').value;
   currentStaffList = STORES[storeName] ? STORES[storeName].staff.slice() : [];
-  selectedStaffSet = checkedList ? checkedList.slice() : [];
+  if (Array.isArray(checkedList) && checkedList.length > 0) {
+    selectedStaffName = checkedList[0];
+  } else if (typeof checkedList === 'string') {
+    selectedStaffName = checkedList;
+  } else {
+    selectedStaffName = '';
+  }
   renderStaffButtons();
   updateTimeSelects();
 }
@@ -380,25 +416,20 @@ function renderStaffButtons() {
   var html = '';
   for (var i = 0; i < currentStaffList.length; i++) {
     var s = currentStaffList[i];
-    var on = selectedStaffSet.indexOf(s) >= 0;
-    html += '<div class="check-btn' + (on ? ' on' : '') + '" onclick="toggleStaffBtn(' + i + ')">' + s + '</div>';
+    var on = selectedStaffName === s;
+    html += '<div class="check-btn' + (on ? ' on' : '') + '" onclick="selectStaff(' + i + ')">' + s + '</div>';
   }
   document.getElementById('staff-checks').innerHTML = html;
 }
 
-function toggleStaffBtn(idx) {
+function selectStaff(idx) {
   var name = currentStaffList[idx];
-  var pos = selectedStaffSet.indexOf(name);
-  if (pos >= 0) {
-    selectedStaffSet.splice(pos, 1);
-  } else {
-    selectedStaffSet.push(name);
-  }
+  selectedStaffName = selectedStaffName === name ? '' : name;
   renderStaffButtons();
 }
 
 function getCheckedStaff() {
-  return selectedStaffSet.slice();
+  return selectedStaffName ? [selectedStaffName] : [];
 }
 
 function openAdd(dateKey, storeName) {
@@ -429,8 +460,7 @@ function openEdit(dateKey, id) {
   updateTimeSelects(ev.start || '', ev.end || '');
   document.getElementById('f-memo').value = ev.memo || '';
   document.getElementById('delete-btn').style.display = '';
-  var staffArr = ev.staff ? ev.staff.split('・') : [];
-  updateStaffList(staffArr);
+  updateStaffList(ev.staff ? ev.staff.split('・')[0] : '');
   document.getElementById('overlay').classList.add('open');
 }
 
@@ -476,6 +506,7 @@ document.getElementById('overlay').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
 
+buildFilterBar();
 loadAll();
 </script>
 </body>
