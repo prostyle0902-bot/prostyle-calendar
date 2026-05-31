@@ -117,9 +117,9 @@ table.shift-table tr.today td{background:#edf5fc}
     </div>
     <div class="form-row"><label>時間</label>
       <div class="time-row">
-        <input id="f-start" type="time">
+        <select id="f-start"></select>
         <span class="time-sep">〜</span>
-        <input id="f-end" type="time">
+        <select id="f-end"></select>
       </div>
     </div>
     <div class="form-row"><label>メモ</label><input id="f-memo" placeholder="備考など"></div>
@@ -136,14 +136,14 @@ const API = 'https://script.google.com/macros/s/AKfycbwV_UNDYqwlGhMeoEQiasU348YX
 const DAYS = ['日','月','火','水','木','金','土'];
 
 const STORES = {
-  'タコとハイボール': { cls:'store-tako', staff:['ハルシャニ','ナディーシャ','松岡実麻'] },
-  '韓国酒場ハナ':     { cls:'store-hana', staff:['レナ','ナディーシャ'] },
-  'りゅうちゃん':     { cls:'store-ryu',  staff:['河野竜二','網代愛','新河美和','栗林里江','篠塚柚紀'] },
-  'もも焼きJAPAN':    { cls:'store-momo', staff:['土屋芳広'] },
-  'バッシング':       { cls:'store-bassing', staff:['石井義則','中村利人','山崎悠人','本田光江'] },
-  '横丁清掃':         { cls:'store-cleaning', staff:['橋本桂子','小金澤登美江'] },
-  '焼きたて屋鹿島':   { cls:'store-yakitate', staff:['及川晶雄','小林メグ','荒宏信'] },
-  'さわら十三里屋':   { cls:'store-sawara', staff:['八木秀子','籾山結泉','下河邊なお子','小堀真桜'] },
+  'タコとハイボール': { cls:'store-tako', staff:['ハルシャニ','ナディーシャ','松岡実麻'], timeStart:14, timeEnd:25 },
+  '韓国酒場ハナ':     { cls:'store-hana', staff:['レナ','ナディーシャ'], timeStart:14, timeEnd:25 },
+  'りゅうちゃん':     { cls:'store-ryu',  staff:['河野竜二','網代愛','新河美和','栗林里江','篠塚柚紀'], timeStart:14, timeEnd:25 },
+  'もも焼きJAPAN':    { cls:'store-momo', staff:['土屋芳広'], timeStart:14, timeEnd:25 },
+  'バッシング':       { cls:'store-bassing', staff:['石井義則','中村利人','山崎悠人','本田光江'], timeStart:14, timeEnd:25 },
+  '横丁清掃':         { cls:'store-cleaning', staff:['橋本桂子','小金澤登美江'], timeStart:8, timeEnd:10 },
+  '焼きたて屋鹿島':   { cls:'store-yakitate', staff:['及川晶雄','小林メグ','荒宏信'], timeStart:10, timeEnd:19 },
+  'さわら十三里屋':   { cls:'store-sawara', staff:['八木秀子','籾山結泉','下河邊なお子','小堀真桜'], timeStart:9, timeEnd:18 },
 };
 
 const HOLIDAYS_JP = new Set([
@@ -281,11 +281,39 @@ function changeMonth(d) {
 var currentStaffList = [];
 var selectedStaffSet = [];
 
+function buildTimeOpts(startH, endH) {
+  var html = '<option value="">--</option>';
+  for (var h = startH; h <= endH; h++) {
+    for (var mi = 0; mi < 60; mi += 30) {
+      if (h === endH && mi > 0) break;
+      var hh = h > 24 ? String(h-24).padStart(2,'0') : String(h).padStart(2,'0');
+      var mm = String(mi).padStart(2,'0');
+      var val = (h > 24 ? String(h-24).padStart(2,'0') : String(h).padStart(2,'0')) + ':' + mm;
+      var label = (h >= 24 ? '翌' : '') + String(h >= 24 ? h-24 : h) + ':' + mm;
+      html += '<option value="' + val + '">' + label + '</option>';
+    }
+  }
+  return html;
+}
+
+function updateTimeSelects(startVal, endVal) {
+  var storeName = document.getElementById('f-store').value;
+  var store = STORES[storeName];
+  var startH = store ? store.timeStart : 6;
+  var endH = store ? store.timeEnd : 24;
+  var opts = buildTimeOpts(startH, endH);
+  document.getElementById('f-start').innerHTML = opts;
+  document.getElementById('f-end').innerHTML = opts;
+  if (startVal) document.getElementById('f-start').value = startVal;
+  if (endVal) document.getElementById('f-end').value = endVal;
+}
+
 function updateStaffList(checkedList) {
   var storeName = document.getElementById('f-store').value;
   currentStaffList = STORES[storeName] ? STORES[storeName].staff.slice() : [];
   selectedStaffSet = checkedList ? checkedList.slice() : [];
   renderStaffButtons();
+  updateTimeSelects();
 }
 
 function renderStaffButtons() {
@@ -319,8 +347,7 @@ function openAdd(dateKey, storeName) {
   document.getElementById('modal-title').textContent = parseInt(parts[1]) + '月' + parseInt(parts[2]) + '日 — シフトを追加';
   document.getElementById('f-date').value = dateKey;
   document.getElementById('f-store').value = storeName || 'タコとハイボール';
-  document.getElementById('f-start').value = '';
-  document.getElementById('f-end').value = '';
+  updateTimeSelects('', '');
   document.getElementById('f-memo').value = '';
   document.getElementById('delete-btn').style.display = 'none';
   updateStaffList([]);
@@ -339,8 +366,7 @@ function openEdit(dateKey, id) {
   document.getElementById('modal-title').textContent = parseInt(parts[1]) + '月' + parseInt(parts[2]) + '日 — 編集';
   document.getElementById('f-date').value = ev.date || dateKey;
   document.getElementById('f-store').value = ev.store || 'タコとハイボール';
-  document.getElementById('f-start').value = ev.start || '';
-  document.getElementById('f-end').value = ev.end || '';
+  updateTimeSelects(ev.start || '', ev.end || '');
   document.getElementById('f-memo').value = ev.memo || '';
   document.getElementById('delete-btn').style.display = '';
   var staffArr = ev.staff ? ev.staff.split('・') : [];
