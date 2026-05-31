@@ -66,6 +66,23 @@ table.shift-table tr.today td{background:#edf5fc}
 .btn-cancel{background:#f0f0ec;color:#555}
 .btn-delete{background:#fee2e2;color:#b91c1c;margin-right:auto}
 .loading-msg{text-align:center;padding:40px;color:#999;font-size:13px}
+@media(max-width:600px){
+  .table-wrap{display:none}
+  .mobile-shift{display:block}
+  .mobile-row{background:#fff;border-bottom:1px solid #f0f0ec;padding:10px 14px}
+  .mobile-row.today{background:#edf5fc}
+  .mobile-date-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .mobile-dnum{font-size:16px;font-weight:700;min-width:28px}
+  .mobile-dname{font-size:13px;color:#999}
+  .mobile-hj{font-size:11px;color:#e05555;font-weight:600}
+  .mobile-add{font-size:12px;color:#bbb;border:1px dashed #ddd;border-radius:5px;padding:2px 8px;cursor:pointer;margin-left:auto}
+  .mobile-store-row{margin-bottom:4px}
+  .mobile-store-label{font-size:11px;padding:1px 6px;border-radius:3px;margin-right:4px}
+  .mobile-shift-item{display:inline-flex;padding:3px 8px;border-radius:5px;font-size:13px;margin:2px 2px 2px 0;cursor:pointer}
+}
+@media(min-width:601px){
+  .mobile-shift{display:none}
+}
 </style>
 </head>
 <body>
@@ -258,12 +275,55 @@ function render() {
     return rows;
   }
 
+  function buildMobileRows(from, to) {
+    var rows = '';
+    for (var d = from; d <= to; d++) {
+      var date = new Date(y, m, d);
+      var dow = date.getDay();
+      var key = fmt(y, m, d);
+      var isToday = key === todayKey;
+      var isHJ = HOLIDAYS_JP.has(key);
+      var isSun = dow===0, isSat = dow===6;
+      var dnumStyle = (isHJ||isSun)?'color:#e05555':(isSat?'color:#4a90d9':'');
+      var dayShifts = shifts[key] || [];
+
+      // 店舗ごとにまとめる
+      var storeRows = '';
+      var storeKeys = Object.keys(STORES);
+      for (var si = 0; si < storeKeys.length; si++) {
+        var storeKey = storeKeys[si];
+        var storeShifts = dayShifts.filter(function(s){ return s.store === storeKey; });
+        if (storeShifts.length === 0) continue;
+        var pills = storeShifts.map(function(s) {
+          var time = s.start ? (s.end ? s.start+'〜'+s.end : s.start) : '';
+          var label = s.staff + (time ? ' ' + time : '');
+          return '<span class="mobile-shift-item ' + STORES[storeKey].cls + '" onclick="openEdit('' + key + '','' + s.id + '')">' + label + '</span>';
+        }).join('');
+        storeRows += '<div class="mobile-store-row">'
+          + '<span class="mobile-store-label ' + STORES[storeKey].cls + '">' + storeKey + '</span>'
+          + pills + '</div>';
+      }
+
+      rows += '<div class="mobile-row' + (isToday?' today':'') + '">'
+        + '<div class="mobile-date-row">'
+        + '<span class="mobile-dnum" style="' + dnumStyle + '">' + d + '</span>'
+        + '<span class="mobile-dname">' + DAYS[dow] + '</span>'
+        + (isHJ ? '<span class="mobile-hj">祝</span>' : '')
+        + '<span class="mobile-add" onclick="openAdd('' + key + '','')">＋ シフト追加</span>'
+        + '</div>'
+        + storeRows
+        + '</div>';
+    }
+    return rows;
+  }
+
   function buildSection(from, to, label) {
     return '<div class="section-title">' + label + '</div>'
       + '<div class="table-wrap"><table class="shift-table">'
       + '<thead><tr><th class="date-col">日付</th>' + storeHeaders + '</tr></thead>'
       + '<tbody>' + buildRows(from, to) + '</tbody>'
-      + '</table></div>';
+      + '</table></div>'
+      + '<div class="mobile-shift">' + buildMobileRows(from, to) + '</div>';
   }
 
   document.getElementById('calendar-wrap').innerHTML =
