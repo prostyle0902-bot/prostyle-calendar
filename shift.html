@@ -17,8 +17,9 @@ header h1{font-size:17px;font-weight:500}
 .nav-btn{background:none;border:1px solid #ccc;border-radius:6px;padding:7px 16px;cursor:pointer;font-size:14px;color:#333}
 .nav-btn:hover{background:#f0f0ec}
 .month{font-size:19px;font-weight:600}
-.legend{display:flex;gap:6px;padding:8px 14px;background:#fff;border-bottom:1px solid #e8e8e4;flex-wrap:wrap}
-.legend-item{font-size:11px;padding:2px 8px;border-radius:4px}
+.filter-bar{display:flex;gap:6px;padding:8px 14px;background:#fff;border-bottom:1px solid #e8e8e4;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+.filter-btn{flex-shrink:0;font-size:12px;padding:5px 12px;border-radius:20px;border:1.5px solid #ddd;background:#fafafa;color:#555;cursor:pointer}
+.filter-btn.active{border-color:#1a1a1a;background:#1a1a1a;color:#fff;font-weight:500}
 .store-tako{background:#FFE0B2;color:#E65100}
 .store-hana{background:#FCE4EC;color:#880E4F}
 .store-ryu{background:#E8F5E9;color:#1B5E20}
@@ -40,10 +41,25 @@ table.shift-table tr.today td{background:#edf5fc}
 .sun .dname,.sun .dnum{color:#e05555}
 .sat .dname,.sat .dnum{color:#4a90d9}
 .hj{font-size:9px;color:#e05555;font-weight:600}
-.shift-pill{display:block;padding:2px 5px;border-radius:4px;font-size:10px;margin-bottom:2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shift-pill{display:block;padding:2px 5px;border-radius:4px;font-size:11px;margin-bottom:2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .shift-pill:hover{opacity:0.8}
 .add-s{display:block;font-size:10px;color:#ccc;cursor:pointer;padding:1px 3px}
 .add-s:hover{color:#888}
+.mobile-list{display:none}
+.mobile-row{background:#fff;border-bottom:1px solid #f0f0ec;padding:10px 14px}
+.mobile-row.today{background:#edf5fc}
+.mobile-date-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.mobile-dnum{font-size:16px;font-weight:700;min-width:28px}
+.mobile-dname{font-size:13px;color:#999}
+.mobile-hj{font-size:11px;color:#e05555;font-weight:600}
+.mobile-add{font-size:12px;color:#bbb;border:1px dashed #ddd;border-radius:5px;padding:2px 8px;cursor:pointer;margin-left:auto;white-space:nowrap}
+.mobile-store-row{margin-bottom:4px}
+.mobile-store-label{font-size:11px;padding:1px 6px;border-radius:3px;margin-right:4px;display:inline-block}
+.mobile-shift-item{display:inline-flex;padding:3px 8px;border-radius:5px;font-size:13px;margin:2px 2px 2px 0;cursor:pointer}
+@media(max-width:600px){
+  .table-wrap{display:none}
+  .mobile-list{display:block}
+}
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:flex-end;justify-content:center}
 .overlay.open{display:flex}
 .modal{background:#fff;border-radius:14px 14px 0 0;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding:20px 20px 32px}
@@ -55,7 +71,7 @@ table.shift-table tr.today td{background:#edf5fc}
 .form-row input,.form-row select{width:100%;font-size:15px;padding:10px 12px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#1a1a1a;-webkit-appearance:none;appearance:none}
 .form-row input:focus,.form-row select:focus{outline:none;border-color:#4a90d9}
 .time-row{display:flex;gap:8px;align-items:center}
-.time-row input{flex:1}
+.time-row select{flex:1}
 .time-sep{font-size:14px;color:#999}
 .check-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px}
 .check-btn{font-size:14px;color:#555;padding:10px 8px;border-radius:8px;border:2px solid #e0e0e0;background:#fafafa;text-align:center;cursor:pointer;user-select:none;-webkit-user-select:none}
@@ -66,26 +82,6 @@ table.shift-table tr.today td{background:#edf5fc}
 .btn-cancel{background:#f0f0ec;color:#555}
 .btn-delete{background:#fee2e2;color:#b91c1c;margin-right:auto}
 .loading-msg{text-align:center;padding:40px;color:#999;font-size:13px}
-.filter-bar{display:flex;gap:6px;padding:8px 14px;background:#fff;border-bottom:1px solid #e8e8e4;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
-.filter-btn{flex-shrink:0;font-size:12px;padding:5px 12px;border-radius:20px;border:1.5px solid #ddd;background:#fafafa;color:#555;cursor:pointer}
-.filter-btn.active{border-color:#1a1a1a;background:#1a1a1a;color:#fff;font-weight:500}
-@media(max-width:600px){
-  .table-wrap{display:none}
-  .mobile-shift{display:block}
-  .mobile-row{background:#fff;border-bottom:1px solid #f0f0ec;padding:10px 14px}
-  .mobile-row.today{background:#edf5fc}
-  .mobile-date-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-  .mobile-dnum{font-size:16px;font-weight:700;min-width:28px}
-  .mobile-dname{font-size:13px;color:#999}
-  .mobile-hj{font-size:11px;color:#e05555;font-weight:600}
-  .mobile-add{font-size:12px;color:#bbb;border:1px dashed #ddd;border-radius:5px;padding:2px 8px;cursor:pointer;margin-left:auto}
-  .mobile-store-row{margin-bottom:4px}
-  .mobile-store-label{font-size:11px;padding:1px 6px;border-radius:3px;margin-right:4px}
-  .mobile-shift-item{display:inline-flex;padding:3px 8px;border-radius:5px;font-size:13px;margin:2px 2px 2px 0;cursor:pointer}
-}
-@media(min-width:601px){
-  .mobile-shift{display:none}
-}
 </style>
 </head>
 <body>
@@ -101,19 +97,7 @@ table.shift-table tr.today td{background:#edf5fc}
   <button class="nav-btn" onclick="changeMonth(1)">次月 ›</button>
 </div>
 
-<div class="legend">
-  <span class="legend-item store-tako">タコハイ</span>
-  <span class="legend-item store-hana">ハナ</span>
-  <span class="legend-item store-ryu">りゅうちゃん</span>
-  <span class="legend-item store-momo">もも焼き</span>
-  <span class="legend-item store-bassing">バッシング</span>
-  <span class="legend-item store-cleaning">横丁清掃</span>
-  <span class="legend-item store-yakitate">焼きたて屋</span>
-  <span class="legend-item store-sawara">十三里屋</span>
-</div>
-
 <div class="filter-bar" id="filter-bar"></div>
-
 <div id="calendar-wrap"><div class="loading-msg">読み込み中...</div></div>
 
 <div class="overlay" id="overlay">
@@ -122,7 +106,7 @@ table.shift-table tr.today td{background:#edf5fc}
     <h3 id="modal-title">シフトを追加</h3>
     <div class="form-row"><label>日付</label><input id="f-date" type="date"></div>
     <div class="form-row"><label>店舗</label>
-      <select id="f-store" onchange="updateStaffList()">
+      <select id="f-store" onchange="onStoreChange()">
         <option>タコとハイボール</option>
         <option>韓国酒場ハナ</option>
         <option>りゅうちゃん</option>
@@ -134,7 +118,7 @@ table.shift-table tr.today td{background:#edf5fc}
       </select>
     </div>
     <div class="form-row">
-      <label>スタッフ</label>
+      <label>スタッフ（1人選択）</label>
       <div class="check-grid" id="staff-checks"></div>
     </div>
     <div class="form-row"><label>時間</label>
@@ -154,59 +138,43 @@ table.shift-table tr.today td{background:#edf5fc}
 </div>
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbwV_UNDYqwlGhMeoEQiasU348YX_UEKXys7E0TkZaOMfrcXtTx6-JIisyLVMCW2yj3g/exec';
-const DAYS = ['日','月','火','水','木','金','土'];
+var API = 'https://script.google.com/macros/s/AKfycbwV_UNDYqwlGhMeoEQiasU348YX_UEKXys7E0TkZaOMfrcXtTx6-JIisyLVMCW2yj3g/exec';
+var DAYS = ['日','月','火','水','木','金','土'];
 
-const STORES = {
-  'タコとハイボール': { cls:'store-tako', staff:['ハルシャニ','ナディーシャ','松岡実麻'], timeStart:14, timeEnd:25 },
-  '韓国酒場ハナ':     { cls:'store-hana', staff:['レナ','ナディーシャ'], timeStart:14, timeEnd:25 },
-  'りゅうちゃん':     { cls:'store-ryu',  staff:['河野竜二','網代愛','新河美和','栗林里江','篠塚柚紀'], timeStart:14, timeEnd:25 },
-  'もも焼きJAPAN':    { cls:'store-momo', staff:['土屋芳広'], timeStart:14, timeEnd:25 },
-  'バッシング':       { cls:'store-bassing', staff:['石井義則','中村利人','山崎悠人','本田光江'], timeStart:14, timeEnd:25 },
-  '横丁清掃':         { cls:'store-cleaning', staff:['橋本桂子','小金澤登美江'], timeStart:8, timeEnd:10 },
-  '焼きたて屋鹿島':   { cls:'store-yakitate', staff:['及川晶雄','小林メグ','荒宏信'], timeStart:10, timeEnd:19 },
-  'さわら十三里屋':   { cls:'store-sawara', staff:['八木秀子','籾山結泉','下河邊なお子','小堀真桜'], timeStart:9, timeEnd:18 },
+var STORES = {
+  'タコとハイボール': { cls:'store-tako', staff:['ハルシャニ','ナディーシャ','松岡実麻'], sh:14, eh:25 },
+  '韓国酒場ハナ':     { cls:'store-hana', staff:['レナ','ナディーシャ'], sh:14, eh:25 },
+  'りゅうちゃん':     { cls:'store-ryu',  staff:['河野竜二','網代愛','新河美和','栗林里江','篠塚柚紀'], sh:14, eh:25 },
+  'もも焼きJAPAN':    { cls:'store-momo', staff:['土屋芳広'], sh:14, eh:25 },
+  'バッシング':       { cls:'store-bassing', staff:['石井義則','中村利人','山崎悠人','本田光江'], sh:14, eh:25 },
+  '横丁清掃':         { cls:'store-cleaning', staff:['橋本桂子','小金澤登美江'], sh:8, eh:10 },
+  '焼きたて屋鹿島':   { cls:'store-yakitate', staff:['及川晶雄','小林メグ','荒宏信'], sh:10, eh:19 },
+  'さわら十三里屋':   { cls:'store-sawara', staff:['八木秀子','籾山結泉','下河邊なお子','小堀真桜'], sh:9, eh:18 }
 };
 
-const HOLIDAYS_JP = new Set([
-  '2025-01-01','2025-01-13','2025-02-11','2025-02-23','2025-02-24',
-  '2025-03-20','2025-04-29','2025-05-03','2025-05-04','2025-05-05','2025-05-06',
-  '2025-07-21','2025-08-11','2025-09-15','2025-09-22','2025-09-23',
-  '2025-10-13','2025-11-03','2025-11-23','2025-11-24',
-  '2026-01-01','2026-01-12','2026-02-11','2026-02-23',
-  '2026-03-20','2026-04-29','2026-05-03','2026-05-04','2026-05-05','2026-05-06',
-  '2026-07-20','2026-08-11','2026-09-21','2026-09-22','2026-09-23',
-  '2026-10-12','2026-11-03','2026-11-23',
-  '2027-01-01','2027-01-11','2027-02-11','2027-02-23',
-  '2027-03-21','2027-03-22','2027-04-29','2027-05-03','2027-05-04','2027-05-05',
-  '2027-07-19','2027-08-11','2027-09-20','2027-09-23',
-  '2027-10-11','2027-11-03','2027-11-23',
-]);
+var HOLIDAYS_JP = {
+  '2025-01-01':1,'2025-01-13':1,'2025-02-11':1,'2025-02-23':1,'2025-02-24':1,
+  '2025-03-20':1,'2025-04-29':1,'2025-05-03':1,'2025-05-04':1,'2025-05-05':1,'2025-05-06':1,
+  '2025-07-21':1,'2025-08-11':1,'2025-09-15':1,'2025-09-22':1,'2025-09-23':1,
+  '2025-10-13':1,'2025-11-03':1,'2025-11-23':1,'2025-11-24':1,
+  '2026-01-01':1,'2026-01-12':1,'2026-02-11':1,'2026-02-23':1,
+  '2026-03-20':1,'2026-04-29':1,'2026-05-03':1,'2026-05-04':1,'2026-05-05':1,'2026-05-06':1,
+  '2026-07-20':1,'2026-08-11':1,'2026-09-21':1,'2026-09-22':1,'2026-09-23':1,
+  '2026-10-12':1,'2026-11-03':1,'2026-11-23':1,
+  '2027-01-01':1,'2027-01-11':1,'2027-02-11':1,'2027-02-23':1,
+  '2027-03-21':1,'2027-03-22':1,'2027-04-29':1,'2027-05-03':1,'2027-05-04':1,'2027-05-05':1,
+  '2027-07-19':1,'2027-08-11':1,'2027-09-20':1,'2027-09-23':1,
+  '2027-10-11':1,'2027-11-03':1,'2027-11-23':1
+};
 
-let current = new Date();
+var current = new Date();
 current = new Date(current.getFullYear(), current.getMonth(), 1);
-let shifts = {};
-let editingId = null, editingDate = null;
-let cbCount = 0;
-let activeFilter = ''; // '' = 全店舗
-
-function buildFilterBar() {
-  var storeKeys = Object.keys(STORES);
-  var html = '<div class="filter-btn' + (activeFilter==='' ? ' active' : '') + '" onclick="setFilter(\'\')">全店舗</div>';
-  for (var i = 0; i < storeKeys.length; i++) {
-    var k = storeKeys[i];
-    var on = activeFilter === k;
-    var escapedKey = k.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    html += '<div class="filter-btn ' + STORES[k].cls + (on ? ' active' : '') + '" onclick="setFilter(\'' + escapedKey + '\')">' + k + '</div>';
-  }
-  document.getElementById('filter-bar').innerHTML = html;
-}
-
-function setFilter(storeName) {
-  activeFilter = storeName;
-  buildFilterBar();
-  render();
-}
+var shifts = {};
+var editingId = null, editingDate = null;
+var cbCount = 0;
+var activeFilter = '';
+var currentStaffList = [];
+var selectedStaffName = '';
 
 function setSync(s, l) {
   document.getElementById('sync-dot').className = 'dot ' + s;
@@ -224,13 +192,16 @@ function jsonp(params) {
       if (el) el.remove();
       resolve(data);
     };
-    var qs = Object.keys(params).concat(['callback']).map(function(k) {
-      var v = k === 'callback' ? cbName : params[k];
-      return k + '=' + encodeURIComponent(typeof v === 'object' ? JSON.stringify(v) : v);
-    }).join('&');
+    var parts = [];
+    for (var k in params) {
+      var v = params[k];
+      parts.push(k + '=' + encodeURIComponent(typeof v === 'object' ? JSON.stringify(v) : v));
+    }
+    parts.push('callback=' + cbName);
+    parts.push('t=' + Date.now());
     var script = document.createElement('script');
     script.id = cbName;
-    script.src = API + '?' + qs + '&t=' + Date.now();
+    script.src = API + '?' + parts.join('&');
     script.onerror = function() { clearTimeout(timeout); delete window[cbName]; script.remove(); reject(new Error('error')); };
     document.head.appendChild(script);
   });
@@ -240,16 +211,40 @@ function fmt(y, m, d) {
   return y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
 }
 
-async function loadAll(showLoading) {
+function loadAll(showLoading) {
   if (showLoading !== false) setSync('loading', '読み込み中...');
-  try {
-    var data = await jsonp({ action: 'getShifts' });
+  return jsonp({ action: 'getShifts' }).then(function(data) {
     shifts = data || {};
     setSync('ok', '同期済み');
     render();
-  } catch(e) {
+  }).catch(function(e) {
     setSync('err', '読み込み失敗');
+  });
+}
+
+function buildFilterBar() {
+  var storeKeys = Object.keys(STORES);
+  var html = '<div class="filter-btn' + (activeFilter === '' ? ' active' : '') + '" onclick="setFilter(\'\')">全店舗</div>';
+  for (var i = 0; i < storeKeys.length; i++) {
+    var k = storeKeys[i];
+    var cls = STORES[k].cls;
+    var on = activeFilter === k;
+    html += '<div class="filter-btn ' + cls + (on ? ' active' : '') + '" data-store="' + i + '" onclick="setFilterByIndex(' + i + ')">' + k + '</div>';
   }
+  document.getElementById('filter-bar').innerHTML = html;
+}
+
+var storeKeysList = Object.keys(STORES);
+function setFilterByIndex(idx) {
+  activeFilter = storeKeysList[idx];
+  buildFilterBar();
+  render();
+}
+
+function setFilter(name) {
+  activeFilter = name;
+  buildFilterBar();
+  render();
 }
 
 function render() {
@@ -258,10 +253,11 @@ function render() {
   var lastDay = new Date(y, m+1, 0).getDate();
   var now = new Date();
   var todayKey = fmt(now.getFullYear(), now.getMonth(), now.getDate());
-  var storeKeys = Object.keys(STORES);
 
-  var storeHeaders = storeKeys.map(function(k) {
-    return '<th><span class="legend-item ' + STORES[k].cls + '">' + k + '</span></th>';
+  var targetStores = activeFilter ? [activeFilter] : Object.keys(STORES);
+
+  var storeHeaders = targetStores.map(function(k) {
+    return '<th><span class="' + STORES[k].cls + '" style="padding:2px 6px;border-radius:4px;font-size:11px">' + k + '</span></th>';
   }).join('');
 
   function buildRows(from, to) {
@@ -271,20 +267,20 @@ function render() {
       var dow = date.getDay();
       var key = fmt(y, m, d);
       var isToday = key === todayKey;
-      var isHJ = HOLIDAYS_JP.has(key);
+      var isHJ = !!HOLIDAYS_JP[key];
       var isSun = dow===0, isSat = dow===6;
-      var rowCls = (isSun?'sun':isSat?'sat':'') + (isToday?' today':'');
-      var dnumStyle = (isHJ||isSun)?'color:#e05555':(isSat?'color:#4a90d9':'');
+      var rowCls = (isSun ? 'sun' : isSat ? 'sat' : '') + (isToday ? ' today' : '');
+      var dnumStyle = (isHJ||isSun) ? 'color:#e05555' : (isSat ? 'color:#4a90d9' : '');
       var dayShifts = shifts[key] || [];
 
-      var storeCols = storeKeys.map(function(storeKey) {
-        var storeShifts = dayShifts.filter(function(s){ return s.store === storeKey; });
-        var pills = storeShifts.map(function(s) {
-          var time = s.start ? (s.end ? s.start+'〜'+s.end : s.start) : '';
-          var label = s.staff + (time ? ' '+time : '');
-          return '<span class="shift-pill ' + STORES[storeKey].cls + '" onclick="openEdit(\'' + key + '\',\'' + s.id + '\')">' + label + '</span>';
+      var storeCols = targetStores.map(function(sk) {
+        var ss2 = dayShifts.filter(function(s) { return s.store === sk; });
+        var pills = ss2.map(function(s) {
+          var time = s.start ? (s.end ? s.start + '〜' + s.end : s.start) : '';
+          var label = s.staff + (time ? ' ' + time : '');
+          return '<span class="shift-pill ' + STORES[sk].cls + '" onclick="openEdit(\'' + key + '\', \'' + s.id + '\')">' + label + '</span>';
         }).join('');
-        return '<td>' + pills + '<span class="add-s" onclick="openAdd(\'' + key + '\',\'' + storeKey + '\')">＋</span></td>';
+        return '<td>' + pills + '<span class="add-s" onclick="openAdd(\'' + key + '\', \'' + sk + '\')">＋</span></td>';
       }).join('');
 
       rows += '<tr class="' + rowCls + '">'
@@ -293,8 +289,7 @@ function render() {
         + '<span class="dname">' + DAYS[dow] + '</span>'
         + (isHJ ? '<span class="hj">祝</span>' : '')
         + '</td>'
-        + storeCols
-        + '</tr>';
+        + storeCols + '</tr>';
     }
     return rows;
   }
@@ -306,44 +301,35 @@ function render() {
       var dow = date.getDay();
       var key = fmt(y, m, d);
       var isToday = key === todayKey;
-      var isHJ = HOLIDAYS_JP.has(key);
+      var isHJ = !!HOLIDAYS_JP[key];
       var isSun = dow===0, isSat = dow===6;
-      var dnumStyle = (isHJ||isSun)?'color:#e05555':(isSat?'color:#4a90d9':'');
+      var dnumStyle = (isHJ||isSun) ? 'color:#e05555' : (isSat ? 'color:#4a90d9' : '');
       var dayShifts = shifts[key] || [];
 
-      // フィルター適用
-      var targetStores = activeFilter ? [activeFilter] : Object.keys(STORES);
       var storeRows = '';
       for (var si = 0; si < targetStores.length; si++) {
-        var storeKey = targetStores[si];
-        var storeShifts = dayShifts.filter(function(s){ return s.store === storeKey; });
-        if (storeShifts.length === 0 && activeFilter) {
-          // フィルター時は空でも追加ボタン表示
-          storeRows += '<div class="mobile-store-row">'
-            + '<span class="mobile-store-label ' + STORES[storeKey].cls + '">' + storeKey + '</span>'
-            + '</div>';
-        } else if (storeShifts.length > 0) {
-          var pills = storeShifts.map(function(s) {
-            var time = s.start ? (s.end ? s.start+'〜'+s.end : s.start) : '';
-            var label = s.staff + (time ? ' ' + time : '');
-            return '<span class="mobile-shift-item ' + STORES[storeKey].cls + '" onclick="openEdit('' + key + '','' + s.id + '')">' + label + '</span>';
-          }).join('');
-          storeRows += '<div class="mobile-store-row">'
-            + (activeFilter ? '' : '<span class="mobile-store-label ' + STORES[storeKey].cls + '">' + storeKey + '</span>')
-            + pills + '</div>';
-        }
+        var sk = targetStores[si];
+        var ss2 = dayShifts.filter(function(s) { return s.store === sk; });
+        if (ss2.length === 0 && !activeFilter) continue;
+        var pills = ss2.map(function(s) {
+          var time = s.start ? (s.end ? s.start + '〜' + s.end : s.start) : '';
+          var label = s.staff + (time ? ' ' + time : '');
+          return '<span class="mobile-shift-item ' + STORES[sk].cls + '" onclick="openEdit(\'' + key + '\', \'' + s.id + '\')">' + label + '</span>';
+        }).join('');
+        storeRows += '<div class="mobile-store-row">'
+          + (activeFilter ? '' : '<span class="mobile-store-label ' + STORES[sk].cls + '">' + sk + '</span>')
+          + pills + '</div>';
       }
 
-      var defaultStore = activeFilter || '';
-      rows += '<div class="mobile-row' + (isToday?' today':'') + '">'
+      var addStore = activeFilter || '';
+      rows += '<div class="mobile-row' + (isToday ? ' today' : '') + '">'
         + '<div class="mobile-date-row">'
         + '<span class="mobile-dnum" style="' + dnumStyle + '">' + d + '</span>'
         + '<span class="mobile-dname">' + DAYS[dow] + '</span>'
         + (isHJ ? '<span class="mobile-hj">祝</span>' : '')
-        + '<span class="mobile-add" onclick="openAdd(\'' + key + '\',\'' + defaultStore + '\')">＋ 追加</span>'
+        + '<span class="mobile-add" onclick="openAdd(\'' + key + '\', \'' + addStore + '\')">＋ 追加</span>'
         + '</div>'
-        + storeRows
-        + '</div>';
+        + storeRows + '</div>';
     }
     return rows;
   }
@@ -352,9 +338,8 @@ function render() {
     return '<div class="section-title">' + label + '</div>'
       + '<div class="table-wrap"><table class="shift-table">'
       + '<thead><tr><th class="date-col">日付</th>' + storeHeaders + '</tr></thead>'
-      + '<tbody>' + buildRows(from, to) + '</tbody>'
-      + '</table></div>'
-      + '<div class="mobile-shift">' + buildMobileRows(from, to) + '</div>';
+      + '<tbody>' + buildRows(from, to) + '</tbody></table></div>'
+      + '<div class="mobile-list">' + buildMobileRows(from, to) + '</div>';
   }
 
   document.getElementById('calendar-wrap').innerHTML =
@@ -369,19 +354,17 @@ function changeMonth(d) {
   loadAll();
 }
 
-var currentStaffList = [];
-var selectedStaffName = '';
-
-function buildTimeOpts(startH, endH) {
+function buildTimeOpts(sh, eh) {
   var html = '<option value="">--</option>';
-  for (var h = startH; h <= endH; h++) {
+  for (var h = sh; h <= eh; h++) {
     for (var mi = 0; mi < 60; mi += 30) {
-      if (h === endH && mi > 0) break;
-      var hh = h > 24 ? String(h-24).padStart(2,'0') : String(h).padStart(2,'0');
-      var mm = String(mi).padStart(2,'0');
-      var val = (h > 24 ? String(h-24).padStart(2,'0') : String(h).padStart(2,'0')) + ':' + mm;
-      var label = (h >= 24 ? '翌' : '') + String(h >= 24 ? h-24 : h) + ':' + mm;
-      html += '<option value="' + val + '">' + label + '</option>';
+      if (h === eh && mi > 0) break;
+      var realH = h >= 24 ? h - 24 : h;
+      var hh = String(realH).padStart(2, '0');
+      var mm = String(mi).padStart(2, '0');
+      var val = hh + ':' + mm;
+      var lbl = (h >= 24 ? '翌' : '') + String(realH) + ':' + mm;
+      html += '<option value="' + val + '">' + lbl + '</option>';
     }
   }
   return html;
@@ -390,30 +373,19 @@ function buildTimeOpts(startH, endH) {
 function updateTimeSelects(startVal, endVal) {
   var storeName = document.getElementById('f-store').value;
   var store = STORES[storeName];
-  var startH = store ? store.timeStart : 6;
-  var endH = store ? store.timeEnd : 24;
-  var opts = buildTimeOpts(startH, endH);
+  var sh = store ? store.sh : 6;
+  var eh = store ? store.eh : 24;
+  var opts = buildTimeOpts(sh, eh);
   document.getElementById('f-start').innerHTML = opts;
   document.getElementById('f-end').innerHTML = opts;
   if (startVal) document.getElementById('f-start').value = startVal;
   if (endVal) document.getElementById('f-end').value = endVal;
 }
 
-function updateStaffList(checkedList) {
+function updateStaffButtons(selectedName) {
   var storeName = document.getElementById('f-store').value;
   currentStaffList = STORES[storeName] ? STORES[storeName].staff.slice() : [];
-  if (Array.isArray(checkedList) && checkedList.length > 0) {
-    selectedStaffName = checkedList[0];
-  } else if (typeof checkedList === 'string') {
-    selectedStaffName = checkedList;
-  } else {
-    selectedStaffName = '';
-  }
-  renderStaffButtons();
-  updateTimeSelects();
-}
-
-function renderStaffButtons() {
+  selectedStaffName = selectedName || '';
   var html = '';
   for (var i = 0; i < currentStaffList.length; i++) {
     var s = currentStaffList[i];
@@ -426,23 +398,25 @@ function renderStaffButtons() {
 function selectStaff(idx) {
   var name = currentStaffList[idx];
   selectedStaffName = selectedStaffName === name ? '' : name;
-  renderStaffButtons();
+  updateStaffButtons(selectedStaffName);
 }
 
-function getCheckedStaff() {
-  return selectedStaffName ? [selectedStaffName] : [];
+function onStoreChange() {
+  updateStaffButtons('');
+  updateTimeSelects('', '');
 }
 
 function openAdd(dateKey, storeName) {
-  editingId = null; editingDate = dateKey;
+  editingId = null;
+  editingDate = dateKey;
   var parts = dateKey.split('-');
   document.getElementById('modal-title').textContent = parseInt(parts[1]) + '月' + parseInt(parts[2]) + '日 — シフトを追加';
   document.getElementById('f-date').value = dateKey;
   document.getElementById('f-store').value = storeName || 'タコとハイボール';
-  updateTimeSelects('', '');
   document.getElementById('f-memo').value = '';
   document.getElementById('delete-btn').style.display = 'none';
-  updateStaffList([]);
+  updateStaffButtons('');
+  updateTimeSelects('', '');
   document.getElementById('overlay').classList.add('open');
 }
 
@@ -453,15 +427,16 @@ function openEdit(dateKey, id) {
     if (dayShifts[i].id === id) { ev = dayShifts[i]; break; }
   }
   if (!ev) return;
-  editingId = id; editingDate = dateKey;
+  editingId = id;
+  editingDate = dateKey;
   var parts = dateKey.split('-');
   document.getElementById('modal-title').textContent = parseInt(parts[1]) + '月' + parseInt(parts[2]) + '日 — 編集';
   document.getElementById('f-date').value = ev.date || dateKey;
   document.getElementById('f-store').value = ev.store || 'タコとハイボール';
-  updateTimeSelects(ev.start || '', ev.end || '');
   document.getElementById('f-memo').value = ev.memo || '';
   document.getElementById('delete-btn').style.display = '';
-  updateStaffList(ev.staff ? ev.staff.split('・')[0] : '');
+  updateStaffButtons(ev.staff || '');
+  updateTimeSelects(ev.start || '', ev.end || '');
   document.getElementById('overlay').classList.add('open');
 }
 
@@ -469,38 +444,41 @@ function closeModal() {
   document.getElementById('overlay').classList.remove('open');
 }
 
-async function doSave() {
-  var checkedStaff = getCheckedStaff();
-  if (checkedStaff.length === 0) { alert('スタッフを選択してください'); return; }
+function doSave() {
+  if (!selectedStaffName) { alert('スタッフを選択してください'); return; }
   var newDate = document.getElementById('f-date').value || editingDate;
   var ev = {
     id: editingId || Date.now().toString(36) + Math.random().toString(36).slice(2,5),
     date: newDate,
     store: document.getElementById('f-store').value,
-    staff: checkedStaff.join('・'),
+    staff: selectedStaffName,
     start: document.getElementById('f-start').value,
     end: document.getElementById('f-end').value,
     memo: document.getElementById('f-memo').value
   };
   closeModal();
   setSync('loading', '保存中...');
-  try {
-    await jsonp({ action: 'saveShift', data: ev });
-    await loadAll(false);
+  jsonp({ action: 'saveShift', data: ev }).then(function() {
+    return loadAll(false);
+  }).then(function() {
     setSync('ok', '保存済み');
-  } catch(e) { setSync('err', '保存失敗'); }
+  }).catch(function() {
+    setSync('err', '保存失敗');
+  });
 }
 
-async function doDelete() {
+function doDelete() {
   if (!confirm('このシフトを削除しますか？')) return;
   var delId = editingId;
   closeModal();
   setSync('loading', '削除中...');
-  try {
-    await jsonp({ action: 'deleteShift', data: { id: delId } });
-    await loadAll(false);
+  jsonp({ action: 'deleteShift', data: { id: delId } }).then(function() {
+    return loadAll(false);
+  }).then(function() {
     setSync('ok', '削除済み');
-  } catch(e) { setSync('err', '削除失敗'); }
+  }).catch(function() {
+    setSync('err', '削除失敗');
+  });
 }
 
 document.getElementById('overlay').addEventListener('click', function(e) {
