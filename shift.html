@@ -192,11 +192,12 @@ let activeFilter = ''; // '' = 全店舗
 
 function buildFilterBar() {
   var storeKeys = Object.keys(STORES);
-  var html = '<div class="filter-btn' + (activeFilter===''?' active':'') + '" onclick="setFilter('')">全店舗</div>';
+  var html = '<div class="filter-btn' + (activeFilter==='' ? ' active' : '') + '" onclick="setFilter(\'\')">全店舗</div>';
   for (var i = 0; i < storeKeys.length; i++) {
     var k = storeKeys[i];
     var on = activeFilter === k;
-    html += '<div class="filter-btn ' + STORES[k].cls + (on?' active':'') + '" onclick="setFilter('' + k.replace(/'/g,"\'") + '')">' + k + '</div>';
+    var escapedKey = k.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    html += '<div class="filter-btn ' + STORES[k].cls + (on ? ' active' : '') + '" onclick="setFilter(\'' + escapedKey + '\')">' + k + '</div>';
   }
   document.getElementById('filter-bar').innerHTML = html;
 }
