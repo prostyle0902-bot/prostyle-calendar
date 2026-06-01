@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>飲食事業部 シフト管理</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍺</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%230f3460'/><stop offset='100%25' stop-color='%23533483'/></linearGradient></defs><rect width='100' height='100' rx='22' fill='url(%23g)'/><rect x='18' y='18' width='64' height='42' rx='6' fill='white' opacity='0.12'/><rect x='18' y='18' width='64' height='14' rx='6' fill='white' opacity='0.25'/><rect x='18' y='25' width='64' height='7' rx='0' fill='white' opacity='0.2'/><rect x='23' y='36' width='18' height='7' rx='2' fill='%23FFB347' opacity='0.95'/><rect x='44' y='36' width='18' height='7' rx='2' fill='%2387CEEB' opacity='0.95'/><rect x='23' y='46' width='28' height='7' rx='2' fill='%2390EE90' opacity='0.95'/><rect x='54' y='46' width='10' height='7' rx='2' fill='%23FFB6C1' opacity='0.95'/><path d='M28 76 L31 68 L41 68 L44 76 Z' fill='none' stroke='%23FFD700' stroke-width='2'/><rect x='31' y='66' width='10' height='4' rx='2' fill='%23FFD700'/><path d='M44 70 Q50 70 50 73 Q50 76 44 76' fill='none' stroke='%23FFD700' stroke-width='1.5'/><text x='52' y='79' font-family='sans-serif' font-size='13' fill='white' font-weight='700'>SHIFT</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%230f3460'/><stop offset='100%25' stop-color='%23533483'/></linearGradient></defs><rect width='100' height='100' rx='22' fill='url(%23g)'/><rect x='18' y='18' width='64' height='42' rx='6' fill='white' opacity='0.12'/><rect x='18' y='18' width='64' height='14' rx='6' fill='white' opacity='0.25'/><rect x='18' y='25' width='64' height='7' rx='0' fill='white' opacity='0.2'/><rect x='23' y='36' width='18' height='7' rx='2' fill='%23FFB347' opacity='0.95'/><rect x='44' y='36' width='18' height='7' rx='2' fill='%2387CEEB' opacity='0.95'/><rect x='23' y='46' width='28' height='7' rx='2' fill='%2390EE90' opacity='0.95'/><rect x='54' y='46' width='10' height='7' rx='2' fill='%23FFB6C1' opacity='0.95'/><path d='M28 76 L31 68 L41 68 L44 76 Z' fill='none' stroke='%23FFD700' stroke-width='2'/><rect x='31' y='66' width='10' height='4' rx='2' fill='%23FFD700'/><path d='M44 70 Q50 70 50 73 Q50 76 44 76' fill='none' stroke='%23FFD700' stroke-width='1.5'/><text x='52' y='79' font-family='sans-serif' font-size='13' fill='white' font-weight='700'>SHIFT</text></svg>"><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23D91E63;stop-opacity:1'/><stop offset='100%' style='stop-color:%23673AB7;stop-opacity:1'/></linearGradient></defs><rect x='15' y='15' width='70' height='70' rx='8' fill='url(%23grad)'/><g fill='%23fff'><circle cx='40' cy='40' r='3'/><circle cx='60' cy='40' r='3'/><circle cx='40' cy='60' r='3'/><circle cx='60' cy='60' r='3'/><rect x='32' y='48' width='6' height='16' rx='3'/><rect x='62' y='48' width='6' height='16' rx='3'/></g></svg>">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Hiragino Kaku Gothic ProN','Hiragino Sans','Meiryo',sans-serif;background:#f5f5f0;color:#1a1a1a;font-size:15px}
@@ -63,17 +64,17 @@ table.shift-table tr.today td{background:#edf5fc}
 @media(max-width:600px){
   .table-wrap{display:none}
   .mobile-list{display:block}
-  body{font-size:16px}
-  .month{font-size:20px;font-weight:700}
-  .nav-btn{font-size:15px;padding:8px 16px}
-  .filter-btn{font-size:13px;padding:6px 14px}
-  .section-title{font-size:15px}
-  .mobile-dnum{font-size:18px}
-  .mobile-dname{font-size:14px}
-  .mobile-hj{font-size:13px}
-  .mobile-add{font-size:13px;padding:4px 10px}
-  .mobile-store-label{font-size:13px;padding:2px 8px}
-  .mobile-shift-item{font-size:14px;padding:5px 10px}
+  body{font-size:18px}
+  .month{font-size:22px;font-weight:700}
+  .nav-btn{font-size:16px;padding:10px 18px}
+  .filter-btn{font-size:14px;padding:7px 16px}
+  .section-title{font-size:16px;padding:12px 14px 6px}
+  .mobile-dnum{font-size:20px}
+  .mobile-dname{font-size:15px}
+  .mobile-hj{font-size:14px}
+  .mobile-add{font-size:14px;padding:5px 12px}
+  .mobile-store-label{font-size:14px;padding:3px 10px;margin-bottom:4px}
+  .mobile-shift-item{font-size:15px;padding:6px 12px;margin:3px 2px 3px 0}
 }
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:flex-end;justify-content:center}
 .overlay.open{display:flex}
