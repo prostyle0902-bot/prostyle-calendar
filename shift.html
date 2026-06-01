@@ -10,6 +10,7 @@
 body{font-family:'Hiragino Kaku Gothic ProN','Hiragino Sans','Meiryo',sans-serif;background:#f5f5f0;color:#1a1a1a;font-size:15px}
 header{background:#1a1a1a;color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
 header h1{font-size:17px;font-weight:500}
+.user-info{font-size:11px;opacity:0.7;cursor:pointer}
 .sync{font-size:12px;display:flex;align-items:center;gap:5px;opacity:0.8}
 .dot{width:7px;height:7px;border-radius:50%;background:#888;flex-shrink:0}
 .dot.ok{background:#7bc67e}.dot.err{background:#f28b82}.dot.loading{background:#ffb74d}
@@ -28,6 +29,7 @@ header h1{font-size:17px;font-weight:500}
 .store-cleaning{background:#F3E5F5;color:#4A148C}
 .store-yakitate{background:#FBE9E7;color:#BF360C}
 .store-sawara{background:#E0F7FA;color:#006064}
+.store-beer{background:#FFCCBC;color:#BF360C}
 .section-title{font-size:13px;font-weight:600;color:#666;padding:10px 14px 5px}
 .table-wrap{overflow-x:auto;padding:0 14px 4px;-webkit-overflow-scrolling:touch}
 table.shift-table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;border:1px solid #e8e8e4;overflow:hidden;min-width:800px}
@@ -43,6 +45,7 @@ table.shift-table tr.today td{background:#edf5fc}
 .hj{font-size:9px;color:#e05555;font-weight:600}
 .shift-pill{display:block;padding:2px 5px;border-radius:4px;font-size:11px;margin-bottom:2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .shift-pill:hover{opacity:0.8}
+.shift-pill.readonly{cursor:default}
 .add-s{display:block;font-size:10px;color:#ccc;cursor:pointer;padding:1px 3px}
 .add-s:hover{color:#888}
 .mobile-list{display:none}
@@ -56,6 +59,7 @@ table.shift-table tr.today td{background:#edf5fc}
 .mobile-store-row{margin-bottom:4px}
 .mobile-store-label{font-size:11px;padding:1px 6px;border-radius:3px;margin-right:4px;display:inline-block}
 .mobile-shift-item{display:inline-flex;padding:3px 8px;border-radius:5px;font-size:13px;margin:2px 2px 2px 0;cursor:pointer}
+.mobile-shift-item.readonly{cursor:default}
 @media(max-width:600px){
   .table-wrap{display:none}
   .mobile-list{display:block}
@@ -93,13 +97,37 @@ table.shift-table tr.today td{background:#edf5fc}
 .btn-cancel{background:#f0f0ec;color:#555}
 .btn-delete{background:#fee2e2;color:#b91c1c;margin-right:auto}
 .loading-msg{text-align:center;padding:40px;color:#999;font-size:13px}
+
+/* PIN認証画面 */
+.login-screen{position:fixed;inset:0;background:#1a1a1a;z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:#fff;border-radius:14px;padding:28px;width:100%;max-width:340px;text-align:center}
+.login-box h2{font-size:20px;margin-bottom:8px}
+.login-box .login-sub{font-size:13px;color:#888;margin-bottom:20px}
+.pin-input{width:100%;font-size:24px;padding:14px;border-radius:10px;border:2px solid #ddd;text-align:center;letter-spacing:8px;margin-bottom:14px;-webkit-appearance:none;appearance:none}
+.pin-input:focus{outline:none;border-color:#4a90d9}
+.pin-err{font-size:13px;color:#e05555;margin-bottom:10px;min-height:20px}
+.pin-btn{width:100%;padding:14px;border-radius:10px;background:#1a1a1a;color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer}
 </style>
 </head>
 <body>
 
+<!-- PIN認証画面 -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <h2>🍺 シフト管理</h2>
+    <div class="login-sub">PINコードを入力してください</div>
+    <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="4" class="pin-input" id="pin-input" placeholder="••••">
+    <div class="pin-err" id="pin-err"></div>
+    <button class="pin-btn" onclick="checkPin()">ログイン</button>
+  </div>
+</div>
+
 <header>
   <h1>飲食事業部 シフト管理</h1>
-  <div class="sync"><div class="dot loading" id="sync-dot"></div><span id="sync-label">読み込み中...</span></div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span class="user-info" id="user-info" onclick="logout()"></span>
+    <div class="sync"><div class="dot loading" id="sync-dot"></div><span id="sync-label">読み込み中...</span></div>
+  </div>
 </header>
 
 <div class="nav">
@@ -117,16 +145,7 @@ table.shift-table tr.today td{background:#edf5fc}
     <h3 id="modal-title">シフトを追加</h3>
     <div class="form-row"><label>日付</label><input id="f-date" type="date"></div>
     <div class="form-row"><label>店舗</label>
-      <select id="f-store" onchange="onStoreChange()">
-        <option>タコとハイボール</option>
-        <option>韓国酒場ハナ</option>
-        <option>りゅうちゃん</option>
-        <option>もも焼きJAPAN</option>
-        <option>バッシング</option>
-        <option>横丁清掃</option>
-        <option>焼きたて屋鹿島</option>
-        <option>さわら十三里屋</option>
-      </select>
+      <select id="f-store" onchange="onStoreChange()"></select>
     </div>
     <div class="form-row">
       <label>スタッフ（1人選択）</label>
@@ -160,8 +179,43 @@ var STORES = {
   'バッシング':       { cls:'store-bassing', staff:['石井義則','中村利人','山崎悠人','本田光江'], sh:14, eh:25 },
   '横丁清掃':         { cls:'store-cleaning', staff:['橋本桂子','小金澤登美江'], sh:8, eh:10 },
   '焼きたて屋鹿島':   { cls:'store-yakitate', staff:['及川晶雄','小林メグ','荒宏信'], sh:10, eh:19 },
-  'さわら十三里屋':   { cls:'store-sawara', staff:['八木秀子','籾山結泉','下河邊なお子','小堀真桜'], sh:9, eh:18 }
+  'さわら十三里屋':   { cls:'store-sawara', staff:['八木秀子','籾山結泉','下河邊なお子','小堀真桜'], sh:9, eh:18 },
+  'ビアガーデン':     { cls:'store-beer', staff:['石井義則','荒宏信'], sh:16, eh:23 }
 };
+
+// PINと権限
+// role: 'admin'=全体管理者, 'store-admin'=店舗管理者, 'viewer'=閲覧のみ
+// stores: 表示・編集可能な店舗（admin/store-adminの場合は編集も可、viewerは閲覧のみ）
+var PIN_MAP = {
+  '7429': { name:'全体管理者', role:'admin', stores:Object.keys(STORES) },
+  '3815': { name:'タコハイ管理者', role:'store-admin', stores:['タコとハイボール'] },
+  '6203': { name:'ハナ管理者', role:'store-admin', stores:['韓国酒場ハナ'] },
+  '9174': { name:'りゅうちゃん管理者', role:'store-admin', stores:['りゅうちゃん'] },
+  '4562': { name:'もも焼き管理者', role:'store-admin', stores:['もも焼きJAPAN'] },
+  '2891': { name:'バッシング管理者', role:'store-admin', stores:['バッシング'] },
+  '5037': { name:'横丁清掃管理者', role:'store-admin', stores:['横丁清掃'] },
+  '8346': { name:'焼きたて屋管理者', role:'store-admin', stores:['焼きたて屋鹿島'] },
+  '1658': { name:'十三里屋管理者', role:'store-admin', stores:['さわら十三里屋'] },
+  '5824': { name:'ビアガーデン管理者', role:'store-admin', stores:['ビアガーデン'] },
+  '2047': { name:'タコハイスタッフ', role:'viewer', stores:['タコとハイボール'] },
+  '5913': { name:'ハナスタッフ', role:'viewer', stores:['韓国酒場ハナ'] },
+  '8261': { name:'りゅうちゃんスタッフ', role:'viewer', stores:['りゅうちゃん'] },
+  '3749': { name:'もも焼きスタッフ', role:'viewer', stores:['もも焼きJAPAN'] },
+  '6082': { name:'バッシングスタッフ', role:'viewer', stores:['バッシング'] },
+  '4315': { name:'横丁清掃スタッフ', role:'viewer', stores:['横丁清掃'] },
+  '9528': { name:'焼きたて屋スタッフ', role:'viewer', stores:['焼きたて屋鹿島'] },
+  '7194': { name:'十三里屋スタッフ', role:'viewer', stores:['さわら十三里屋'] },
+  '6471': { name:'ビアガーデンスタッフ', role:'viewer', stores:['ビアガーデン'] }
+};
+
+// ナディーシャ用：タコハイ&ハナ両方閲覧可能なスタッフ
+// → 既存PINの権限を別途追加することは複雑なので、ここではadmin/store-admin/viewerは全店舗閲覧可能とし、
+// 編集権限のみ役割で制御する。ただし「自分の店舗だけ見たい」要件のため viewer は stores のみ表示。
+// ナディーシャの個別対応：ハナのviewerは store-admin/admin と同様に複数店舗閲覧する形ではなく、
+// hanaとtakoの両方を閲覧可能なスタッフ用PINを追加するのが最もシンプル。
+
+// ナディーシャ用 viewer（タコハイ＋ハナ閲覧）
+PIN_MAP['2589'] = { name:'ナディーシャ', role:'viewer', stores:['タコとハイボール','韓国酒場ハナ'] };
 
 var HOLIDAYS_JP = {
   '2025-01-01':1,'2025-01-13':1,'2025-02-11':1,'2025-02-23':1,'2025-02-24':1,
@@ -186,7 +240,81 @@ var cbCount = 0;
 var activeFilter = '';
 var currentStaffList = [];
 var selectedStaffName = '';
+var currentUser = null;
 
+// ===== PIN認証 =====
+function checkPin() {
+  var pin = document.getElementById('pin-input').value;
+  if (PIN_MAP[pin]) {
+    currentUser = PIN_MAP[pin];
+    localStorage.setItem('shift_pin', pin);
+    showApp();
+  } else {
+    document.getElementById('pin-err').textContent = 'PINが正しくありません';
+    document.getElementById('pin-input').value = '';
+  }
+}
+
+function logout() {
+  if (!confirm('ログアウトしますか？')) return;
+  localStorage.removeItem('shift_pin');
+  location.reload();
+}
+
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('user-info').textContent = currentUser.name + ' ✕';
+  // 全体管理者・店舗管理者は全店舗閲覧可、viewerは指定店舗のみ
+  if (currentUser.role === 'admin' || currentUser.role === 'store-admin') {
+    visibleStores = Object.keys(STORES);
+  } else {
+    visibleStores = currentUser.stores.slice();
+  }
+  // 編集可能な店舗
+  if (currentUser.role === 'admin') {
+    editableStores = Object.keys(STORES);
+  } else if (currentUser.role === 'store-admin') {
+    editableStores = currentUser.stores.slice();
+  } else {
+    editableStores = [];
+  }
+  buildStoreSelectOptions();
+  buildFilterBar();
+  loadAll();
+}
+
+var visibleStores = [];
+var editableStores = [];
+
+function canEdit(storeName) {
+  return editableStores.indexOf(storeName) >= 0;
+}
+
+function buildStoreSelectOptions() {
+  var sel = document.getElementById('f-store');
+  sel.innerHTML = '';
+  editableStores.forEach(function(s) {
+    var opt = document.createElement('option');
+    opt.value = s;
+    opt.textContent = s;
+    sel.appendChild(opt);
+  });
+}
+
+// 起動時にPIN確認
+window.addEventListener('DOMContentLoaded', function() {
+  var savedPin = localStorage.getItem('shift_pin');
+  if (savedPin && PIN_MAP[savedPin]) {
+    currentUser = PIN_MAP[savedPin];
+    showApp();
+  }
+  document.getElementById('pin-input').focus();
+  document.getElementById('pin-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') checkPin();
+  });
+});
+
+// ===== API =====
 function setSync(s, l) {
   document.getElementById('sync-dot').className = 'dot ' + s;
   document.getElementById('sync-label').textContent = l;
@@ -234,26 +362,21 @@ function loadAll(showLoading) {
 }
 
 function buildFilterBar() {
-  var storeKeys = Object.keys(STORES);
-  var html = '<div class="filter-btn' + (activeFilter === '' ? ' active' : '') + '" onclick="setFilter(\'\')">全店舗</div>';
-  for (var i = 0; i < storeKeys.length; i++) {
-    var k = storeKeys[i];
+  var html = '';
+  if (visibleStores.length > 1) {
+    html += '<div class="filter-btn' + (activeFilter === '' ? ' active' : '') + '" onclick="setFilterByIndex(-1)">全店舗</div>';
+  }
+  for (var i = 0; i < visibleStores.length; i++) {
+    var k = visibleStores[i];
     var cls = STORES[k].cls;
     var on = activeFilter === k;
-    html += '<div class="filter-btn ' + cls + (on ? ' active' : '') + '" data-store="' + i + '" onclick="setFilterByIndex(' + i + ')">' + k + '</div>';
+    html += '<div class="filter-btn ' + cls + (on ? ' active' : '') + '" onclick="setFilterByIndex(' + i + ')">' + k + '</div>';
   }
   document.getElementById('filter-bar').innerHTML = html;
 }
 
-var storeKeysList = Object.keys(STORES);
 function setFilterByIndex(idx) {
-  activeFilter = storeKeysList[idx];
-  buildFilterBar();
-  render();
-}
-
-function setFilter(name) {
-  activeFilter = name;
+  activeFilter = idx < 0 ? '' : visibleStores[idx];
   buildFilterBar();
   render();
 }
@@ -265,7 +388,8 @@ function render() {
   var now = new Date();
   var todayKey = fmt(now.getFullYear(), now.getMonth(), now.getDate());
 
-  var targetStores = activeFilter ? [activeFilter] : Object.keys(STORES);
+  // 表示対象の店舗（フィルターと閲覧権限を考慮）
+  var targetStores = activeFilter ? [activeFilter] : visibleStores.slice();
 
   var storeHeaders = targetStores.map(function(k) {
     return '<th><span class="' + STORES[k].cls + '" style="padding:2px 6px;border-radius:4px;font-size:11px">' + k + '</span></th>';
@@ -286,12 +410,16 @@ function render() {
 
       var storeCols = targetStores.map(function(sk) {
         var ss2 = dayShifts.filter(function(s) { return s.store === sk; });
+        var canEditStore = canEdit(sk);
         var pills = ss2.map(function(s) {
           var time = s.start ? (s.end ? s.start + '〜' + s.end : s.start) : '';
           var label = s.staff + (time ? ' ' + time : '');
-          return '<span class="shift-pill ' + STORES[sk].cls + '" onclick="openEdit(\'' + key + '\', \'' + s.id + '\')">' + label + '</span>';
+          var cls = 'shift-pill ' + STORES[sk].cls + (canEditStore ? '' : ' readonly');
+          var click = canEditStore ? ' onclick="openEdit(\'' + key + '\', \'' + s.id + '\')"' : '';
+          return '<span class="' + cls + '"' + click + '>' + label + '</span>';
         }).join('');
-        return '<td>' + pills + '<span class="add-s" onclick="openAdd(\'' + key + '\', \'' + sk + '\')">＋</span></td>';
+        var addBtn = canEditStore ? '<span class="add-s" onclick="openAdd(\'' + key + '\', \'' + sk + '\')">＋</span>' : '';
+        return '<td>' + pills + addBtn + '</td>';
       }).join('');
 
       rows += '<tr class="' + rowCls + '">'
@@ -321,24 +449,30 @@ function render() {
       for (var si = 0; si < targetStores.length; si++) {
         var sk = targetStores[si];
         var ss2 = dayShifts.filter(function(s) { return s.store === sk; });
+        var canEditStore = canEdit(sk);
         if (ss2.length === 0 && !activeFilter) continue;
         var pills = ss2.map(function(s) {
           var time = s.start ? (s.end ? s.start + '〜' + s.end : s.start) : '';
           var label = s.staff + (time ? ' ' + time : '');
-          return '<span class="mobile-shift-item ' + STORES[sk].cls + '" onclick="openEdit(\'' + key + '\', \'' + s.id + '\')">' + label + '</span>';
+          var cls = 'mobile-shift-item ' + STORES[sk].cls + (canEditStore ? '' : ' readonly');
+          var click = canEditStore ? ' onclick="openEdit(\'' + key + '\', \'' + s.id + '\')"' : '';
+          return '<span class="' + cls + '"' + click + '>' + label + '</span>';
         }).join('');
         storeRows += '<div class="mobile-store-row">'
           + (activeFilter ? '' : '<span class="mobile-store-label ' + STORES[sk].cls + '">' + sk + '</span>')
           + pills + '</div>';
       }
 
-      var addStore = activeFilter || '';
+      var addStore = activeFilter || (editableStores.length === 1 ? editableStores[0] : '');
+      var canAddAny = editableStores.length > 0 && (!activeFilter || canEdit(activeFilter));
+      var addBtn = canAddAny ? '<span class="mobile-add" onclick="openAdd(\'' + key + '\', \'' + addStore + '\')">＋ 追加</span>' : '';
+
       rows += '<div class="mobile-row' + (isToday ? ' today' : '') + '">'
         + '<div class="mobile-date-row">'
         + '<span class="mobile-dnum" style="' + dnumStyle + '">' + d + '</span>'
         + '<span class="mobile-dname">' + DAYS[dow] + '</span>'
         + (isHJ ? '<span class="mobile-hj">祝</span>' : '')
-        + '<span class="mobile-add" onclick="openAdd(\'' + key + '\', \'' + addStore + '\')">＋ 追加</span>'
+        + addBtn
         + '</div>'
         + storeRows + '</div>';
     }
@@ -418,12 +552,14 @@ function onStoreChange() {
 }
 
 function openAdd(dateKey, storeName) {
+  if (editableStores.length === 0) return;
   editingId = null;
   editingDate = dateKey;
   var parts = dateKey.split('-');
   document.getElementById('modal-title').textContent = parseInt(parts[1]) + '月' + parseInt(parts[2]) + '日 — シフトを追加';
   document.getElementById('f-date').value = dateKey;
-  document.getElementById('f-store').value = storeName || 'タコとハイボール';
+  var defaultStore = storeName && canEdit(storeName) ? storeName : editableStores[0];
+  document.getElementById('f-store').value = defaultStore;
   document.getElementById('f-memo').value = '';
   document.getElementById('delete-btn').style.display = 'none';
   updateStaffButtons('');
@@ -438,12 +574,13 @@ function openEdit(dateKey, id) {
     if (dayShifts[i].id === id) { ev = dayShifts[i]; break; }
   }
   if (!ev) return;
+  if (!canEdit(ev.store)) return; // 編集権限なし
   editingId = id;
   editingDate = dateKey;
   var parts = dateKey.split('-');
   document.getElementById('modal-title').textContent = parseInt(parts[1]) + '月' + parseInt(parts[2]) + '日 — 編集';
   document.getElementById('f-date').value = ev.date || dateKey;
-  document.getElementById('f-store').value = ev.store || 'タコとハイボール';
+  document.getElementById('f-store').value = ev.store || editableStores[0];
   document.getElementById('f-memo').value = ev.memo || '';
   document.getElementById('delete-btn').style.display = '';
   updateStaffButtons(ev.staff || '');
@@ -495,9 +632,6 @@ function doDelete() {
 document.getElementById('overlay').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
-
-buildFilterBar();
-loadAll();
 </script>
 </body>
 </html>
