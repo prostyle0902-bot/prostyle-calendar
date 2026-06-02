@@ -61,6 +61,8 @@ table.shift-table tr.today td{background:#edf5fc}
 .mobile-store-label{font-size:11px;padding:1px 6px;border-radius:3px;margin-right:4px;display:inline-block}
 .mobile-shift-item{display:inline-flex;padding:3px 8px;border-radius:5px;font-size:13px;margin:2px 2px 2px 0;cursor:pointer}
 .mobile-shift-item.readonly{cursor:default}
+.rest-pill{display:block;padding:2px 5px;border-radius:4px;font-size:11px;margin-bottom:2px;background:#f0f0f0;color:#888;font-weight:600}
+.mobile-rest-item{display:inline-flex;padding:3px 8px;border-radius:5px;font-size:13px;margin:2px 2px 2px 0;background:#f0f0f0;color:#888;font-weight:600;cursor:pointer}
 @media(max-width:600px){
   .table-wrap{display:none}
   .mobile-list{display:block}
@@ -81,6 +83,7 @@ table.shift-table tr.today td{background:#edf5fc}
   .mobile-store-row{margin-bottom:8px}
   .mobile-store-label{font-size:15px;padding:4px 12px;margin-bottom:4px}
   .mobile-shift-item{font-size:17px;padding:8px 14px;margin:4px 3px 4px 0}
+  .mobile-rest-item{font-size:16px;padding:7px 14px;margin:4px 3px 4px 0}
 }
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:flex-end;justify-content:center}
 .overlay.open{display:flex}
@@ -169,13 +172,15 @@ table.shift-table tr.today td{background:#edf5fc}
     <div class="modal-btns">
       <button class="btn btn-delete" id="delete-btn" onclick="doDelete()" style="display:none">削除</button>
       <button class="btn btn-cancel" onclick="closeModal()">キャンセル</button>
-      <button class="btn btn-primary" onclick="doSave()">保存</button>
+      <button class="btn" id="rest-btn" onclick="doSaveRest()" style="background:#f0f0f0;color:#555;display:none">休み登録</button>
+      <button class="btn btn-primary" id="save-btn" onclick="doSave()">保存</button>
     </div>
   </div>
 </div>
 
 <script>
 var API = 'https://script.google.com/macros/s/AKfycbwV_UNDYqwlGhMeoEQiasU348YX_UEKXys7E0TkZaOMfrcXtTx6-JIisyLVMCW2yj3g/exec';
+var KYUYO_API = 'https://script.google.com/macros/s/AKfycbylaRGqV8lj1p1X4Qx1y7jn1r8jqQOz3lCQSHMOnudLFxxfawlMOtVm5trQEZTz9aINHw/exec';
 var DAYS = ['日','月','火','水','木','金','土'];
 
 var STORES = {
@@ -223,6 +228,9 @@ var PIN_MAP = {
 
 // ナディーシャ用 viewer（タコハイ＋ハナ閲覧）
 PIN_MAP['2589'] = { name:'ナディーシャ', role:'viewer', stores:['タコとハイボール','韓国酒場ハナ'] };
+
+// 休み管理（インメモリ）
+var rests = {}; // { 'YYYY-MM-DD': { 'store': ['staff1', 'staff2'] } }
 
 var HOLIDAYS_JP = {
   '2025-01-01':1,'2025-01-13':1,'2025-02-11':1,'2025-02-23':1,'2025-02-24':1,
@@ -569,6 +577,10 @@ function openAdd(dateKey, storeName) {
   document.getElementById('f-store').value = defaultStore;
   document.getElementById('f-memo').value = '';
   document.getElementById('delete-btn').style.display = 'none';
+  // 管理者のみ休みボタン表示
+  var isAdmin = currentUser && (currentUser.role === 'admin' || currentUser.role === 'store-admin');
+  document.getElementById('rest-btn').style.display = isAdmin ? '' : 'none';
+  document.getElementById('save-btn').textContent = '保存';
   updateStaffButtons('');
   updateTimeSelects('', '');
   document.getElementById('overlay').classList.add('open');
@@ -590,6 +602,7 @@ function openEdit(dateKey, id) {
   document.getElementById('f-store').value = ev.store || editableStores[0];
   document.getElementById('f-memo').value = ev.memo || '';
   document.getElementById('delete-btn').style.display = '';
+  document.getElementById('rest-btn').style.display = 'none';
   updateStaffButtons(ev.staff || '');
   updateTimeSelects(ev.start || '', ev.end || '');
   document.getElementById('overlay').classList.add('open');
@@ -614,6 +627,8 @@ function doSave() {
   closeModal();
   setSync('loading', '保存中...');
   jsonp({ action: 'saveShift', data: ev }).then(function() {
+    // アルバイト対象者なら出勤簿にも転記
+    writeToKyuyo('writeShift', ev);
     return loadAll(false);
   }).then(function() {
     setSync('ok', '保存済み');
@@ -627,7 +642,18 @@ function doDelete() {
   var delId = editingId;
   closeModal();
   setSync('loading', '削除中...');
+  // 削除前にシフトデータを取得して出勤簿からも削除
+  var delEv = null;
+  var allDays = Object.keys(shifts);
+  for (var di = 0; di < allDays.length; di++) {
+    var dayArr = shifts[allDays[di]] || [];
+    for (var si = 0; si < dayArr.length; si++) {
+      if (dayArr[si].id === delId) { delEv = dayArr[si]; break; }
+    }
+    if (delEv) break;
+  }
   jsonp({ action: 'deleteShift', data: { id: delId } }).then(function() {
+    if (delEv) writeToKyuyo('deleteShift', delEv);
     return loadAll(false);
   }).then(function() {
     setSync('ok', '削除済み');
@@ -636,9 +662,67 @@ function doDelete() {
   });
 }
 
+// 出勤簿転記（エラーは無視）
+var PART_TIME_STAFF = ['松岡実麻','網代愛','新河美和','栗林里江','篠塚柚紀',
+  '石井義則','中村利人','山崎悠人','本田光江','橋本桂子',
+  '小金澤登美江','小林メグ','荒宏信','八木秀子','籾山結泉',
+  '下河邊なお子','小堀真桜'];
+
+function writeToKyuyo(action, ev) {
+  if (PART_TIME_STAFF.indexOf(ev.staff) < 0) return;
+  var cbName = '_ky' + (++cbCount);
+  window[cbName] = function() { delete window[cbName]; var el = document.getElementById(cbName); if(el) el.remove(); };
+  var params = 'action=' + action + '&data=' + encodeURIComponent(JSON.stringify(ev)) + '&callback=' + cbName + '&t=' + Date.now();
+  var script = document.createElement('script');
+  script.id = cbName;
+  script.src = KYUYO_API + '?' + params;
+  script.onerror = function() { delete window[cbName]; script.remove(); };
+  document.head.appendChild(script);
+}
+
 document.getElementById('overlay').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
+
+// ===== 休み管理 =====
+function doSaveRest() {
+  if (!selectedStaffName) { alert('スタッフを選択してください'); return; }
+  var dateKey = document.getElementById('f-date').value || editingDate;
+  var storeKey = document.getElementById('f-store').value;
+  if (!rests[dateKey]) rests[dateKey] = {};
+  if (!rests[dateKey][storeKey]) rests[dateKey][storeKey] = [];
+  if (rests[dateKey][storeKey].indexOf(selectedStaffName) < 0) {
+    rests[dateKey][storeKey].push(selectedStaffName);
+  }
+  closeModal();
+  render();
+}
+
+function deleteRest(dateKey, storeKey, staffName) {
+  if (!confirm(staffName + ' の休みを削除しますか？')) return;
+  if (rests[dateKey] && rests[dateKey][storeKey]) {
+    rests[dateKey][storeKey] = rests[dateKey][storeKey].filter(function(s) { return s !== staffName; });
+    if (rests[dateKey][storeKey].length === 0) delete rests[dateKey][storeKey];
+    if (Object.keys(rests[dateKey]).length === 0) delete rests[dateKey];
+  }
+  render();
+}
+
+function getRestPills(dateKey, storeKey, canEditStore) {
+  if (!rests[dateKey] || !rests[dateKey][storeKey]) return '';
+  return rests[dateKey][storeKey].map(function(s) {
+    var click = canEditStore ? ' onclick="deleteRest('' + dateKey + '','' + storeKey + '','' + s + '')"' : '';
+    return '<span class="rest-pill"' + click + '>休 ' + s + '</span>';
+  }).join('');
+}
+
+function getMobileRestPills(dateKey, storeKey, canEditStore) {
+  if (!rests[dateKey] || !rests[dateKey][storeKey]) return '';
+  return rests[dateKey][storeKey].map(function(s) {
+    var click = canEditStore ? ' onclick="deleteRest('' + dateKey + '','' + storeKey + '','' + s + '')"' : '';
+    return '<span class="mobile-rest-item"' + click + '>休 ' + s + '</span>';
+  }).join('');
+}
 </script>
 </body>
 </html>
