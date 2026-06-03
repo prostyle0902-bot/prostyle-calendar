@@ -504,10 +504,12 @@ function render() {
       + '<div class="mobile-list">' + buildMobileRows(from, to) + '</div>';
   }
 
+  var nextM = m === 11 ? 1 : m + 2;
+  var nextY = m === 11 ? y + 1 : y;
   document.getElementById('calendar-wrap').innerHTML =
-    buildSection(16, lastDay, '前半 — 16日〜' + lastDay + '日') +
+    buildSection(16, lastDay, '前半 — ' + (m+1) + '月16日〜' + (m+1) + '月' + lastDay + '日') +
     '<div style="height:12px"></div>' +
-    buildSection(1, 15, '後半 — 1日〜15日') +
+    buildSection(1, 15, '後半 — ' + nextY + '年' + nextM + '月1日〜15日') +
     '<div style="height:24px"></div>';
 }
 
