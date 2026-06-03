@@ -100,6 +100,19 @@ table.shift-table tr.today td{background:#edf5fc}
 .btn-cancel{background:#f0f0ec;color:#555}
 .btn-delete{background:#fee2e2;color:#b91c1c;margin-right:auto}
 .loading-msg{text-align:center;padding:40px;color:#999;font-size:13px}
+.copy-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:300;align-items:flex-end;justify-content:center}
+.copy-overlay.open{display:flex}
+.copy-modal{background:#fff;border-radius:14px 14px 0 0;width:100%;max-width:480px;max-height:70vh;overflow-y:auto;padding:20px 20px 28px}
+@media(min-width:520px){.copy-overlay{align-items:center;padding:16px}.copy-modal{border-radius:14px}}
+.copy-modal h3{font-size:15px;font-weight:600;margin-bottom:6px}
+.copy-modal .copy-sub{font-size:13px;color:#888;margin-bottom:14px}
+.copy-date-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:14px}
+.copy-date-btn{padding:8px 4px;border-radius:6px;border:1.5px solid #e0e0e0;background:#fafafa;font-size:13px;text-align:center;cursor:pointer}
+.copy-date-btn:hover{background:#f0f0ec}
+.copy-date-btn.sun{color:#e05555}
+.copy-date-btn.sat{color:#4a90d9}
+.copy-date-btn.copied{border-color:#7bc67e;background:#e8f5e9;color:#2e7d32}
+.copy-btns{display:flex;gap:8px;justify-content:flex-end}
 .login-screen{position:fixed;inset:0;background:#2c3e50;z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}
 .login-box{background:#fff;border-radius:14px;padding:28px;width:100%;max-width:340px;text-align:center}
 .login-box h2{font-size:20px;margin-bottom:8px}
@@ -138,6 +151,19 @@ table.shift-table tr.today td{background:#edf5fc}
 
 <div class="filter-bar" id="filter-bar"></div>
 <div id="calendar-wrap"><div class="loading-msg">読み込み中...</div></div>
+
+<!-- コピーモーダル -->
+<div class="copy-overlay" id="copy-overlay">
+  <div class="copy-modal">
+    <div class="modal-handle"></div>
+    <h3 id="copy-title">シフトをコピー</h3>
+    <div class="copy-sub" id="copy-sub"></div>
+    <div class="copy-date-grid" id="copy-date-grid"></div>
+    <div class="copy-btns">
+      <button class="btn btn-cancel" onclick="closeCopyModal()">閉じる</button>
+    </div>
+  </div>
+</div>
 
 <div class="overlay" id="overlay">
   <div class="modal">
@@ -372,7 +398,10 @@ function setFilterByIndex(idx) {
 
 function render() {
   var y = current.getFullYear(), m = current.getMonth();
-  document.getElementById('month-title').textContent = y + '年' + (m+1) + '月';
+  // 16日締めなので「前月16日〜当月15日」表示
+  var prevM = m === 0 ? 12 : m;
+  var prevY = m === 0 ? y - 1 : y;
+  document.getElementById('month-title').textContent = prevY + '年' + prevM + '月〜' + y + '年' + (m+1) + '月';
   var lastDay = new Date(y, m+1, 0).getDate();
   var now = new Date();
   var todayKey = fmt(now.getFullYear(), now.getMonth(), now.getDate());
@@ -443,7 +472,8 @@ function render() {
           var label = s.staff + (time ? ' ' + time : '');
           var cls = 'mobile-shift-item ' + STORES[sk].cls + (canEditStore ? '' : ' readonly');
           var click = canEditStore ? ' onclick="openEdit(\'' + key + '\', \'' + s.id + '\')"' : '';
-          return '<span class="' + cls + '"' + click + '>' + label + '</span>';
+          var copyBtn = canEditStore ? ' <span onclick="event.stopPropagation();openCopyModal(\'' + key + '\',\'' + s.id + '\')" style="font-size:11px;opacity:0.7;margin-left:4px">📋</span>' : '';
+          return '<span class="' + cls + '"' + click + '>' + label + copyBtn + '</span>';
         }).join('');
         storeRows += '<div class="mobile-store-row">'
           + (activeFilter ? '' : '<span class="mobile-store-label ' + STORES[sk].cls + '">' + sk + '</span>')
@@ -666,6 +696,81 @@ function getAutoBreak(staff, start, end) {
 
 document.getElementById('overlay').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
+});
+// ===== コピー機能 =====
+var copySourceEv = null;
+
+function openCopyModal(dateKey, id) {
+  var dayShifts = shifts[dateKey] || [];
+  var ev = null;
+  for (var i = 0; i < dayShifts.length; i++) {
+    if (dayShifts[i].id === id) { ev = dayShifts[i]; break; }
+  }
+  if (!ev) return;
+  copySourceEv = ev;
+  document.getElementById('copy-title').textContent = 'シフトをコピー';
+  document.getElementById('copy-sub').textContent =
+    ev.staff + ' ' + (ev.start || '') + (ev.end ? '〜' + ev.end : '') + ' を別の日にコピーします';
+
+  // 日付グリッドを生成（16日〜末日→1日〜15日の順）
+  var y = current.getFullYear(), m = current.getMonth();
+  var lastDay = new Date(y, m+1, 0).getDate();
+  var DAYS_N = ['日','月','火','水','木','金','土'];
+  var html = '';
+  var order = [];
+  for (var di = 16; di <= lastDay; di++) order.push(di);
+  for (var di = 1; di <= 15; di++) order.push(di);
+  for (var oi = 0; oi < order.length; oi++) {
+    var d = order[oi];
+    var key = fmt(y, m, d);
+    if (key === dateKey) continue;
+    var dow = new Date(y, m, d).getDay();
+    var cls = 'copy-date-btn' + (dow===0?' sun':dow===6?' sat':'');
+    html += '<div class="' + cls + '" onclick="doCopyShift(\'' + key + '\')">' + d + '<br><small>' + DAYS_N[dow] + '</small></div>';
+  }
+  document.getElementById('copy-date-grid').innerHTML = html;
+  document.getElementById('copy-overlay').classList.add('open');
+}
+
+function closeCopyModal() {
+  document.getElementById('copy-overlay').classList.remove('open');
+  copySourceEv = null;
+}
+
+function doCopyShift(toDateKey) {
+  if (!copySourceEv) return;
+  var newEv = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,4),
+    date: toDateKey,
+    store: copySourceEv.store,
+    staff: copySourceEv.staff,
+    start: copySourceEv.start,
+    end: copySourceEv.end,
+    break: copySourceEv.break || 0,
+    memo: copySourceEv.memo || ''
+  };
+  // ボタンを緑に
+  var btns = document.querySelectorAll('.copy-date-btn');
+  var day = parseInt(toDateKey.split('-')[2]);
+  for (var i = 0; i < btns.length; i++) {
+    if (parseInt(btns[i].textContent) === day) {
+      btns[i].classList.add('copied');
+      break;
+    }
+  }
+  setSync('loading', 'コピー中...');
+  jsonp({ action: 'saveShift', data: newEv }).then(function() {
+    writeToKyuyo('writeShift', newEv);
+    return loadAll(false);
+  }).then(function() {
+    setSync('ok', 'コピー済み');
+  }).catch(function() {
+    setSync('err', 'コピー失敗');
+  });
+}
+
+document.getElementById('copy-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeCopyModal();
 });
 
 // 出勤簿転記
