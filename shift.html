@@ -754,7 +754,7 @@ function openCopyModal(dateKey, id) {
     if (key === dateKey) continue; // 元の日はスキップ
     var dow = new Date(y, m, d).getDay();
     var cls = 'copy-date-btn' + (dow===0?' sun':dow===6?' sat':'');
-    html += '<div class="' + cls + '" onclick="doCopyShift('' + key + '')">' + d + '<br><small>' + DAYS[dow] + '</small></div>';
+    html += '<div class="' + cls + '" onclick="doCopyShift(\'' + key + '\')">' + d + '<br><small>' + DAYS[dow] + '</small></div>';
   }
   document.getElementById('copy-date-grid').innerHTML = html;
   document.getElementById('copy-overlay').classList.add('open');
