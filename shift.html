@@ -654,14 +654,18 @@ function closeModal() {
 function doSave() {
   if (!selectedStaffName) { alert('スタッフを選択してください'); return; }
   var newDate = document.getElementById('f-date').value || editingDate;
+  var startVal = document.getElementById('f-start').value;
+  var endVal = document.getElementById('f-end').value;
+  var autoBreak = getAutoBreak(selectedStaffName, startVal, endVal);
   var ev = {
     id: editingId || Date.now().toString(36) + Math.random().toString(36).slice(2,5),
     date: newDate,
     store: document.getElementById('f-store').value,
     staff: selectedStaffName,
-    start: document.getElementById('f-start').value,
-    end: document.getElementById('f-end').value,
-    memo: document.getElementById('f-memo').value
+    start: startVal,
+    end: endVal,
+    break: autoBreak,
+    memo: document.getElementById('f-memo').value + (autoBreak > 0 ? '（休憩' + autoBreak + '分）' : '')
   };
   closeModal();
   setSync('loading', '保存中...');
@@ -717,6 +721,42 @@ function writeToKyuyo(action, ev) {
   script.src = KYUYO_API + '?' + params;
   script.onerror = function() { delete window[cbName]; script.remove(); };
   document.head.appendChild(script);
+}
+
+
+// 休憩ルール自動適用
+function getAutoBreak(staff, start, end) {
+  if (!start || !end) return 0;
+  // 時間を分に変換
+  function toMin(t) {
+    var p = t.split(':');
+    return parseInt(p[0]) * 60 + parseInt(p[1]);
+  }
+  var startMin = toMin(start);
+  var endMin = toMin(end);
+  if (endMin <= startMin) endMin += 24 * 60; // 日をまたぐ場合
+  var workMin = endMin - startMin;
+
+  // 齊藤良江：常に90分
+  if (staff === '齊藤良江') return 90;
+
+  // 石川泰博・山田明子・伊藤美津子：退勤時刻で判定
+  if (['石川泰博','山田明子','伊藤美津子'].indexOf(staff) >= 0) {
+    var endH = parseInt(end.split(':')[0]);
+    if (endH <= 12) return 30;
+    if (endH >= 16) return 90;
+    return 30;
+  }
+
+  // 小林メグ・荒宏信：6時間（360分）超で60分
+  if (['小林メグ','荒宏信'].indexOf(staff) >= 0) {
+    return workMin > 360 ? 60 : 0;
+  }
+
+  // 山﨑悠人：出勤時は30分
+  if (staff === '山﨑悠人') return 30;
+
+  return 0;
 }
 
 document.getElementById('overlay').addEventListener('click', function(e) {
