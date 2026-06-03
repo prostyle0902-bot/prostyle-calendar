@@ -451,12 +451,13 @@ function render() {
     return '<th><span class="' + STORES[k].cls + '" style="padding:2px 6px;border-radius:4px;font-size:11px">' + k + '</span></th>';
   }).join('');
 
-  function buildRows(from, to) {
+  function buildRows(from, to, ry, rm) {
+    ry = ry !== undefined ? ry : y; rm = rm !== undefined ? rm : m;
     var rows = '';
     for (var d = from; d <= to; d++) {
-      var date = new Date(y, m, d);
+      var date = new Date(ry, rm, d);
       var dow = date.getDay();
-      var key = fmt(y, m, d);
+      var key = fmt(ry, rm, d);
       var isToday = key === todayKey;
       var isHJ = !!HOLIDAYS_JP[key];
       var isSun = dow===0, isSat = dow===6;
@@ -489,12 +490,13 @@ function render() {
     return rows;
   }
 
-  function buildMobileRows(from, to) {
+  function buildMobileRows(from, to, ry, rm) {
+    ry = ry !== undefined ? ry : y; rm = rm !== undefined ? rm : m;
     var rows = '';
     for (var d = from; d <= to; d++) {
-      var date = new Date(y, m, d);
+      var date = new Date(ry, rm, d);
       var dow = date.getDay();
-      var key = fmt(y, m, d);
+      var key = fmt(ry, rm, d);
       var isToday = key === todayKey;
       var isHJ = !!HOLIDAYS_JP[key];
       var isSun = dow===0, isSat = dow===6;
@@ -536,12 +538,12 @@ function render() {
     return rows;
   }
 
-  function buildSection(from, to, label) {
+  function buildSection(from, to, label, ry, rm) {
     return '<div class="section-title">' + label + '</div>'
       + '<div class="table-wrap"><table class="shift-table">'
       + '<thead><tr><th class="date-col">日付</th>' + storeHeaders + '</tr></thead>'
-      + '<tbody>' + buildRows(from, to) + '</tbody></table></div>'
-      + '<div class="mobile-list">' + buildMobileRows(from, to) + '</div>';
+      + '<tbody>' + buildRows(from, to, ry, rm) + '</tbody></table></div>'
+      + '<div class="mobile-list">' + buildMobileRows(from, to, ry, rm) + '</div>';
   }
 
   var nextM = m === 11 ? 1 : m + 2;
@@ -549,7 +551,7 @@ function render() {
   document.getElementById('calendar-wrap').innerHTML =
     buildSection(16, lastDay, '前半 — ' + (m+1) + '月16日〜' + (m+1) + '月' + lastDay + '日') +
     '<div style="height:12px"></div>' +
-    buildSection(1, 15, '後半 — ' + nextY + '年' + nextM + '月1日〜15日') +
+    buildSection(1, 15, '後半 — ' + nextY + '年' + nextM + '月1日〜15日', nextY, nextM - 1) +
     '<div style="height:24px"></div>';
 }
 
