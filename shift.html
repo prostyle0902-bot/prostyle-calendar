@@ -744,14 +744,18 @@ function openCopyModal(dateKey, id) {
   document.getElementById('copy-sub').textContent =
     ev.staff + ' ' + (ev.start || '') + (ev.end ? '〜'+ev.end : '') + ' を別の日にコピーします';
 
-  // 日付グリッドを生成
+  // 日付グリッドを生成（16日〜末日→1日〜15日の順）
   var y = current.getFullYear(), m = current.getMonth();
   var lastDay = new Date(y, m+1, 0).getDate();
   var DAYS = ['日','月','火','水','木','金','土'];
   var html = '';
-  for (var d = 1; d <= lastDay; d++) {
+  var order = [];
+  for (var di = 16; di <= lastDay; di++) order.push(di);
+  for (var di = 1; di <= 15; di++) order.push(di);
+  for (var oi = 0; oi < order.length; oi++) {
+    var d = order[oi];
     var key = fmt(y, m, d);
-    if (key === dateKey) continue; // 元の日はスキップ
+    if (key === dateKey) continue;
     var dow = new Date(y, m, d).getDay();
     var cls = 'copy-date-btn' + (dow===0?' sun':dow===6?' sat':'');
     html += '<div class="' + cls + '" onclick="doCopyShift(\'' + key + '\')">' + d + '<br><small>' + DAYS[dow] + '</small></div>';
