@@ -398,10 +398,10 @@ function setFilterByIndex(idx) {
 
 function render() {
   var y = current.getFullYear(), m = current.getMonth();
-  // 16日締めなので「前月16日〜当月15日」表示
-  var prevM = m === 0 ? 12 : m;
-  var prevY = m === 0 ? y - 1 : y;
-  document.getElementById('month-title').textContent = prevY + '年' + prevM + '月〜' + y + '年' + (m+1) + '月';
+  // 前半：当月16日〜末日、後半：翌月1日〜15日
+  var nextM = m === 11 ? 1 : m + 2;
+  var nextY = m === 11 ? y + 1 : y;
+  document.getElementById('month-title').textContent = y + '年' + (m+1) + '月〜' + nextY + '年' + nextM + '月';
   var lastDay = new Date(y, m+1, 0).getDate();
   var now = new Date();
   var todayKey = fmt(now.getFullYear(), now.getMonth(), now.getDate());
