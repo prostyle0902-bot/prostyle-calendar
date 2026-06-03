@@ -711,7 +711,7 @@ function deleteRest(dateKey, storeKey, staffName) {
 function getRestPills(dateKey, storeKey, canEditStore) {
   if (!rests[dateKey] || !rests[dateKey][storeKey]) return '';
   return rests[dateKey][storeKey].map(function(s) {
-    var click = canEditStore ? ' onclick="deleteRest('' + dateKey + '','' + storeKey + '','' + s + '')"' : '';
+    var click = canEditStore ? ' onclick="deleteRest(\'' + dateKey + '\',\'' + storeKey + '\',\'' + s + '\')"' : '';
     return '<span class="rest-pill"' + click + '>休 ' + s + '</span>';
   }).join('');
 }
@@ -719,7 +719,7 @@ function getRestPills(dateKey, storeKey, canEditStore) {
 function getMobileRestPills(dateKey, storeKey, canEditStore) {
   if (!rests[dateKey] || !rests[dateKey][storeKey]) return '';
   return rests[dateKey][storeKey].map(function(s) {
-    var click = canEditStore ? ' onclick="deleteRest('' + dateKey + '','' + storeKey + '','' + s + '')"' : '';
+    var click = canEditStore ? ' onclick="deleteRest(\'' + dateKey + '\',\'' + storeKey + '\',\'' + s + '\')"' : '';
     return '<span class="mobile-rest-item"' + click + '>休 ' + s + '</span>';
   }).join('');
 }
