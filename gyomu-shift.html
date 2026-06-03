@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>業務課 シフト管理</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Hiragino Kaku Gothic ProN','Hiragino Sans','Meiryo',sans-serif;background:#f5f5f0;color:#1a1a1a;font-size:15px}
+header{background:#2c3e50;color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+header h1{font-size:17px;font-weight:500}
+.user-info{font-size:11px;opacity:0.7;cursor:pointer}
+.sync{font-size:12px;display:flex;align-items:center;gap:5px;opacity:0.8}
+.dot{width:7px;height:7px;border-radius:50%;background:#888;flex-shrink:0}
+.dot.ok{background:#7bc67e}.dot.err{background:#f28b82}.dot.loading{background:#ffb74d}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#fff;border-bottom:1px solid #e8e8e4}
+.nav-btn{background:none;border:1px solid #ccc;border-radius:6px;padding:7px 16px;cursor:pointer;font-size:14px;color:#333}
+.nav-btn:hover{background:#f0f0ec}
+.month{font-size:19px;font-weight:600}
+.filter-bar{display:flex;gap:6px;padding:8px 14px;background:#fff;border-bottom:1px solid #e8e8e4;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+.filter-btn{flex-shrink:0;font-size:12px;padding:5px 12px;border-radius:20px;border:1.5px solid #ddd;background:#fafafa;color:#555;cursor:pointer}
+.filter-btn.active{border-color:#2c3e50;background:#2c3e50;color:#fff;font-weight:500}
+
+/* 現場カラー */
+.store-total{background:#E3F2FD;color:#0D47A1}
+.store-ichikawa{background:#FCE4EC;color:#880E4F}
+.store-kaiji{background:#E8F5E9;color:#1B5E20}
+.store-chiba{background:#FFF9C4;color:#F57F17}
+.store-jingu{background:#F3E5F5;color:#4A148C}
+.store-katori{background:#FBE9E7;color:#BF360C}
+.store-nisse{background:#E0F7FA;color:#006064}
+.store-honsha{background:#FFCCBC;color:#BF360C}
+
+.section-title{font-size:13px;font-weight:600;color:#666;padding:10px 14px 5px}
+.table-wrap{overflow-x:auto;padding:0 14px 4px;-webkit-overflow-scrolling:touch}
+table.shift-table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;border:1px solid #e8e8e4;overflow:hidden;min-width:800px}
+table.shift-table th{font-size:11px;color:#888;font-weight:500;padding:8px 6px;background:#fafaf8;border-bottom:1px solid #e8e8e4;text-align:center;white-space:nowrap}
+table.shift-table th.date-col{width:60px}
+table.shift-table td{padding:4px 5px;border-bottom:0.5px solid #f0f0ec;vertical-align:top;min-width:90px}
+table.shift-table td.date-cell{text-align:center;width:60px;min-width:60px}
+table.shift-table tr.today td{background:#edf5fc}
+.dnum{font-size:13px;font-weight:600;display:block}
+.dname{font-size:10px;display:block}
+.sun .dname,.sun .dnum{color:#e05555}
+.sat .dname,.sat .dnum{color:#4a90d9}
+.hj{font-size:9px;color:#e05555;font-weight:600}
+.shift-pill{display:block;padding:2px 5px;border-radius:4px;font-size:11px;margin-bottom:2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shift-pill:hover{opacity:0.8}
+.shift-pill.readonly{cursor:default}
+.add-s{display:block;font-size:10px;color:#ccc;cursor:pointer;padding:1px 3px}
+.add-s:hover{color:#888}
+.mobile-list{display:none}
+.mobile-row{background:#fff;border-bottom:1px solid #f0f0ec;padding:10px 14px}
+.mobile-row.today{background:#edf5fc}
+.mobile-date-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.mobile-dnum{font-size:16px;font-weight:700;min-width:28px}
+.mobile-dname{font-size:13px;color:#999}
+.mobile-hj{font-size:11px;color:#e05555;font-weight:600}
+.mobile-add{font-size:12px;color:#bbb;border:1px dashed #ddd;border-radius:5px;padding:2px 8px;cursor:pointer;margin-left:auto;white-space:nowrap}
+.mobile-store-row{margin-bottom:4px}
+.mobile-store-label{font-size:11px;padding:1px 6px;border-radius:3px;margin-right:4px;display:inline-block}
+.mobile-shift-item{display:inline-flex;padding:3px 8px;border-radius:5px;font-size:13px;margin:2px 2px 2px 0;cursor:pointer}
+.mobile-shift-item.readonly{cursor:default}
+@media(max-width:600px){
+  .table-wrap{display:none}
+  .mobile-list{display:block}
+  body{font-size:18px}
+  header h1{font-size:18px}
+  .month{font-size:22px;font-weight:700}
+  .nav-btn{font-size:16px;padding:10px 18px}
+  .filter-btn{font-size:14px;padding:7px 16px}
+  .section-title{font-size:16px;padding:12px 14px 6px}
+  .mobile-row{padding:12px 16px}
+  .mobile-dnum{font-size:20px}
+  .mobile-dname{font-size:15px}
+  .mobile-add{font-size:14px;padding:5px 12px}
+  .mobile-store-label{font-size:14px;padding:3px 10px}
+  .mobile-shift-item{font-size:16px;padding:7px 12px;margin:3px 2px}
+}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:flex-end;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:14px 14px 0 0;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;padding:20px 20px 32px}
+@media(min-width:520px){.overlay{align-items:center;padding:16px}.modal{border-radius:14px}}
+.modal-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 14px}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:14px}
+.form-row{margin-bottom:11px}
+.form-row label{display:block;font-size:11px;color:#888;margin-bottom:4px;font-weight:500}
+.form-row input,.form-row select{width:100%;font-size:15px;padding:10px 12px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#1a1a1a;-webkit-appearance:none;appearance:none}
+.form-row input:focus,.form-row select:focus{outline:none;border-color:#2c3e50}
+.time-row{display:flex;gap:8px;align-items:center}
+.time-row select{flex:1}
+.time-sep{font-size:14px;color:#999}
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px}
+.check-btn{font-size:14px;color:#555;padding:10px 8px;border-radius:8px;border:2px solid #e0e0e0;background:#fafafa;text-align:center;cursor:pointer;user-select:none;-webkit-user-select:none}
+.check-btn.on{border-color:#2c3e50;background:#d5e8f5;color:#1a3a50;font-weight:600}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.btn{padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;border:none}
+.btn-primary{background:#2c3e50;color:#fff}
+.btn-cancel{background:#f0f0ec;color:#555}
+.btn-delete{background:#fee2e2;color:#b91c1c;margin-right:auto}
+.loading-msg{text-align:center;padding:40px;color:#999;font-size:13px}
+.login-screen{position:fixed;inset:0;background:#2c3e50;z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:#fff;border-radius:14px;padding:28px;width:100%;max-width:340px;text-align:center}
+.login-box h2{font-size:20px;margin-bottom:8px}
+.login-box .login-sub{font-size:13px;color:#888;margin-bottom:20px}
+.pin-input{width:100%;font-size:24px;padding:14px;border-radius:10px;border:2px solid #ddd;text-align:center;letter-spacing:8px;margin-bottom:14px;-webkit-appearance:none}
+.pin-input:focus{outline:none;border-color:#2c3e50}
+.pin-err{font-size:13px;color:#e05555;margin-bottom:10px;min-height:20px}
+.pin-btn{width:100%;padding:14px;border-radius:10px;background:#2c3e50;color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <h2>📋 業務課シフト管理</h2>
+    <div class="login-sub">PINコードを入力してください</div>
+    <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="4" class="pin-input" id="pin-input" placeholder="••••">
+    <div class="pin-err" id="pin-err"></div>
+    <button class="pin-btn" onclick="checkPin()">ログイン</button>
+  </div>
+</div>
+
+<header>
+  <h1>📋 業務課 シフト管理</h1>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span class="user-info" id="user-info" onclick="logout()"></span>
+    <div class="sync"><div class="dot loading" id="sync-dot"></div><span id="sync-label">読み込み中...</span></div>
+  </div>
+</header>
+
+<div class="nav">
+  <button class="nav-btn" onclick="changeMonth(-1)">‹ 前月</button>
+  <span class="month" id="month-title"></span>
+  <button class="nav-btn" onclick="changeMonth(1)">次月 ›</button>
+</div>
+
+<div class="filter-bar" id="filter-bar"></div>
+<div id="calendar-wrap"><div class="loading-msg">読み込み中...</div></div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3 id="modal-title">シフトを追加</h3>
+    <div class="form-row"><label>日付</label><input id="f-date" type="date"></div>
+    <div class="form-row"><label>現場</label>
+      <select id="f-store" onchange="onStoreChange()"></select>
+    </div>
+    <div class="form-row">
+      <label>スタッフ（1人選択）</label>
+      <div class="check-grid" id="staff-checks"></div>
+    </div>
+    <div class="form-row"><label>時間</label>
+      <div class="time-row">
+        <select id="f-start"></select>
+        <span class="time-sep">〜</span>
+        <select id="f-end"></select>
+      </div>
+    </div>
+    <div class="form-row"><label>メモ</label><input id="f-memo" placeholder="備考など"></div>
+    <div class="modal-btns">
+      <button class="btn btn-delete" id="delete-btn" onclick="doDelete()" style="display:none">削除</button>
+      <button class="btn btn-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="btn btn-primary" onclick="doSave()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var API = 'https://script.google.com/macros/s/AKfycbwV_UNDYqwlGhMeoEQiasU348YX_UEKXys7E0TkZaOMfrcXtTx6-JIisyLVMCW2yj3g/exec';
+var KYUYO_API = 'https://script.google.com/macros/s/AKfycbylaRGqV8Ij1p1X4Qx1y7jn1r8jqQOz3lCQSHMOnudLFxxfawlMOtVm5trQEZTz9aINHw/exec';
+
+var PART_TIME_STAFF = [
+  '河野千恵子','橋本房枝','山本里奈','長谷川碧里','松本めぐみ','田村あつ子','衣幡千明',
+  '石川泰博','山田明子','伊藤美津子','桜庭京子','小倉孔子','齊藤良江','宮嵜博之',
+  '千葉規雄','武田則政','高瀬弥生子','菅原和夫','樽本裕美','望月辰雄','岸本敏男',
+  '高野由美','村田耕一','池田久史','三浦達弥'
+];
+var SHIFT_SHEET = 'gyomu_shift'; // 業務課シフト用の別シート名
+var DAYS = ['日','月','火','水','木','金','土'];
+
+var STORES = {
+  'トータルステイ':     { cls:'store-total',    staff:['河野千恵子','橋本房枝','山本里奈','長谷川碧里','松本めぐみ','田村あつ子','衣幡千明'], sh:7, eh:18 },
+  '市川東病院':         { cls:'store-ichikawa', staff:['石川泰博','山田明子','伊藤美津子'], sh:7, eh:18 },
+  '海事・横河':         { cls:'store-kaiji',    staff:['桜庭京子'], sh:7, eh:18 },
+  'ちば醬油':           { cls:'store-chiba',    staff:['小倉孔子'], sh:7, eh:18 },
+  '神宮・亀甲堂・ゆう屋': { cls:'store-jingu',  staff:['齊藤良江'], sh:7, eh:18 },
+  '香取神宮':           { cls:'store-katori',   staff:['宮嵜博之'], sh:7, eh:18 },
+  'ニッセーデリカ':     { cls:'store-nisse',    staff:['千葉規雄','武田則政','高瀬弥生子','菅原和夫','樽本裕美','望月辰雄','岸本敏男','高野由美','村田耕一'], sh:7, eh:18 },
+  '本社':               { cls:'store-honsha',   staff:['池田久史','三浦達弥'], sh:7, eh:18 },
+};
+
+var PIN_MAP = {
+  '2824': { name:'全体管理者', role:'admin', stores:Object.keys(STORES) },
+  '1409': { name:'トータルステイ管理者', role:'store-admin', stores:['トータルステイ'] },
+  '5012': { name:'市川東病院管理者',     role:'store-admin', stores:['市川東病院'] },
+  '3286': { name:'海事・横河管理者',     role:'store-admin', stores:['海事・横河'] },
+  '9935': { name:'ちば醬油管理者',       role:'store-admin', stores:['ちば醬油'] },
+  '7912': { name:'神宮管理者',           role:'store-admin', stores:['神宮・亀甲堂・ゆう屋'] },
+  '1488': { name:'香取神宮管理者',       role:'store-admin', stores:['香取神宮'] },
+  '4582': { name:'ニッセーデリカ管理者', role:'store-admin', stores:['ニッセーデリカ'] },
+  '9279': { name:'本社管理者',           role:'store-admin', stores:['本社'] },
+  '5506': { name:'トータルステイスタッフ', role:'viewer', stores:['トータルステイ'] },
+  '4657': { name:'市川東病院スタッフ',   role:'viewer', stores:['市川東病院'] },
+  '2679': { name:'海事・横河スタッフ',   role:'viewer', stores:['海事・横河'] },
+  '2424': { name:'ちば醬油スタッフ',     role:'viewer', stores:['ちば醬油'] },
+  '1520': { name:'神宮スタッフ',         role:'viewer', stores:['神宮・亀甲堂・ゆう屋'] },
+  '2535': { name:'香取神宮スタッフ',     role:'viewer', stores:['香取神宮'] },
+  '4811': { name:'ニッセーデリカスタッフ', role:'viewer', stores:['ニッセーデリカ'] },
+  '1434': { name:'本社スタッフ',         role:'viewer', stores:['本社'] },
+};
+
+var HOLIDAYS_JP = {
+  '2025-01-01':1,'2025-01-13':1,'2025-02-11':1,'2025-02-23':1,'2025-02-24':1,
+  '2025-03-20':1,'2025-04-29':1,'2025-05-03':1,'2025-05-04':1,'2025-05-05':1,'2025-05-06':1,
+  '2025-07-21':1,'2025-08-11':1,'2025-09-15':1,'2025-09-22':1,'2025-09-23':1,
+  '2025-10-13':1,'2025-11-03':1,'2025-11-23':1,'2025-11-24':1,
+  '2026-01-01':1,'2026-01-12':1,'2026-02-11':1,'2026-02-23':1,
+  '2026-03-20':1,'2026-04-29':1,'2026-05-03':1,'2026-05-04':1,'2026-05-05':1,'2026-05-06':1,
+  '2026-07-20':1,'2026-08-11':1,'2026-09-21':1,'2026-09-22':1,'2026-09-23':1,
+  '2026-10-12':1,'2026-11-03':1,'2026-11-23':1,
+  '2027-01-01':1,'2027-01-11':1,'2027-02-11':1,'2027-02-23':1,
+  '2027-03-21':1,'2027-03-22':1,'2027-04-29':1,'2027-05-03':1,'2027-05-04':1,'2027-05-05':1,
+  '2027-07-19':1,'2027-08-11':1,'2027-09-20':1,'2027-09-23':1,
+  '2027-10-11':1,'2027-11-03':1,'2027-11-23':1
+};
+
+var current = new Date();
+current = new Date(current.getFullYear(), current.getMonth(), 1);
+var shifts = {};
+var editingId = null, editingDate = null;
+var cbCount = 0;
+var activeFilter = '';
+var currentStaffList = [];
+var selectedStaffName = '';
+var currentUser = null;
+var visibleStores = [];
+var editableStores = [];
+
+function setSync(s, l) {
+  document.getElementById('sync-dot').className = 'dot ' + s;
+  document.getElementById('sync-label').textContent = l;
+}
+
+function checkPin() {
+  var pin = document.getElementById('pin-input').value;
+  if (PIN_MAP[pin]) {
+    currentUser = PIN_MAP[pin];
+    localStorage.setItem('gyomu_shift_pin', pin);
+    showApp();
+  } else {
+    document.getElementById('pin-err').textContent = 'PINが正しくありません';
+    document.getElementById('pin-input').value = '';
+  }
+}
+
+function logout() {
+  if (!confirm('ログアウトしますか？')) return;
+  localStorage.removeItem('gyomu_shift_pin');
+  location.reload();
+}
+
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('user-info').textContent = currentUser.name + ' ✕';
+  if (currentUser.role === 'admin' || currentUser.role === 'store-admin') {
+    visibleStores = Object.keys(STORES);
+  } else {
+    visibleStores = currentUser.stores.slice();
+  }
+  if (currentUser.role === 'admin') {
+    editableStores = Object.keys(STORES);
+  } else if (currentUser.role === 'store-admin') {
+    editableStores = currentUser.stores.slice();
+  } else {
+    editableStores = [];
+  }
+  buildStoreSelectOptions();
+  buildFilterBar();
+  loadAll();
+}
+
+function buildStoreSelectOptions() {
+  var sel = document.getElementById('f-store');
+  sel.innerHTML = '';
+  editableStores.forEach(function(s) {
+    var opt = document.createElement('option');
+    opt.value = s;
+    opt.textContent = s;
+    sel.appendChild(opt);
+  });
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  var savedPin = localStorage.getItem('gyomu_shift_pin');
+  if (savedPin && PIN_MAP[savedPin]) {
+    currentUser = PIN_MAP[savedPin];
+    showApp();
+  }
+  document.getElementById('pin-input').focus();
+  document.getElementById('pin-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') checkPin();
+  });
+});
+
+function jsonp(params) {
+  return new Promise(function(resolve, reject) {
+    var cbName = '_cb' + (++cbCount);
+    var timeout = setTimeout(function() { delete window[cbName]; reject(new Error('timeout')); }, 25000);
+    window[cbName] = function(data) {
+      clearTimeout(timeout);
+      delete window[cbName];
+      var el = document.getElementById(cbName);
+      if (el) el.remove();
+      resolve(data);
+    };
+    // 業務課シフト用にシート名を付加
+    params.sheetName = SHIFT_SHEET;
+    var parts = [];
+    for (var k in params) {
+      var v = params[k];
+      parts.push(k + '=' + encodeURIComponent(typeof v === 'object' ? JSON.stringify(v) : v));
+    }
+    parts.push('callback=' + cbName);
+    parts.push('t=' + Date.now());
+    var script = document.createElement('script');
+    script.id = cbName;
+    script.src = API + '?' + parts.join('&');
+    script.onerror = function() { clearTimeout(timeout); delete window[cbName]; script.remove(); reject(new Error('error')); };
+    document.head.appendChild(script);
+  });
+}
+
+function fmt(y, m, d) {
+  return y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+}
+
+function loadAll(showLoading) {
+  if (showLoading !== false) setSync('loading', '読み込み中...');
+  return jsonp({ action: 'getShifts' }).then(function(data) {
+    shifts = data || {};
+    setSync('ok', '同期済み');
+    render();
+  }).catch(function() {
+    setSync('err', '読み込み失敗');
+  });
+}
+
+function canEdit(storeName) {
+  return editableStores.indexOf(storeName) >= 0;
+}
+
+function buildFilterBar() {
+  var html = '';
+  if (visibleStores.length > 1) {
+    html += '<div class="filter-btn' + (activeFilter === '' ? ' active' : '') + '" onclick="setFilterByIndex(-1)">全現場</div>';
+  }
+  for (var i = 0; i < visibleStores.length; i++) {
+    var k = visibleStores[i];
+    var on = activeFilter === k;
+    html += '<div class="filter-btn ' + STORES[k].cls + (on ? ' active' : '') + '" onclick="setFilterByIndex(' + i + ')">' + k + '</div>';
+  }
+  document.getElementById('filter-bar').innerHTML = html;
+}
+
+function setFilterByIndex(idx) {
+  activeFilter = idx < 0 ? '' : visibleStores[idx];
+  buildFilterBar();
+  render();
+}
+
+function render() {
+  var y = current.getFullYear(), m = current.getMonth();
+  document.getElementById('month-title').textContent = y + '年' + (m+1) + '月';
+  var lastDay = new Date(y, m+1, 0).getDate();
+  var now = new Date();
+  var todayKey = fmt(now.getFullYear(), now.getMonth(), now.getDate());
+  var targetStores = activeFilter ? [activeFilter] : visibleStores.slice();
+
+  var storeHeaders = targetStores.map(function(k) {
+    return '<th><span class="' + STORES[k].cls + '" style="padding:2px 6px;border-radius:4px;font-size:11px">' + k + '</span></th>';
+  }).join('');
+
+  function buildRows(from, to) {
+    var rows = '';
+    for (var d = from; d <= to; d++) {
+      var date = new Date(y, m, d);
+      var dow = date.getDay();
+      var key = fmt(y, m, d);
+      var isToday = key === todayKey;
+      var isHJ = !!HOLIDAYS_JP[key];
+      var isSun = dow===0, isSat = dow===6;
+      var rowCls = (isSun ? 'sun' : isSat ? 'sat' : '') + (isToday ? ' today' : '');
+      var dnumStyle = (isHJ||isSun) ? 'color:#e05555' : (isSat ? 'color:#4a90d9' : '');
+      var dayShifts = shifts[key] || [];
+
+      var storeCols = targetStores.map(function(sk) {
+        var ss2 = dayShifts.filter(function(s) { return s.store === sk; });
+        var canEditStore = canEdit(sk);
+        var pills = ss2.map(function(s) {
+          var time = s.start ? (s.end ? s.start + '〜' + s.end : s.start) : '';
+          var label = s.staff + (time ? ' ' + time : '');
+          var cls = 'shift-pill ' + STORES[sk].cls + (canEditStore ? '' : ' readonly');
+          var click = canEditStore ? ' onclick="openEdit(\'' + key + '\', \'' + s.id + '\')"' : '';
+          return '<span class="' + cls + '"' + click + '>' + label + '</span>';
+        }).join('');
+        var addBtn = canEditStore ? '<span class="add-s" onclick="openAdd(\'' + key + '\', \'' + sk + '\')">＋</span>' : '';
+        return '<td>' + pills + addBtn + '</td>';
+      }).join('');
+
+      rows += '<tr class="' + rowCls + '">'
+        + '<td class="date-cell">'
+        + '<span class="dnum" style="' + dnumStyle + '">' + d + '</span>'
+        + '<span class="dname">' + DAYS[dow] + '</span>'
+        + (isHJ ? '<span class="hj">祝</span>' : '')
+        + '</td>'
+        + storeCols + '</tr>';
+    }
+    return rows;
+  }
+
+  function buildMobileRows(from, to) {
+    var rows = '';
+    for (var d = from; d <= to; d++) {
+      var date = new Date(y, m, d);
+      var dow = date.getDay();
+      var key = fmt(y, m, d);
+      var isToday = key === todayKey;
+      var isHJ = !!HOLIDAYS_JP[key];
+      var isSun = dow===0, isSat = dow===6;
+      var dnumStyle = (isHJ||isSun) ? 'color:#e05555' : (isSat ? 'color:#4a90d9' : '');
+      var dayShifts = shifts[key] || [];
+      var storeRows = '';
+
+      for (var si = 0; si < targetStores.length; si++) {
+        var sk = targetStores[si];
+        var ss2 = dayShifts.filter(function(s) { return s.store === sk; });
+        var canEditStore = canEdit(sk);
+        if (ss2.length === 0 && !activeFilter) continue;
+        var pills = ss2.map(function(s) {
+          var time = s.start ? (s.end ? s.start + '〜' + s.end : s.start) : '';
+          var label = s.staff + (time ? ' ' + time : '');
+          var cls = 'mobile-shift-item ' + STORES[sk].cls + (canEditStore ? '' : ' readonly');
+          var click = canEditStore ? ' onclick="openEdit(\'' + key + '\', \'' + s.id + '\')"' : '';
+          return '<span class="' + cls + '"' + click + '>' + label + '</span>';
+        }).join('');
+        storeRows += '<div class="mobile-store-row">'
+          + (activeFilter ? '' : '<span class="mobile-store-label ' + STORES[sk].cls + '">' + sk + '</span>')
+          + pills + '</div>';
+      }
+
+      var addStore = activeFilter || (editableStores.length === 1 ? editableStores[0] : '');
+      var canAddAny = editableStores.length > 0 && (!activeFilter || canEdit(activeFilter));
+      var addBtn = canAddAny ? '<span class="mobile-add" onclick="openAdd(\'' + key + '\', \'' + addStore + '\')">＋ 追加</span>' : '';
+
+      rows += '<div class="mobile-row' + (isToday ? ' today' : '') + '">'
+        + '<div class="mobile-date-row">'
+        + '<span class="mobile-dnum" style="' + dnumStyle + '">' + d + '</span>'
+        + '<span class="mobile-dname">' + DAYS[dow] + '</span>'
+        + (isHJ ? '<span class="mobile-hj">祝</span>' : '')
+        + addBtn
+        + '</div>'
+        + storeRows + '</div>';
+    }
+    return rows;
+  }
+
+  function buildSection(from, to, label) {
+    return '<div class="section-title">' + label + '</div>'
+      + '<div class="table-wrap"><table class="shift-table">'
+      + '<thead><tr><th class="date-col">日付</th>' + storeHeaders + '</tr></thead>'
+      + '<tbody>' + buildRows(from, to) + '</tbody></table></div>'
+      + '<div class="mobile-list">' + buildMobileRows(from, to) + '</div>';
+  }
+
+  document.getElementById('calendar-wrap').innerHTML =
+    buildSection(16, lastDay, '前半 — 16日〜' + lastDay + '日') +
+    '<div style="height:12px"></div>' +
+    buildSection(1, 15, '後半 — 1日〜15日') +
+    '<div style="height:24px"></div>';
+}
+
+function changeMonth(d) {
+  current = new Date(current.getFullYear(), current.getMonth()+d, 1);
+  loadAll();
+}
+
+function buildTimeOpts(sh, eh) {
+  var html = '<option value="">--</option>';
+  for (var h = sh; h <= eh; h++) {
+    for (var mi = 0; mi < 60; mi += 15) {
+      if (h === eh && mi > 0) break;
+      var hh = String(h).padStart(2, '0');
+      var mm = String(mi).padStart(2, '0');
+      var val = hh + ':' + mm;
+      html += '<option value="' + val + '">' + val + '</option>';
+    }
+  }
+  return html;
+}
+
+function updateTimeSelects(startVal, endVal) {
+  var storeName = document.getElementById('f-store').value;
+  var store = STORES[storeName];
+  var sh = store ? store.sh : 7;
+  var eh = store ? store.eh : 18;
+  var opts = buildTimeOpts(sh, eh);
+  document.getElementById('f-start').innerHTML = opts;
+  document.getElementById('f-end').innerHTML = opts;
+  if (startVal) document.getElementById('f-start').value = startVal;
+  if (endVal) document.getElementById('f-end').value = endVal;
+}
+
+function updateStaffButtons(selectedName) {
+  var storeName = document.getElementById('f-store').value;
+  currentStaffList = STORES[storeName] ? STORES[storeName].staff.slice() : [];
+  selectedStaffName = selectedName || '';
+  var html = '';
+  for (var i = 0; i < currentStaffList.length; i++) {
+    var s = currentStaffList[i];
+    var on = selectedStaffName === s;
+    html += '<div class="check-btn' + (on ? ' on' : '') + '" onclick="selectStaff(' + i + ')">' + s + '</div>';
+  }
+  document.getElementById('staff-checks').innerHTML = html;
+}
+
+function selectStaff(idx) {
+  var name = currentStaffList[idx];
+  selectedStaffName = selectedStaffName === name ? '' : name;
+  updateStaffButtons(selectedStaffName);
+}
+
+function onStoreChange() {
+  updateStaffButtons('');
+  updateTimeSelects('', '');
+}
+
+function openAdd(dateKey, storeName) {
+  if (editableStores.length === 0) return;
+  editingId = null;
+  editingDate = dateKey;
+  var parts = dateKey.split('-');
+  document.getElementById('modal-title').textContent = parseInt(parts[1]) + '月' + parseInt(parts[2]) + '日 — シフトを追加';
+  document.getElementById('f-date').value = dateKey;
+  var defaultStore = storeName && canEdit(storeName) ? storeName : editableStores[0];
+  document.getElementById('f-store').value = defaultStore;
+  document.getElementById('f-memo').value = '';
+  document.getElementById('delete-btn').style.display = 'none';
+  updateStaffButtons('');
+  updateTimeSelects('', '');
+  document.getElementById('overlay').classList.add('open');
+}
+
+function openEdit(dateKey, id) {
+  var dayShifts = shifts[dateKey] || [];
+  var ev = null;
+  for (var i = 0; i < dayShifts.length; i++) {
+    if (dayShifts[i].id === id) { ev = dayShifts[i]; break; }
+  }
+  if (!ev || !canEdit(ev.store)) return;
+  editingId = id;
+  editingDate = dateKey;
+  var parts = dateKey.split('-');
+  document.getElementById('modal-title').textContent = parseInt(parts[1]) + '月' + parseInt(parts[2]) + '日 — 編集';
+  document.getElementById('f-date').value = ev.date || dateKey;
+  document.getElementById('f-store').value = ev.store || editableStores[0];
+  document.getElementById('f-memo').value = ev.memo || '';
+  document.getElementById('delete-btn').style.display = '';
+  updateStaffButtons(ev.staff || '');
+  updateTimeSelects(ev.start || '', ev.end || '');
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function doSave() {
+  if (!selectedStaffName) { alert('スタッフを選択してください'); return; }
+  var newDate = document.getElementById('f-date').value || editingDate;
+  var ev = {
+    id: editingId || Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+    date: newDate,
+    store: document.getElementById('f-store').value,
+    staff: selectedStaffName,
+    start: document.getElementById('f-start').value,
+    end: document.getElementById('f-end').value,
+    memo: document.getElementById('f-memo').value
+  };
+  closeModal();
+  setSync('loading', '保存中...');
+  jsonp({ action: 'saveShift', data: ev }).then(function() {
+    writeToKyuyo('writeShift', ev);
+    return loadAll(false);
+  }).then(function() {
+    setSync('ok', '保存済み');
+  }).catch(function() {
+    setSync('err', '保存失敗');
+  });
+}
+
+function doDelete() {
+  if (!confirm('このシフトを削除しますか？')) return;
+  var delId = editingId;
+  closeModal();
+  setSync('loading', '削除中...');
+  var delEv = null;
+  var allDays = Object.keys(shifts);
+  for (var di = 0; di < allDays.length; di++) {
+    var dayArr = shifts[allDays[di]] || [];
+    for (var si = 0; si < dayArr.length; si++) {
+      if (dayArr[si].id === delId) { delEv = dayArr[si]; break; }
+    }
+    if (delEv) break;
+  }
+  jsonp({ action: 'deleteShift', data: { id: delId } }).then(function() {
+    if (delEv) writeToKyuyo('deleteShift', delEv);
+    return loadAll(false);
+  }).then(function() {
+    setSync('ok', '削除済み');
+  }).catch(function() {
+    setSync('err', '削除失敗');
+  });
+}
+
+document.getElementById('overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// 出勤簿転記
+function writeToKyuyo(action, ev) {
+  if (PART_TIME_STAFF.indexOf(ev.staff) < 0) return;
+  var cbName = '_ky' + (++cbCount);
+  window[cbName] = function() { delete window[cbName]; var el = document.getElementById(cbName); if(el) el.remove(); };
+  var params = 'action=' + action + '&data=' + encodeURIComponent(JSON.stringify(ev)) + '&callback=' + cbName + '&t=' + Date.now();
+  var script = document.createElement('script');
+  script.id = cbName;
+  script.src = KYUYO_API + '?' + params;
+  script.onerror = function() { delete window[cbName]; script.remove(); };
+  document.head.appendChild(script);
+}
+</script>
+</body>
+</html>
