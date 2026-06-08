@@ -553,6 +553,12 @@ function render() {
     '<div style="height:12px"></div>' +
     buildSection(1, 15, '後半 — ' + nextY + '年' + nextM + '月1日〜15日', nextY, nextM - 1) +
     '<div style="height:24px"></div>';
+
+  // 今日の行へスクロール
+  setTimeout(function() {
+    var todayRow = document.querySelector('tr.today, .mobile-row.today');
+    if (todayRow) todayRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 300);
 }
 
 function changeMonth(d) {
