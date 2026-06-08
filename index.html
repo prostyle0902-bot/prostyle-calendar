@@ -192,13 +192,13 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
       <div class="btn-grid" id="car-grid"></div>
     </div>
     <div class="form-row"><label>出社時間</label>
-      <input id="f-departure" type="time" placeholder="例：07:30">
+      <input id="f-departure" type="time" step="900" placeholder="例：07:30">
     </div>
     <div class="form-row"><label>時間</label>
       <div class="time-row">
-        <input id="f-start" type="time">
+        <input id="f-start" type="time" step="900">
         <span class="time-sep">〜</span>
-        <input id="f-end" type="time">
+        <input id="f-end" type="time" step="900">
       </div>
     </div>
     <div class="form-row"><label>請負金額（円）</label><input id="f-amount" type="number" placeholder="例：45000"></div>
@@ -576,6 +576,14 @@ function render() {
     '<div style="height:12px"></div>' +
     buildSection(16, lastDay, `下半期 — 16日〜${lastDay}日`, false) + '</div>' +
     '<div style="height:24px"></div>';
+
+  // 今日の行へスクロール
+  setTimeout(() => {
+    const todayRow = document.querySelector('.tl-row.today, .mobile-ev-row.today');
+    if (todayRow) {
+      todayRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, 300);
 }
 
 function changeMonth(d) {
