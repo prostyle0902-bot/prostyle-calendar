@@ -178,7 +178,7 @@ table.shift-table tr.today td{background:#edf5fc}
       <label>スタッフ（1人選択）</label>
       <div class="check-grid" id="staff-checks"></div>
     </div>
-    <div class="form-row"><label>時間</label>
+    <div class="form-row" id="time-row"><label>時間</label>
       <div class="time-row">
         <select id="f-start"></select>
         <span class="time-sep">〜</span>
@@ -186,6 +186,11 @@ table.shift-table tr.today td{background:#edf5fc}
       </div>
     </div>
     <div class="form-row"><label>メモ</label><input id="f-memo" placeholder="備考など"></div>
+    <div class="form-row">
+      <button type="button" id="paid-btn" onclick="togglePaid()" style="width:100%;padding:11px;border-radius:8px;border:2px solid #e0a800;background:#fff;color:#b8860b;font-size:15px;font-weight:600;cursor:pointer;">
+        🌴 有給休暇として登録
+      </button>
+    </div>
     <div class="modal-btns">
       <button class="btn btn-delete" id="delete-btn" onclick="doDelete()" style="display:none">削除</button>
       <button class="btn btn-cancel" onclick="closeModal()">キャンセル</button>
@@ -613,6 +618,29 @@ function openEdit(dateKey, id) {
   document.getElementById('overlay').classList.add('open');
 }
 
+var isPaid = false;
+
+function togglePaid() {
+  isPaid = !isPaid;
+  var btn = document.getElementById('paid-btn');
+  var timeRow = document.getElementById('time-row');
+  if (isPaid) {
+    btn.style.background = '#e0a800';
+    btn.style.color = '#fff';
+    btn.textContent = '✅ 有給休暇として登録（ON）';
+    if (timeRow) timeRow.style.opacity = '0.3';
+    document.getElementById('f-start').disabled = true;
+    document.getElementById('f-end').disabled = true;
+  } else {
+    btn.style.background = '#fff';
+    btn.style.color = '#b8860b';
+    btn.textContent = '🌴 有給休暇として登録';
+    if (timeRow) timeRow.style.opacity = '1';
+    document.getElementById('f-start').disabled = false;
+    document.getElementById('f-end').disabled = false;
+  }
+}
+
 function closeModal() {
   document.getElementById('overlay').classList.remove('open');
 }
@@ -631,7 +659,8 @@ function doSave() {
     start: startVal,
     end: endVal,
     break: autoBreak,
-    memo: document.getElementById('f-memo').value + (autoBreak > 0 ? '（休憩' + autoBreak + '分）' : '')
+    memo: isPaid ? '有給' : (document.getElementById('f-memo').value + (autoBreak > 0 ? '（休憩' + autoBreak + '分）' : '')),
+    paid: isPaid
   };
   closeModal();
   setSync('loading', '保存中...');
