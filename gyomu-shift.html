@@ -96,6 +96,9 @@ table.shift-table tr.today td{background:#edf5fc}
 .check-btn{font-size:14px;color:#555;padding:10px 8px;border-radius:8px;border:2px solid #e0e0e0;background:#fafafa;text-align:center;cursor:pointer;user-select:none;-webkit-user-select:none}
 .check-btn.on{border-color:#2c3e50;background:#d5e8f5;color:#1a3a50;font-weight:600}
 .modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.pat-btn{padding:8px 16px;border-radius:8px;border:2px solid #4a90d9;background:#fff;color:#4a90d9;font-size:15px;font-weight:700;cursor:pointer;min-width:44px}
+.pat-btn.active{background:#4a90d9;color:#fff}
+.pattern-badge{font-size:10px;background:#4a90d9;color:#fff;border-radius:4px;padding:1px 4px;margin-left:3px;font-weight:700}
 .btn{padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;border:none}
 .btn-primary{background:#2c3e50;color:#fff}
 .btn-cancel{background:#f0f0ec;color:#555}
@@ -183,6 +186,16 @@ table.shift-table tr.today td{background:#edf5fc}
         <select id="f-start"></select>
         <span class="time-sep">〜</span>
         <select id="f-end"></select>
+      </div>
+    </div>
+    <div class="form-row" id="pattern-row" style="display:none">
+      <label>勤務パターン（複数選択可）</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button type="button" class="pat-btn" data-pat="A" onclick="togglePattern('A')">A</button>
+        <button type="button" class="pat-btn" data-pat="B" onclick="togglePattern('B')">B</button>
+        <button type="button" class="pat-btn" data-pat="C" onclick="togglePattern('C')">C</button>
+        <button type="button" class="pat-btn" data-pat="D" onclick="togglePattern('D')">D</button>
+        <button type="button" class="pat-btn" data-pat="E" onclick="togglePattern('E')">E</button>
       </div>
     </div>
     <div class="form-row"><label>メモ</label><input id="f-memo" placeholder="備考など"></div>
@@ -436,7 +449,8 @@ function render() {
         var canEditStore = canEdit(sk);
         var pills = ss2.map(function(s) {
           var time = s.start ? (s.end ? s.start + '〜' + s.end : s.start) : '';
-          var label = s.staff + (time ? ' ' + time : '');
+          var patBadge = (s.patterns && s.patterns.length > 0) ? ' <span class="pattern-badge">' + s.patterns.join(',') + '</span>' : '';
+          var label = s.staff + (time ? ' ' + time : '') + patBadge;
           var cls = 'shift-pill ' + STORES[sk].cls + (canEditStore ? '' : ' readonly');
           var click = canEditStore ? ' onclick="openEdit(\'' + key + '\', \'' + s.id + '\')"' : '';
           return '<span class="' + cls + '"' + click + '>' + label + '</span>';
@@ -477,7 +491,8 @@ function render() {
         if (ss2.length === 0 && !activeFilter) continue;
         var pills = ss2.map(function(s) {
           var time = s.start ? (s.end ? s.start + '〜' + s.end : s.start) : '';
-          var label = s.staff + (time ? ' ' + time : '');
+          var patBadge = (s.patterns && s.patterns.length > 0) ? ' <span class="pattern-badge">' + s.patterns.join(',') + '</span>' : '';
+          var label = s.staff + (time ? ' ' + time : '') + patBadge;
           var cls = 'mobile-shift-item ' + STORES[sk].cls + (canEditStore ? '' : ' readonly');
           var click = canEditStore ? ' onclick="openEdit(\'' + key + '\', \'' + s.id + '\')"' : '';
           var copyBtn = canEditStore ? ' <span onclick="event.stopPropagation();openCopyModal(\'' + key + '\',\'' + s.id + '\')" style="font-size:11px;opacity:0.7;margin-left:4px">📋</span>' : '';
@@ -619,6 +634,39 @@ function openEdit(dateKey, id) {
 }
 
 var isPaid = false;
+var ICHIKAWA_STAFF = ['石川泰博','山田明子','伊藤美津子'];
+var selectedPatterns = [];
+
+function togglePattern(p) {
+  var idx = selectedPatterns.indexOf(p);
+  if (idx >= 0) {
+    selectedPatterns.splice(idx, 1);
+  } else {
+    selectedPatterns.push(p);
+  }
+  // ボタンの見た目を更新
+  document.querySelectorAll('.pat-btn').forEach(function(btn) {
+    if (selectedPatterns.indexOf(btn.getAttribute('data-pat')) >= 0) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+}
+
+function updatePatternRow() {
+  var row = document.getElementById('pattern-row');
+  if (!row) return;
+  if (ICHIKAWA_STAFF.indexOf(selectedStaffName) >= 0) {
+    row.style.display = '';
+  } else {
+    row.style.display = 'none';
+    selectedPatterns = [];
+    document.querySelectorAll('.pat-btn').forEach(function(btn) {
+      btn.classList.remove('active');
+    });
+  }
+}
 
 function togglePaid() {
   isPaid = !isPaid;
@@ -660,7 +708,8 @@ function doSave() {
     end: endVal,
     break: autoBreak,
     memo: isPaid ? '有給' : (document.getElementById('f-memo').value + (autoBreak > 0 ? '（休憩' + autoBreak + '分）' : '')),
-    paid: isPaid
+    paid: isPaid,
+    patterns: selectedPatterns.length > 0 ? selectedPatterns.slice() : null
   };
   closeModal();
   setSync('loading', '保存中...');
