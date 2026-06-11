@@ -385,6 +385,16 @@ function loadAll(showLoading) {
   if (showLoading !== false) setSync('loading', '読み込み中...');
   return jsonp({ action: 'getShifts' }).then(function(data) {
     shifts = data || {};
+    // patterns列（文字列"A,C"）を配列に変換
+    Object.keys(shifts).forEach(function(date) {
+      shifts[date].forEach(function(s) {
+        if (s.patterns && typeof s.patterns === 'string' && s.patterns !== '') {
+          s.patterns = s.patterns.split(',');
+        } else if (!s.patterns || s.patterns === '') {
+          s.patterns = null;
+        }
+      });
+    });
     setSync('ok', '同期済み');
     render();
   }).catch(function() {
@@ -630,6 +640,18 @@ function openEdit(dateKey, id) {
   document.getElementById('delete-btn').style.display = '';
   updateStaffButtons(ev.staff || '');
   updateTimeSelects(ev.start || '', ev.end || '');
+
+  // パターン復元
+  selectedPatterns = (ev.patterns && ev.patterns.length > 0) ? ev.patterns.slice() : [];
+  updatePatternRow();
+  document.querySelectorAll('.pat-btn').forEach(function(btn) {
+    if (selectedPatterns.indexOf(btn.getAttribute('data-pat')) >= 0) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+
   document.getElementById('overlay').classList.add('open');
 }
 
