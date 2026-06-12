@@ -728,6 +728,8 @@ function doSave() {
     paid: isPaid,
     patterns: selectedPatterns.length > 0 ? selectedPatterns.slice() : null
   };
+  // デバッグ用
+  if (isPaid) alert('有給保存: start=' + ev.start + ' end=' + ev.end + ' paid=' + ev.paid);
   closeModal();
   setSync('loading', '保存中...');
   jsonp({ action: 'saveShift', data: ev }).then(function() {
