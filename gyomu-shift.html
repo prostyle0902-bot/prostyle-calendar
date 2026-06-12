@@ -698,16 +698,10 @@ function togglePaid() {
     btn.style.background = '#e0a800';
     btn.style.color = '#fff';
     btn.textContent = '✅ 有給休暇として登録（ON）';
-    if (timeRow) timeRow.style.opacity = '0.3';
-    document.getElementById('f-start').disabled = true;
-    document.getElementById('f-end').disabled = true;
   } else {
     btn.style.background = '#fff';
     btn.style.color = '#b8860b';
     btn.textContent = '🌴 有給休暇として登録';
-    if (timeRow) timeRow.style.opacity = '1';
-    document.getElementById('f-start').disabled = false;
-    document.getElementById('f-end').disabled = false;
   }
 }
 
