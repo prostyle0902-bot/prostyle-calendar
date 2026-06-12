@@ -600,6 +600,7 @@ function selectStaff(idx) {
   var name = currentStaffList[idx];
   selectedStaffName = selectedStaffName === name ? '' : name;
   updateStaffButtons(selectedStaffName);
+  updatePatternRow();
 }
 
 function onStoreChange() {
@@ -656,7 +657,7 @@ function openEdit(dateKey, id) {
 }
 
 var isPaid = false;
-var ICHIKAWA_STAFF = ['石川泰博','山田明子','伊藤美津子'];
+var ICHIKAWA_STAFF = ['石川泰博','山田明子','伊藤美津子','千葉規雄','武田則政','高瀬弥生子','菅原和夫','樽本裕美','望月辰雄','岸本敏男','高野由美','村田耕一'];
 var selectedPatterns = [];
 
 function togglePattern(p) {
