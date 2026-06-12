@@ -196,6 +196,8 @@ table.shift-table tr.today td{background:#edf5fc}
         <button type="button" class="pat-btn" data-pat="C" onclick="togglePattern('C')">C</button>
         <button type="button" class="pat-btn" data-pat="D" onclick="togglePattern('D')">D</button>
         <button type="button" class="pat-btn" data-pat="E" onclick="togglePattern('E')">E</button>
+        <button type="button" class="pat-btn" data-pat="○" onclick="togglePattern('○')">○</button>
+        <button type="button" class="pat-btn" data-pat="●" onclick="togglePattern('●')">●</button>
       </div>
     </div>
     <div class="form-row"><label>メモ</label><input id="f-memo" placeholder="備考など"></div>
@@ -728,8 +730,6 @@ function doSave() {
     paid: isPaid,
     patterns: selectedPatterns.length > 0 ? selectedPatterns.slice() : null
   };
-  // デバッグ用
-  if (isPaid) alert('有給保存: start=' + ev.start + ' end=' + ev.end + ' paid=' + ev.paid);
   closeModal();
   setSync('loading', '保存中...');
   jsonp({ action: 'saveShift', data: ev }).then(function() {
