@@ -102,6 +102,7 @@ table.shift-table tr.today td{background:#edf5fc}
 .check-btn{font-size:14px;color:#555;padding:10px 8px;border-radius:8px;border:2px solid #e0e0e0;background:#fafafa;text-align:center;cursor:pointer;user-select:none;-webkit-user-select:none}
 .check-btn.on{border-color:#4a90d9;background:#e8f2fd;color:#1a5fa8;font-weight:600}
 .modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.yasumi-pill{background:#ffebee;color:#cc0000;border:1px solid #ffcdd2;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:600}
 .btn{padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;border:none}
 .btn-primary{background:#1a1a1a;color:#fff}
 .btn-cancel{background:#f0f0ec;color:#555}
@@ -205,6 +206,11 @@ table.shift-table tr.today td{background:#edf5fc}
       </div>
     </div>
     <div class="form-row"><label>メモ</label><input id="f-memo" placeholder="備考など"></div>
+    <div class="form-row" id="yasumi-row" style="display:none">
+      <button type="button" id="yasumi-btn" onclick="toggleYasumi()" style="width:100%;padding:11px;border-radius:8px;border:2px solid #cc0000;background:#fff;color:#cc0000;font-size:15px;font-weight:600;cursor:pointer;">
+        🔴 休みとして登録
+      </button>
+    </div>
     <div class="modal-btns">
       <button class="btn btn-delete" id="delete-btn" onclick="doDelete()" style="display:none">削除</button>
       <button class="btn btn-cancel" onclick="closeModal()">キャンセル</button>
@@ -470,7 +476,8 @@ function render() {
         var canEditStore = canEdit(sk);
         var pills = ss2.map(function(s) {
           var time = s.start ? (s.end ? s.start + '〜' + s.end : s.start) : '';
-          var label = s.staff + (time ? ' ' + time : '');
+          var yasumiTag = s.yasumi ? ' <span class="yasumi-pill">休み</span>' : '';
+          var label = s.staff + (time ? ' ' + time : '') + yasumiTag;
           var cls = 'shift-pill ' + STORES[sk].cls + (canEditStore ? '' : ' readonly');
           var click = canEditStore ? ' onclick="openEdit(\'' + key + '\', \'' + s.id + '\')"' : '';
           return '<span class="' + cls + '"' + click + '>' + label + '</span>';
@@ -653,11 +660,45 @@ function openEdit(dateKey, id) {
   document.getElementById('f-date').value = ev.date || dateKey;
   document.getElementById('f-store').value = ev.store || editableStores[0];
   document.getElementById('f-memo').value = ev.memo || '';
+  isYasumi = ev.yasumi || false;
+  var yb = document.getElementById('yasumi-btn');
+  if (yb) {
+    if (isYasumi) {
+      yb.style.background = '#cc0000'; yb.style.color = '#fff'; yb.textContent = '✅ 休みとして登録（ON）';
+    } else {
+      yb.style.background = '#fff'; yb.style.color = '#cc0000'; yb.textContent = '🔴 休みとして登録';
+    }
+  }
+  updateYasumiRow();
   document.getElementById('delete-btn').style.display = '';
   document.getElementById('rest-btn').style.display = 'none';
   updateStaffButtons(ev.staff || '');
   updateTimeSelects(ev.start || '', ev.end || '');
   document.getElementById('overlay').classList.add('open');
+}
+
+// 休みボタン対象スタッフ
+var YASUMI_STAFF = ['土屋芳広','レナ','ナディーシャ','ハルシャニ'];
+var isYasumi = false;
+
+function toggleYasumi() {
+  isYasumi = !isYasumi;
+  var btn = document.getElementById('yasumi-btn');
+  if (isYasumi) {
+    btn.style.background = '#cc0000';
+    btn.style.color = '#fff';
+    btn.textContent = '✅ 休みとして登録（ON）';
+  } else {
+    btn.style.background = '#fff';
+    btn.style.color = '#cc0000';
+    btn.textContent = '🔴 休みとして登録';
+  }
+}
+
+function updateYasumiRow() {
+  var row = document.getElementById('yasumi-row');
+  if (!row) return;
+  row.style.display = YASUMI_STAFF.indexOf(selectedStaffName) >= 0 ? '' : 'none';
 }
 
 function closeModal() {
@@ -678,7 +719,8 @@ function doSave() {
     start: startVal,
     end: endVal,
     break: autoBreak,
-    memo: document.getElementById('f-memo').value + (autoBreak > 0 ? '（休憩' + autoBreak + '分）' : '')
+    memo: isYasumi ? '休み' : (document.getElementById('f-memo').value + (autoBreak > 0 ? '（休憩' + autoBreak + '分）' : '')),
+    yasumi: isYasumi
   };
   closeModal();
   setSync('loading', '保存中...');
@@ -876,16 +918,18 @@ function updateStaffSummary() {
   var y = current.getFullYear(), m = current.getMonth();
   var lastDay = new Date(y, m+1, 0).getDate();
   var staffStats = {};
-  store.staff.forEach(function(s) { staffStats[s] = { work: 0, off: 0 }; });
+  store.staff.forEach(function(s) { staffStats[s] = { work: 0, off: 0, yasumi: 0 }; });
 
   // 全日付をスキャン
   for (var d = 1; d <= lastDay; d++) {
     var key = fmt(y, m, d);
     var dayShifts = shifts[key] || [];
     store.staff.forEach(function(s) {
-      var worked = dayShifts.some(function(ev) { return ev.staff === s && ev.store === activeFilter; });
+      var worked = dayShifts.some(function(ev) { return ev.staff === s && ev.store === activeFilter && !ev.yasumi; });
+      var yasumiDay = dayShifts.some(function(ev) { return ev.staff === s && ev.store === activeFilter && ev.yasumi; });
       var rested = rests[key] && rests[key][activeFilter] && rests[key][activeFilter].indexOf(s) >= 0;
       if (worked) staffStats[s].work++;
+      else if (yasumiDay) staffStats[s].yasumi++;
       else if (rested) staffStats[s].off++;
     });
   }
@@ -893,10 +937,12 @@ function updateStaffSummary() {
   var html = '';
   store.staff.forEach(function(s) {
     var st = staffStats[s];
+    var isYasumiTarget = YASUMI_STAFF.indexOf(s) >= 0;
     html += '<div class="staff-card">'
       + '<div class="sname">' + s + '</div>'
       + '<div class="sinfo">'
       + '<span>出勤 <b>' + st.work + '</b>日</span>'
+      + (isYasumiTarget ? '<span style="color:#cc0000">休み <b>' + st.yasumi + '</b>日</span>' : '')
       + '<span>公休 <b>' + st.off + '</b>日</span>'
       + '</div></div>';
   });
