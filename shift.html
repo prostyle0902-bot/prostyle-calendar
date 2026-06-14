@@ -45,6 +45,7 @@ table.shift-table tr.today td{background:#edf5fc}
 .sat .dname,.sat .dnum{color:#4a90d9}
 .hj{font-size:9px;color:#e05555;font-weight:600}
 .shift-pill{display:block;padding:2px 5px;border-radius:4px;font-size:11px;margin-bottom:2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shift-pill.yasumi{background:#ffcdd2!important;color:#b71c1c!important;border:1px solid #ef9a9a;text-decoration:line-through}
 .shift-pill:hover{opacity:0.8}
 .shift-pill.readonly{cursor:default}
 .add-s{display:block;font-size:10px;color:#ccc;cursor:pointer;padding:1px 3px}
@@ -476,9 +477,10 @@ function render() {
         var canEditStore = canEdit(sk);
         var pills = ss2.map(function(s) {
           var time = s.start ? (s.end ? s.start + '〜' + s.end : s.start) : '';
-          var yasumiTag = s.yasumi ? ' <span class="yasumi-pill">休み</span>' : '';
+          var yasumiTag = s.yasumi ? ' 🔴休み' : '';
           var label = s.staff + (time ? ' ' + time : '') + yasumiTag;
-          var cls = 'shift-pill ' + STORES[sk].cls + (canEditStore ? '' : ' readonly');
+          var yasumiCls = s.yasumi ? ' yasumi' : '';
+          var cls = 'shift-pill ' + STORES[sk].cls + yasumiCls + (canEditStore ? '' : ' readonly');
           var click = canEditStore ? ' onclick="openEdit(\'' + key + '\', \'' + s.id + '\')"' : '';
           return '<span class="' + cls + '"' + click + '>' + label + '</span>';
         }).join('');
