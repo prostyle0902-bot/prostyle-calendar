@@ -620,6 +620,7 @@ function selectStaff(idx) {
   var name = currentStaffList[idx];
   selectedStaffName = selectedStaffName === name ? '' : name;
   updateStaffButtons(selectedStaffName);
+  updateYasumiRow();
 }
 
 function onStoreChange() {
