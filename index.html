@@ -205,6 +205,7 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
     <div class="form-row"><label>メモ</label><textarea id="f-memo" placeholder="備考など"></textarea></div>
     <div class="modal-btns">
       <button class="btn btn-delete" id="delete-btn" onclick="deleteEvent()" style="display:none">削除</button>
+      <button class="btn" id="copy-btn" onclick="copyEvent()" style="display:none;background:#e8f0fe;color:#1a73e8;border:1px solid #1a73e8">📋 コピー</button>
       <button class="btn btn-cancel" onclick="closeModal()">キャンセル</button>
       <button class="btn btn-primary" onclick="saveEvent()">保存</button>
     </div>
@@ -622,6 +623,7 @@ function toggleCar(name) {
 // ===== モーダル =====
 function openAdd(dateKey) {
   editingId = null; editingDate = dateKey;
+  document.getElementById('copy-btn').style.display = 'none';
   selectedStaff = []; selectedCars = [];
   const [,mo,day] = dateKey.split('-');
   document.getElementById('modal-title').textContent = `${parseInt(mo)}月${parseInt(day)}日 — 現場を追加`;
@@ -659,9 +661,48 @@ function openEdit(dateKey, id) {
   document.getElementById('f-start').value = ev.start||'';
   document.getElementById('f-end').value = ev.end||'';
   document.getElementById('delete-btn').style.display = '';
+  document.getElementById('copy-btn').style.display = '';
   renderStaffGrid();
   renderCarGrid();
   document.getElementById('overlay').classList.add('open');
+}
+
+function copyEvent() {
+  // 現在の編集内容を一時保存
+  const ev = {
+    place:     document.getElementById('f-place').value,
+    client:    document.getElementById('f-client').value,
+    type:      document.getElementById('f-type').value,
+    amount:    document.getElementById('f-amount').value,
+    memo:      document.getElementById('f-memo').value,
+    departure: document.getElementById('f-departure').value,
+    start:     document.getElementById('f-start').value,
+    end:       document.getElementById('f-end').value,
+    staff:     selectedStaff.slice(),
+    cars:      selectedCars.slice(),
+  };
+  const newDate = prompt('コピー先の日付を入力してください（例：2026-06-20）', editingDate);
+  if (!newDate) return;
+  closeModal();
+
+  // 新規として開く
+  openAdd(newDate);
+  // 少し待ってから内容を復元
+  setTimeout(function() {
+    document.getElementById('f-date').value = newDate;
+    document.getElementById('f-place').value = ev.place;
+    document.getElementById('f-client').value = ev.client;
+    document.getElementById('f-type').value = ev.type;
+    document.getElementById('f-amount').value = ev.amount;
+    document.getElementById('f-memo').value = ev.memo;
+    document.getElementById('f-departure').value = ev.departure;
+    document.getElementById('f-start').value = ev.start;
+    document.getElementById('f-end').value = ev.end;
+    selectedStaff = ev.staff;
+    selectedCars = ev.cars;
+    renderStaffGrid();
+    renderCarGrid();
+  }, 100);
 }
 
 function closeModal() { document.getElementById('overlay').classList.remove('open'); }
