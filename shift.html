@@ -919,11 +919,14 @@ function updateStaffSummary() {
 
   var y = current.getFullYear(), m = current.getMonth();
   var lastDay = new Date(y, m+1, 0).getDate();
+  // 翌月の情報
+  var nextM = m === 11 ? 0 : m + 1;
+  var nextY = m === 11 ? y + 1 : y;
   var staffStats = {};
   store.staff.forEach(function(s) { staffStats[s] = { work: 0, off: 0, yasumi: 0 }; });
 
-  // 全日付をスキャン
-  for (var d = 1; d <= lastDay; d++) {
+  // 前半：当月16日〜末日
+  for (var d = 16; d <= lastDay; d++) {
     var key = fmt(y, m, d);
     var dayShifts = shifts[key] || [];
     store.staff.forEach(function(s) {
@@ -933,6 +936,19 @@ function updateStaffSummary() {
       if (worked) staffStats[s].work++;
       else if (yasumiDay) staffStats[s].yasumi++;
       else if (rested) staffStats[s].off++;
+    });
+  }
+  // 後半：翌月1日〜15日
+  for (var d2 = 1; d2 <= 15; d2++) {
+    var key2 = fmt(nextY, nextM, d2);
+    var dayShifts2 = shifts[key2] || [];
+    store.staff.forEach(function(s) {
+      var worked2 = dayShifts2.some(function(ev) { return ev.staff === s && ev.store === activeFilter && !ev.yasumi; });
+      var yasumiDay2 = dayShifts2.some(function(ev) { return ev.staff === s && ev.store === activeFilter && ev.yasumi; });
+      var rested2 = rests[key2] && rests[key2][activeFilter] && rests[key2][activeFilter].indexOf(s) >= 0;
+      if (worked2) staffStats[s].work++;
+      else if (yasumiDay2) staffStats[s].yasumi++;
+      else if (rested2) staffStats[s].off++;
     });
   }
 
