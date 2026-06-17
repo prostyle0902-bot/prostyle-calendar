@@ -62,6 +62,7 @@ table.shift-table tr.today td{background:#edf5fc}
 .mobile-store-label{font-size:11px;padding:1px 6px;border-radius:3px;margin-right:4px;display:inline-block}
 .mobile-shift-item{display:inline-flex;padding:3px 8px;border-radius:5px;font-size:13px;margin:2px 2px 2px 0;cursor:pointer}
 .mobile-shift-item.readonly{cursor:default}
+.mobile-shift-item.yasumi{background:#ffcdd2!important;color:#b71c1c!important;border:1px solid #ef9a9a;text-decoration:line-through}
 .rest-pill{display:block;padding:2px 5px;border-radius:4px;font-size:11px;margin-bottom:2px;background:#f0f0f0;color:#888;font-weight:600}
 .mobile-rest-item{display:inline-flex;padding:3px 8px;border-radius:5px;font-size:13px;margin:2px 2px 2px 0;background:#f0f0f0;color:#888;font-weight:600;cursor:pointer}
 @media(max-width:600px){
@@ -520,8 +521,10 @@ function render() {
         if (ss2.length === 0 && !activeFilter) continue;
         var pills = ss2.map(function(s) {
           var time = s.start ? (s.end ? s.start + '〜' + s.end : s.start) : '';
-          var label = s.staff + (time ? ' ' + time : '');
-          var cls = 'mobile-shift-item ' + STORES[sk].cls + (canEditStore ? '' : ' readonly');
+          var yasumiTag = s.yasumi ? ' 🔴休み' : '';
+          var label = s.staff + (time ? ' ' + time : '') + yasumiTag;
+          var yasumiCls = s.yasumi ? ' yasumi' : '';
+          var cls = 'mobile-shift-item ' + STORES[sk].cls + yasumiCls + (canEditStore ? '' : ' readonly');
           var click = canEditStore ? ' onclick="openEdit(\'' + key + '\', \'' + s.id + '\')"' : '';
           var copyBtn = canEditStore ? ' <span onclick="event.stopPropagation();openCopyModal(\'' + key + '\',\'' + s.id + '\')" style="font-size:11px;opacity:0.7;margin-left:4px">📋</span>' : '';
           return '<span class="' + cls + '"' + click + '>' + label + copyBtn + '</span>';
