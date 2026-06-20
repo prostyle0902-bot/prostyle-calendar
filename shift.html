@@ -944,6 +944,37 @@ function doCopyShift(toDateKey) {
 // ===== ③スタッフ出勤・公休サマリー =====
 function updateStaffSummary() {
   var summaryEl = document.getElementById('staff-summary');
+
+  // スタッフフィルターが選択されている場合はその人だけ表示
+  if (activeStaffFilter && !activeFilter) {
+    var y = current.getFullYear(), m = current.getMonth();
+    var lastDay = new Date(y, m+1, 0).getDate();
+    var nextM = m === 11 ? 0 : m + 1;
+    var nextY = m === 11 ? y + 1 : y;
+    var work = 0, yasumi = 0;
+    for (var d = 16; d <= lastDay; d++) {
+      var key = fmt(y, m, d);
+      var dayShifts = shifts[key] || [];
+      if (dayShifts.some(function(ev) { return ev.staff === activeStaffFilter && !ev.yasumi; })) work++;
+      else if (dayShifts.some(function(ev) { return ev.staff === activeStaffFilter && ev.yasumi; })) yasumi++;
+    }
+    for (var d2 = 1; d2 <= 15; d2++) {
+      var key2 = fmt(nextY, nextM, d2);
+      var dayShifts2 = shifts[key2] || [];
+      if (dayShifts2.some(function(ev) { return ev.staff === activeStaffFilter && !ev.yasumi; })) work++;
+      else if (dayShifts2.some(function(ev) { return ev.staff === activeStaffFilter && ev.yasumi; })) yasumi++;
+    }
+    var isYasumiTarget = YASUMI_STAFF.indexOf(activeStaffFilter) >= 0;
+    summaryEl.innerHTML = '<div class="staff-card">'
+      + '<div class="sname">' + activeStaffFilter + '</div>'
+      + '<div class="sinfo">'
+      + '<span>出勤 <b>' + work + '</b>日</span>'
+      + (isYasumiTarget ? '<span style="color:#cc0000">休み <b>' + yasumi + '</b>日</span>' : '')
+      + '</div></div>';
+    summaryEl.classList.add('show');
+    return;
+  }
+
   if (!activeFilter) {
     summaryEl.classList.remove('show');
     return;
