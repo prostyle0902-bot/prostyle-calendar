@@ -450,17 +450,19 @@ function buildStaffFilterBar() {
       if (allStaff.indexOf(s) < 0) allStaff.push(s);
     });
   }
-  var html = '<div class="staff-filter-btn' + (activeStaffFilter === '' ? ' active' : '') + '" onclick="setStaffFilter(\'\')" >全員</div>';
+  var html = '<div class="staff-filter-btn' + (activeStaffFilter === '' ? ' active' : '') + '" onclick="setStaffFilter(this,\'\')">全員</div>';
   allStaff.forEach(function(s) {
     var on = activeStaffFilter === s;
-    html += '<div class="staff-filter-btn' + (on ? ' active' : '') + '" onclick="setStaffFilter(\'' + s + '\')">' + s + '</div>';
+    var safeName = s.replace(/'/g, "\\'");
+    html += '<div class="staff-filter-btn' + (on ? ' active' : '') + '" onclick="setStaffFilter(this,\'' + safeName + '\')">' + s + '</div>';
   });
   document.getElementById('staff-filter-bar').innerHTML = html;
 }
 
-function setStaffFilter(name) {
+function setStaffFilter(el, name) {
   activeStaffFilter = name;
-  buildStaffFilterBar();
+  document.querySelectorAll('.staff-filter-btn').forEach(function(b) { b.classList.remove('active'); });
+  if (el) el.classList.add('active');
   render();
 }
 
