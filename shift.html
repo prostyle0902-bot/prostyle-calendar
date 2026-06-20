@@ -127,6 +127,9 @@ table.shift-table tr.today td{background:#edf5fc}
 
 /* ③出勤・公休サマリー */
 .staff-summary{padding:8px 14px;background:#fff;border-bottom:1px solid #e8e8e4;display:none;flex-wrap:wrap;gap:8px}
+.staff-filter-bar{display:flex;gap:6px;padding:6px 14px;background:#f8f8f5;border-bottom:1px solid #e8e8e4;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+.staff-filter-btn{flex-shrink:0;font-size:11px;padding:4px 10px;border-radius:20px;border:1.5px solid #ddd;background:#fafafa;color:#555;cursor:pointer}
+.staff-filter-btn.active{border-color:#1a73e8;background:#1a73e8;color:#fff;font-weight:500}
 .staff-summary.show{display:flex}
 .staff-card{background:#f8f8f8;border-radius:8px;padding:6px 10px;font-size:13px;min-width:100px}
 .staff-card .sname{font-weight:600;margin-bottom:2px}
@@ -172,6 +175,7 @@ table.shift-table tr.today td{background:#edf5fc}
 </div>
 
 <div class="filter-bar" id="filter-bar"></div>
+<div class="staff-filter-bar" id="staff-filter-bar"></div>
 <div class="staff-summary" id="staff-summary"></div>
 <div id="calendar-wrap"><div class="loading-msg">読み込み中...</div></div>
 
@@ -297,6 +301,7 @@ var shifts = {};
 var editingId = null, editingDate = null;
 var cbCount = 0;
 var activeFilter = '';
+var activeStaffFilter = '';
 var currentStaffList = [];
 var selectedStaffName = '';
 var currentUser = null;
@@ -433,6 +438,30 @@ function buildFilterBar() {
     html += '<div class="filter-btn ' + cls + (on ? ' active' : '') + '" onclick="setFilterByIndex(' + i + ')">' + k + '</div>';
   }
   document.getElementById('filter-bar').innerHTML = html;
+  buildStaffFilterBar();
+}
+
+function buildStaffFilterBar() {
+  // 全スタッフリストを作成
+  var allStaff = [];
+  for (var sk in STORES) {
+    if (visibleStores.indexOf(sk) < 0) continue;
+    STORES[sk].staff.forEach(function(s) {
+      if (allStaff.indexOf(s) < 0) allStaff.push(s);
+    });
+  }
+  var html = '<div class="staff-filter-btn' + (activeStaffFilter === '' ? ' active' : '') + '" onclick="setStaffFilter('')">全員</div>';
+  allStaff.forEach(function(s) {
+    var on = activeStaffFilter === s;
+    html += '<div class="staff-filter-btn' + (on ? ' active' : '') + '" onclick="setStaffFilter('' + s + '')">' + s + '</div>';
+  });
+  document.getElementById('staff-filter-bar').innerHTML = html;
+}
+
+function setStaffFilter(name) {
+  activeStaffFilter = name;
+  buildStaffFilterBar();
+  render();
 }
 
 function setFilterByIndex(idx) {
@@ -474,7 +503,7 @@ function render() {
       var dayShifts = shifts[key] || [];
 
       var storeCols = targetStores.map(function(sk) {
-        var ss2 = dayShifts.filter(function(s) { return s.store === sk; });
+        var ss2 = dayShifts.filter(function(s) { return s.store === sk && (activeStaffFilter ? s.staff === activeStaffFilter : true); });
         var canEditStore = canEdit(sk);
         var pills = ss2.map(function(s) {
           var time = s.start ? (s.end ? s.start + '〜' + s.end : s.start) : '';
@@ -516,7 +545,7 @@ function render() {
       var storeRows = '';
       for (var si = 0; si < targetStores.length; si++) {
         var sk = targetStores[si];
-        var ss2 = dayShifts.filter(function(s) { return s.store === sk; });
+        var ss2 = dayShifts.filter(function(s) { return s.store === sk && (activeStaffFilter ? s.staff === activeStaffFilter : true); });
         var canEditStore = canEdit(sk);
         if (ss2.length === 0 && !activeFilter) continue;
         var pills = ss2.map(function(s) {
