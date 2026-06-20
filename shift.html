@@ -464,6 +464,7 @@ function setStaffFilter(el, name) {
   document.querySelectorAll('.staff-filter-btn').forEach(function(b) { b.classList.remove('active'); });
   if (el) el.classList.add('active');
   render();
+  updateStaffSummary();
 }
 
 function setFilterByIndex(idx) {
