@@ -450,10 +450,10 @@ function buildStaffFilterBar() {
       if (allStaff.indexOf(s) < 0) allStaff.push(s);
     });
   }
-  var html = '<div class="staff-filter-btn' + (activeStaffFilter === '' ? ' active' : '') + '" onclick="setStaffFilter('')">全員</div>';
+  var html = '<div class="staff-filter-btn' + (activeStaffFilter === '' ? ' active' : '') + '" onclick="setStaffFilter(\'\')" >全員</div>';
   allStaff.forEach(function(s) {
     var on = activeStaffFilter === s;
-    html += '<div class="staff-filter-btn' + (on ? ' active' : '') + '" onclick="setStaffFilter('' + s + '')">' + s + '</div>';
+    html += '<div class="staff-filter-btn' + (on ? ' active' : '') + '" onclick="setStaffFilter(\'' + s + '\')">' + s + '</div>';
   });
   document.getElementById('staff-filter-bar').innerHTML = html;
 }
