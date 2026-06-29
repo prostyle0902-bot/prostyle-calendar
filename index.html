@@ -71,6 +71,8 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 .free-tag{font-size:11px;padding:2px 7px;border-radius:3px;background:#e8f4fd;color:#1a5fa8;white-space:nowrap}
 .paid-tag{font-size:11px;padding:2px 7px;border-radius:3px;background:#d4edda;color:#1a6e31;cursor:pointer;white-space:nowrap}
 .paid-tag:hover{background:#c3e6cb}
+.kibou-tag{font-size:11px;padding:2px 7px;border-radius:3px;background:#ffe9c7;color:#b06a00;cursor:pointer;white-space:nowrap}
+.kibou-tag:hover{background:#ffdca6}
 .tl-outsource-col{width:110px;min-width:110px;flex-shrink:0;border-left:1px solid #e8e8e4;padding:4px 6px;display:flex;flex-direction:column;gap:3px;justify-content:center}
 .outsource-item{font-size:10px;padding:2px 6px;border-radius:4px;background:#F4C0D1;color:#72243E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 .outsource-item:hover{opacity:0.8}
@@ -133,6 +135,7 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
   .holiday-tag{font-size:13px;padding:3px 8px}
   .free-tag{font-size:13px;padding:3px 8px}
   .paid-tag{font-size:13px;padding:3px 8px}
+  .kibou-tag{font-size:13px;padding:3px 8px}
   .mobile-add-btn{display:inline-flex;align-items:center;padding:4px 10px;border-radius:6px;border:1px dashed #ccc;color:#aaa;font-size:13px;cursor:pointer;margin-top:4px}
 }
 @media(min-width:601px){
@@ -163,6 +166,7 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
   <div class="legend-item"><div class="legend-dot" style="background:#FF4444"></div>未定</div>
   <div class="legend-item"><div class="legend-dot" style="background:#fee2e2"></div>休み</div>
   <div class="legend-item"><div class="legend-dot" style="background:#d4edda"></div>有給</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ffe9c7"></div>希望休</div>
   <div class="legend-item"><div class="legend-dot" style="background:#C9B1E8"></div>納品</div>
 </div>
 
@@ -195,13 +199,13 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
       <div class="btn-grid" id="car-grid"></div>
     </div>
     <div class="form-row"><label>出社時間</label>
-      <input id="f-departure" type="time" step="900" placeholder="例：07:30">
+      <select id="f-departure" class="time-select"></select>
     </div>
     <div class="form-row"><label>時間</label>
       <div class="time-row">
-        <input id="f-start" type="time" step="900">
+        <select id="f-start" class="time-select"></select>
         <span class="time-sep">〜</span>
-        <input id="f-end" type="time" step="900">
+        <select id="f-end" class="time-select"></select>
       </div>
     </div>
     <div class="form-row"><label>請負金額（円）</label><input id="f-amount" type="number" placeholder="例：45000"></div>
@@ -227,6 +231,10 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
     <div class="form-row">
       <label>有給（タップで選択・解除）</label>
       <div class="btn-grid" id="paid-leave-grid"></div>
+    </div>
+    <div class="form-row">
+      <label>希望休（タップで選択・解除）</label>
+      <div class="btn-grid" id="kibou-grid"></div>
     </div>
     <div class="modal-btns">
       <button class="btn btn-cancel" onclick="closeHolidayModal()">閉じる</button>
@@ -264,7 +272,7 @@ const HOURS = Array.from({length: TOTAL_HOURS}, (_,i) => HOUR_START + i);
 
 let current = new Date();
 current = new Date(current.getFullYear(), current.getMonth(), 1);
-let events = {}, holidays = {}, paidLeaves = {};
+let events = {}, holidays = {}, paidLeaves = {}, kibou = {};
 let editingId = null, editingDate = null, holidayDate = null;
 let selectedStaff = [], selectedCars = [];
 let cbCount = 0;
@@ -299,14 +307,16 @@ function jsonp(params) {
 async function loadAll(showLoading) {
   if (showLoading !== false) setSync('loading', '読み込み中...');
   try {
-    const [evData, holData, plData] = await Promise.all([
+    const [evData, holData, plData, kbData] = await Promise.all([
       jsonp({ action: 'getAll' }),
       jsonp({ action: 'getHolidays' }),
-      jsonp({ action: 'getPaidLeaves' })
+      jsonp({ action: 'getPaidLeaves' }),
+      jsonp({ action: 'getKibou' })
     ]);
     events = evData || {};
     holidays = holData || {};
     paidLeaves = plData || {};
+    kibou = kbData || {};
     setSync('ok', '同期済み');
     render();
   } catch(e) {
@@ -445,9 +455,11 @@ function buildHalf(from, to, y, m, todayKey) {
     const assignedStaff = new Set();
     dayEvs.forEach(ev => { if (Array.isArray(ev.staff)) ev.staff.filter(Boolean).forEach(s => assignedStaff.add(s)); });
     const dayPaids = paidLeaves[key] || [];
+    const dayKibou = kibou[key] || [];
     const holidayTags = dayHols.map(s => `<span class="holiday-tag" onclick="openHolidayModal('${key}')">${s}</span>`).join('');
     const paidTags = dayPaids.map(s => `<span class="paid-tag" onclick="openHolidayModal('${key}')">${s}(有)</span>`).join('');
-    const freeTags = STAFF_HOLIDAY.filter(s => !dayHols.includes(s) && !dayPaids.includes(s) && !assignedStaff.has(s)).map(s => `<span class="free-tag">${s}</span>`).join('');
+    const kibouTags = dayKibou.map(s => `<span class="kibou-tag" onclick="openHolidayModal('${key}')">${s}(希)</span>`).join('');
+    const freeTags = STAFF_HOLIDAY.filter(s => !dayHols.includes(s) && !dayPaids.includes(s) && !dayKibou.includes(s) && !assignedStaff.has(s)).map(s => `<span class="free-tag">${s}</span>`).join('');
 
     // 祝日表示
     const holidayJpLabel = isHolidayJp ? `<span class="holiday-jp-label">祝</span>` : '';
@@ -465,7 +477,7 @@ function buildHalf(from, to, y, m, todayKey) {
           <button class="add-btn" onclick="openAdd('${key}')">＋ 現場</button>
         </div>
         <div class="tl-holiday-row">
-          ${holidayTags}${paidTags}${freeTags}
+          ${holidayTags}${paidTags}${kibouTags}${freeTags}
           <span class="holiday-tag" style="background:#f5f5f0;color:#bbb;border:1px dashed #ddd" onclick="openHolidayModal('${key}')">＋ 休み</span>
         </div>
       </div>
@@ -514,9 +526,11 @@ function buildMobileHalf(from, to, y, m, todayKey) {
 
     // 休み・手空き
     const dayPaidsMobile = paidLeaves[key] || [];
+    const dayKibouMobile = kibou[key] || [];
     const holidayTags = dayHols.map(s=>`<span class="holiday-tag" onclick="openHolidayModal('${key}')">${s}</span>`).join('');
     const paidTagsMobile = dayPaidsMobile.map(s=>`<span class="paid-tag" onclick="openHolidayModal('${key}')">${s}(有)</span>`).join('');
-    const freeTags = STAFF_HOLIDAY.filter(s=>!dayHols.includes(s)&&!dayPaidsMobile.includes(s)&&!assignedStaff.has(s)).map(s=>`<span class="free-tag">${s}</span>`).join('');
+    const kibouTagsMobile = dayKibouMobile.map(s=>`<span class="kibou-tag" onclick="openHolidayModal('${key}')">${s}(希)</span>`).join('');
+    const freeTags = STAFF_HOLIDAY.filter(s=>!dayHols.includes(s)&&!dayPaidsMobile.includes(s)&&!dayKibouMobile.includes(s)&&!assignedStaff.has(s)).map(s=>`<span class="free-tag">${s}</span>`).join('');
 
     rows += `<div class="mobile-row" style="${bgColor}">
       <div class="mobile-date">
@@ -527,7 +541,7 @@ function buildMobileHalf(from, to, y, m, todayKey) {
       </div>
       <div class="mobile-events">${evItems}</div>
       ${outsourceItems?`<div class="mobile-outsource">${outsourceItems}</div>`:''}
-      <div class="mobile-holiday-row">${holidayTags}${paidTagsMobile}${freeTags}<span class="holiday-tag" style="background:#f5f5f0;color:#bbb;border:1px dashed #ddd" onclick="openHolidayModal('${key}')">＋ 休み</span></div>
+      <div class="mobile-holiday-row">${holidayTags}${paidTagsMobile}${kibouTagsMobile}${freeTags}<span class="holiday-tag" style="background:#f5f5f0;color:#bbb;border:1px dashed #ddd" onclick="openHolidayModal('${key}')">＋ 休み</span></div>
     </div>`;
   }
   return rows;
@@ -595,6 +609,38 @@ function changeMonth(d) {
   loadAll();
 }
 
+// ===== 時間プルダウン（15分単位） =====
+const TIME_OPTIONS = (() => {
+  const arr = [''];
+  for (let h = 0; h < 24; h++) {
+    for (let mm = 0; mm < 60; mm += 15) {
+      arr.push(`${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`);
+    }
+  }
+  return arr;
+})();
+
+function populateTimeSelects() {
+  ['f-departure','f-start','f-end'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    sel.innerHTML = TIME_OPTIONS.map(t => `<option value="${t}">${t || '--:--'}</option>`).join('');
+  });
+}
+
+// 15分グリッド外の既存データでも表示できるようにする
+function setTimeVal(id, val) {
+  const sel = document.getElementById(id);
+  if (!sel) return;
+  val = val || '';
+  if (val && !Array.from(sel.options).some(o => o.value === val)) {
+    const opt = document.createElement('option');
+    opt.value = val; opt.textContent = val;
+    sel.appendChild(opt);
+  }
+  sel.value = val;
+}
+
 // ===== スタッフ・車両グリッド =====
 function renderStaffGrid() {
   function makeBtn(s) {
@@ -636,9 +682,9 @@ function openAdd(dateKey) {
   document.getElementById('f-type').value = 'daily';
   document.getElementById('f-amount').value = '';
   document.getElementById('f-memo').value = '';
-  document.getElementById('f-departure').value = '';
-  document.getElementById('f-start').value = '';
-  document.getElementById('f-end').value = '';
+  setTimeVal('f-departure', '');
+  setTimeVal('f-start', '');
+  setTimeVal('f-end', '');
   document.getElementById('delete-btn').style.display = 'none';
   renderStaffGrid();
   renderCarGrid();
@@ -660,9 +706,9 @@ function openEdit(dateKey, id) {
   document.getElementById('f-type').value = ev.type||'daily';
   document.getElementById('f-amount').value = ev.amount||'';
   document.getElementById('f-memo').value = ev.memo||'';
-  document.getElementById('f-departure').value = ev.departure||'';
-  document.getElementById('f-start').value = ev.start||'';
-  document.getElementById('f-end').value = ev.end||'';
+  setTimeVal('f-departure', ev.departure||'');
+  setTimeVal('f-start', ev.start||'');
+  setTimeVal('f-end', ev.end||'');
   document.getElementById('delete-btn').style.display = '';
   document.getElementById('copy-btn').style.display = '';
   renderStaffGrid();
@@ -698,9 +744,9 @@ function copyEvent() {
     document.getElementById('f-type').value = ev.type;
     document.getElementById('f-amount').value = ev.amount;
     document.getElementById('f-memo').value = ev.memo;
-    document.getElementById('f-departure').value = ev.departure;
-    document.getElementById('f-start').value = ev.start;
-    document.getElementById('f-end').value = ev.end;
+    setTimeVal('f-departure', ev.departure);
+    setTimeVal('f-start', ev.start);
+    setTimeVal('f-end', ev.end);
     selectedStaff = ev.staff;
     selectedCars = ev.cars;
     renderStaffGrid();
@@ -729,6 +775,11 @@ function renderHolidayGrid() {
   document.getElementById('paid-leave-grid').innerHTML = STAFF_HOLIDAY.map(s => {
     const on = dayPaids.includes(s);
     return `<div class="holiday-staff-btn${on?' selected':''}" style="${on?'border-color:#1a6e31;background:#d4edda;color:#1a6e31':''}" onclick="togglePaidLeave('${s}')">${s}</div>`;
+  }).join('');
+  const dayKibou = kibou[holidayDate] || [];
+  document.getElementById('kibou-grid').innerHTML = STAFF_HOLIDAY.map(s => {
+    const on = dayKibou.includes(s);
+    return `<div class="holiday-staff-btn${on?' selected':''}" style="${on?'border-color:#b06a00;background:#ffe9c7;color:#b06a00':''}" onclick="toggleKibou('${s}')">${s}</div>`;
   }).join('');
 }
 
@@ -766,6 +817,25 @@ async function toggleHoliday(name) {
   setSync('loading', '保存中...');
   try {
     await jsonp({ action: isOn?'deleteHoliday':'saveHoliday', data: { date: holidayDate, staff: name } });
+    setSync('ok', '保存済み');
+  } catch(e) { setSync('err', '保存失敗'); }
+}
+
+async function toggleKibou(name) {
+  const dayKibou = kibou[holidayDate] || [];
+  const isOn = dayKibou.includes(name);
+  if (isOn) {
+    kibou[holidayDate] = dayKibou.filter(s => s !== name);
+    if (!kibou[holidayDate].length) delete kibou[holidayDate];
+  } else {
+    if (!kibou[holidayDate]) kibou[holidayDate] = [];
+    kibou[holidayDate].push(name);
+  }
+  renderHolidayGrid();
+  render();
+  setSync('loading', '保存中...');
+  try {
+    await jsonp({ action: isOn?'deleteKibou':'saveKibou', data: { date: holidayDate, staff: name } });
     setSync('ok', '保存済み');
   } catch(e) { setSync('err', '保存失敗'); }
 }
@@ -815,6 +885,7 @@ async function deleteEvent() {
 document.getElementById('overlay').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
 document.getElementById('holiday-overlay').addEventListener('click', function(e) { if(e.target===this) closeHolidayModal(); });
 
+populateTimeSelects();
 loadAll();
 </script>
 </body>
