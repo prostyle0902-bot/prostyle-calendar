@@ -894,9 +894,16 @@ document.getElementById('copy-overlay').addEventListener('click', function(e) {
 // 出勤簿転記
 function writeToKyuyo(action, ev) {
   if (PART_TIME_STAFF.indexOf(ev.staff) < 0) return;
+  // 海事・横河の衣幡千明（2026-08-16以降）は給与上「衣幡千明_海事横河」へ転記
+  var payload = ev;
+  if (ev.staff === '衣幡千明' && ev.store === '海事・横河' && ev.date >= '2026-08-16') {
+    payload = {};
+    for (var k in ev) { if (ev.hasOwnProperty(k)) payload[k] = ev[k]; }
+    payload.staff = '衣幡千明_海事横河';
+  }
   var cbName = '_ky' + (++cbCount);
   window[cbName] = function() { delete window[cbName]; var el = document.getElementById(cbName); if(el) el.remove(); };
-  var params = 'action=' + action + '&data=' + encodeURIComponent(JSON.stringify(ev)) + '&callback=' + cbName + '&t=' + Date.now();
+  var params = 'action=' + action + '&data=' + encodeURIComponent(JSON.stringify(payload)) + '&callback=' + cbName + '&t=' + Date.now();
   var script = document.createElement('script');
   script.id = cbName;
   script.src = KYUYO_API + '?' + params;
