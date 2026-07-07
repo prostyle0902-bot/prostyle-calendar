@@ -808,7 +808,6 @@ var PART_TIME_STAFF = ['松岡実麻','網代愛','新河美和','栗林里江',
   '下河邊なお子','小堀真桜'];
 
 function writeToKyuyo(action, ev) {
-  alert('[デバッグ] 転記処理\n名前:[' + ev.staff + ']\n日付:' + ev.date + '\nリスト判定:' + (PART_TIME_STAFF.indexOf(ev.staff) >= 0 ? '対象(転記する)' : '対象外(スキップ)'));
   if (PART_TIME_STAFF.indexOf(ev.staff) < 0) return;
   var cbName = '_ky' + (++cbCount);
   window[cbName] = function() { delete window[cbName]; var el = document.getElementById(cbName); if(el) el.remove(); };
