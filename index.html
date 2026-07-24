@@ -23,6 +23,10 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 .holiday-counter{background:#fff;border-bottom:1px solid #e8e8e4;padding:8px 14px}
 .holiday-counter-title{font-size:13px;color:#aaa;font-weight:500;margin-bottom:4px}
 .holiday-counter-period{font-size:11px;color:#bbb;margin-bottom:5px}
+.refresh-counter{background:#fff;border:1px solid #e8e8e4;border-radius:8px;padding:10px 14px;margin:8px 14px}
+.refresh-counter-title{font-size:13px;font-weight:600;margin-bottom:4px}
+.refresh-counter-period{font-size:11px;color:#888;margin-bottom:6px}
+.refresh-chips{display:flex;flex-wrap:wrap;gap:6px}
 .holiday-chips{display:flex;flex-wrap:wrap;gap:5px}
 .holiday-chip{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:12px;border:1px solid #e0e0e0;background:#fafafa}
 .holiday-chip .chip-name{color:#333;font-weight:500}
@@ -114,6 +118,8 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
   .legend-item{font-size:13px}
   .holiday-counter-title{font-size:14px}
   .holiday-counter-period{font-size:12px}
+  .refresh-counter{margin:8px 10px}
+  .refresh-counter-title{font-size:14px}
   .holiday-chip{font-size:13px;padding:5px 12px}
   .holiday-chip .chip-count{font-size:12px;padding:2px 8px}
   /* スマホではタイムラインを非表示、リスト表示に切り替え */
@@ -412,6 +418,53 @@ function makeCounterHtml(y, m, isFirst) {
   </div>`;
 }
 
+// ===== リフレッシュ休暇カウンター =====
+const REFRESH_SEASONS = [
+  { name: '夏季休暇', max: 3, months: [6,7,8],    // 7〜9月（0始まり）
+    getRange: y => ({ start: `${y}-07-01`, end: `${y}-09-30`, label: `${y}年7月1日〜9月30日` }) },
+  { name: '冬季休暇', max: 5, months: [11,0,1,2], // 12〜3月
+    getRange: y => ({ start: `${y}-12-01`, end: `${y+1}-03-31`, label: `${y}年12月1日〜${y+1}年3月31日` }) },
+];
+
+function countRefreshInPeriod(start, end) {
+  const counts = {};
+  STAFF_HOLIDAY.forEach(s => counts[s] = 0);
+  Object.keys(refresh).forEach(date => {
+    if (date >= start && date <= end) {
+      (refresh[date] || []).forEach(s => { if (counts[s] !== undefined) counts[s]++; });
+    }
+  });
+  return counts;
+}
+
+function makeRefreshCounterHtml(y, m) {
+  // 表示中の月がどのシーズンに入るか判定
+  let season = null;
+  for (const s of REFRESH_SEASONS) {
+    if (s.months.includes(m)) { season = s; break; }
+  }
+  if (!season) return ''; // 該当シーズンなし（4〜6月、10〜11月）は非表示
+
+  // 冬季は12月なら今年度、1〜3月なら前年度スタート
+  let rangeY = y;
+  if (season.name === '冬季休暇' && m !== 11) rangeY = y - 1;
+  const { start, end, label } = season.getRange(rangeY);
+
+  const counts = countRefreshInPeriod(start, end);
+  const chips = STAFF_HOLIDAY.map(s => {
+    const used = counts[s] || 0;
+    const remain = season.max - used;
+    const overClass = remain < 0 ? 'style="color:#b91c1c;font-weight:bold"' : remain === 0 ? 'style="color:#1a6e31;font-weight:bold"' : '';
+    return `<div class="holiday-chip"><span class="chip-name">${s}</span><span class="chip-count" ${overClass}>${used}/${season.max}日</span></div>`;
+  }).join('');
+
+  return `<div class="refresh-counter">
+    <div class="refresh-counter-title" style="color:#6a1b9a">🌿 リフレッシュ休暇（${season.name}・上限${season.max}日）</div>
+    <div class="refresh-counter-period">${label}</div>
+    <div class="refresh-chips">${chips}</div>
+  </div>`;
+}
+
 // ===== カレンダー描画 =====
 function buildHalf(from, to, y, m, todayKey) {
   let rows = '';
@@ -610,6 +663,7 @@ function render() {
     buildSection(1, 15, '上半期 — 1日〜15日', true) + '</div>' +
     '<div style="height:12px"></div>' +
     buildSection(16, lastDay, `下半期 — 16日〜${lastDay}日`, false) + '</div>' +
+    makeRefreshCounterHtml(y, m) +
     '<div style="height:24px"></div>';
 
   // 今日の行へスクロール
