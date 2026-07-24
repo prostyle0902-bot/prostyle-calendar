@@ -378,10 +378,10 @@ function countHolidaysInPeriod(start, end) {
   const counts = {};
   STAFF_HOLIDAY.forEach(s => counts[s] = 0);
   // 期間内の各日について、休み＋希望休を1人1日として集計（同日重複は除外）
-  const dates = new Set([...Object.keys(holidays), ...Object.keys(kibou), ...Object.keys(refresh)]);
+  const dates = new Set([...Object.keys(holidays), ...Object.keys(kibou)]);
   dates.forEach(date => {
     if (date >= start && date <= end) {
-      const names = new Set([...(holidays[date] || []), ...(kibou[date] || []), ...(refresh[date] || [])]);
+      const names = new Set([...(holidays[date] || []), ...(kibou[date] || [])]);
       names.forEach(s => { if (counts[s] !== undefined) counts[s]++; });
     }
   });
