@@ -238,7 +238,7 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
       <label>休み（タップで選択・解除）</label>
       <div class="btn-grid" id="holiday-staff-grid"></div>
     </div>
-    <div class="form-row">
+    <div class="form-row" id="row-paid-leave">
       <label>有給（タップで選択・解除）</label>
       <div class="btn-grid" id="paid-leave-grid"></div>
     </div>
@@ -246,7 +246,7 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
       <label>希望休（タップで選択・解除）</label>
       <div class="btn-grid" id="kibou-grid"></div>
     </div>
-    <div class="form-row">
+    <div class="form-row" id="row-refresh">
       <label>リフレッシュ休暇（タップで選択・解除）</label>
       <div class="btn-grid" id="refresh-grid"></div>
     </div>
@@ -828,6 +828,9 @@ function copyEvent() {
 function closeModal() { document.getElementById('overlay').classList.remove('open'); }
 
 // ===== 休日モーダル =====
+// 有給・リフレッシュ休暇が対象外のスタッフ
+const NO_PAID_REFRESH = ['石毛貴英'];
+
 function openHolidayModal(dateKey) {
   holidayDate = dateKey;
   const [,mo,day] = dateKey.split('-');
@@ -843,7 +846,14 @@ function renderHolidayGrid() {
     const on = dayHols.includes(s);
     return `<div class="holiday-staff-btn${on?' selected':''}" onclick="toggleHoliday('${s}')">${s}</div>`;
   }).join('');
-  document.getElementById('paid-leave-grid').innerHTML = STAFF_HOLIDAY.map(s => {
+
+  // 有給・リフレッシュ対象外スタッフを除いたリスト
+  const paidRefreshStaff = STAFF_HOLIDAY.filter(s => !NO_PAID_REFRESH.includes(s));
+  const showPaidRefresh = paidRefreshStaff.length > 0;
+  document.getElementById('row-paid-leave').style.display = showPaidRefresh ? '' : 'none';
+  document.getElementById('row-refresh').style.display = showPaidRefresh ? '' : 'none';
+
+  document.getElementById('paid-leave-grid').innerHTML = paidRefreshStaff.map(s => {
     const on = dayPaids.includes(s);
     return `<div class="holiday-staff-btn${on?' selected':''}" style="${on?'border-color:#1a6e31;background:#d4edda;color:#1a6e31':''}" onclick="togglePaidLeave('${s}')">${s}</div>`;
   }).join('');
@@ -853,7 +863,7 @@ function renderHolidayGrid() {
     return `<div class="holiday-staff-btn${on?' selected':''}" style="${on?'border-color:#b06a00;background:#ffe9c7;color:#b06a00':''}" onclick="toggleKibou('${s}')">${s}</div>`;
   }).join('');
   const dayRefresh = refresh[holidayDate] || [];
-  document.getElementById('refresh-grid').innerHTML = STAFF_HOLIDAY.map(s => {
+  document.getElementById('refresh-grid').innerHTML = paidRefreshStaff.map(s => {
     const on = dayRefresh.includes(s);
     return `<div class="holiday-staff-btn${on?' selected':''}" style="${on?'border-color:#6a1b9a;background:#ede7f6;color:#6a1b9a':''}" onclick="toggleRefresh('${s}')">${s}</div>`;
   }).join('');
