@@ -428,7 +428,7 @@ const REFRESH_SEASONS = [
 
 function countRefreshInPeriod(start, end) {
   const counts = {};
-  STAFF_HOLIDAY.forEach(s => counts[s] = 0);
+  STAFF_HOLIDAY.filter(s => !NO_PAID_REFRESH.includes(s)).forEach(s => counts[s] = 0);
   Object.keys(refresh).forEach(date => {
     if (date >= start && date <= end) {
       (refresh[date] || []).forEach(s => { if (counts[s] !== undefined) counts[s]++; });
@@ -451,7 +451,7 @@ function makeRefreshCounterHtml(y, m) {
   const { start, end, label } = season.getRange(rangeY);
 
   const counts = countRefreshInPeriod(start, end);
-  const chips = STAFF_HOLIDAY.map(s => {
+  const chips = STAFF_HOLIDAY.filter(s => !NO_PAID_REFRESH.includes(s)).map(s => {
     const used = counts[s] || 0;
     const remain = season.max - used;
     const overClass = remain < 0 ? 'style="color:#b91c1c;font-weight:bold"' : remain === 0 ? 'style="color:#1a6e31;font-weight:bold"' : '';
