@@ -602,7 +602,7 @@ function buildMobileHalf(from, to, y, m, todayKey) {
     const refreshTagsMobile = dayRefreshMobile.map(s=>`<span class="refresh-tag" onclick="openHolidayModal('${key}')">${s}(R)</span>`).join('');
     const freeTags = STAFF_HOLIDAY.filter(s=>!dayHols.includes(s)&&!dayPaidsMobile.includes(s)&&!dayKibouMobile.includes(s)&&!dayRefreshMobile.includes(s)&&!assignedStaff.has(s)).map(s=>`<span class="free-tag">${s}</span>`).join('');
 
-    rows += `<div class="mobile-row" style="${bgColor}">
+    rows += `<div class="mobile-row${isToday?' today':''}" style="${bgColor}">
       <div class="mobile-date">
         <span class="mobile-dnum" style="${dnumColor}">${d}</span>
         <span class="mobile-dname">${DAYS[dow]}</span>
@@ -668,7 +668,7 @@ function render() {
 
   // 今日の行へスクロール
   setTimeout(() => {
-    const todayRow = document.querySelector('.tl-row.today, .mobile-ev-row.today');
+    const todayRow = document.querySelector('.tl-row.today, .mobile-row.today');
     if (todayRow) {
       todayRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
