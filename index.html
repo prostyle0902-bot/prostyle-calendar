@@ -259,9 +259,9 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbwV_UNDYqwlGhMeoEQiasU348YX_UEKXys7E0TkZaOMfrcXtTx6-JIisyLVMCW2yj3g/exec';
 const STAFF_OWN  = ['平野健雄','安藤正樹','伏田幸枝','小林俊樹','石毛貴英','池田久史','三浦達弥','飯田怜飛','飯田栄'];
-const STAFF_OUT  = ['SUN-X','SIBS','One by One','増田（伸和洗浄）','ロープワーク','RISE','ミノアカ','小池','サンクトラスト'];
+const STAFF_OUT  = ['SUN-X','SIBS','One by One','増田（伸和洗浄）','ロープワーク','RISE','ミノアカ','小池','サンクトラスト','Green Field'];
 const STAFF_HOLIDAY = ['平野健雄','安藤正樹','伏田幸枝','小林俊樹','石毛貴英'];
-const CARS = ['ロング','ショート','バン','ハイゼット','エブリー'];
+const CARS = ['ロング','ショート','N-VAN','ハイゼット','エブリー'];
 const DAYS = ['日','月','火','水','木','金','土'];
 const MAX_HOLIDAYS = 9;
 
@@ -667,12 +667,15 @@ function render() {
     '<div style="height:24px"></div>';
 
   // 今日の行へスクロール
+  // PC用（.tl-row）とスマホ用（.mobile-row）は両方DOMに存在し、CSSで表示を切り替えているため
+  // 「実際に表示されている方」を選ぶ（offsetParent が null なら非表示）
   setTimeout(() => {
-    const todayRow = document.querySelector('.tl-row.today, .mobile-row.today');
+    const rows = document.querySelectorAll('.tl-row.today, .mobile-row.today');
+    const todayRow = Array.from(rows).find(el => el.offsetParent !== null);
     if (todayRow) {
       todayRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, 300);
+  }, 400);
 }
 
 function changeMonth(d) {
@@ -681,13 +684,16 @@ function changeMonth(d) {
 }
 
 // ===== 時間プルダウン（15分単位） =====
+// 6:00 を先頭にして、深夜〜早朝（0:00〜5:45）は末尾に回す
 const TIME_OPTIONS = (() => {
   const arr = [''];
-  for (let h = 0; h < 24; h++) {
+  const mk = h => {
     for (let mm = 0; mm < 60; mm += 15) {
       arr.push(`${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`);
     }
-  }
+  };
+  for (let h = 6; h < 24; h++) mk(h);  // 6:00〜23:45
+  for (let h = 0; h < 6; h++)  mk(h);  // 0:00〜5:45
   return arr;
 })();
 
