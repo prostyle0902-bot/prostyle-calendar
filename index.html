@@ -11,6 +11,10 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Hiragino Kaku Gothic ProN','Hiragino Sans','Meiryo',sans-serif;background:#f5f5f0;color:#1a1a1a;font-size:16px}
 .sticky-top{position:sticky;top:0;z-index:50}
+#ptr-indicator{position:fixed;top:0;left:0;right:0;height:0;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;background:linear-gradient(#eef4fb,#f5f5f0);color:#4a7fb5;font-size:13px;z-index:150;transition:height .15s ease;pointer-events:none}
+#ptr-indicator span{padding-bottom:8px}
+#ptr-indicator.spin span::before{content:'';display:inline-block;width:12px;height:12px;margin-right:6px;border:2px solid #b8d4ee;border-top-color:#4a7fb5;border-radius:50%;vertical-align:-2px;animation:ptrspin .7s linear infinite}
+@keyframes ptrspin{to{transform:rotate(360deg)}}
 header{background:#1a1a1a;color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
 header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 .sync{font-size:13px;display:flex;align-items:center;gap:5px;opacity:0.8}
@@ -62,6 +66,7 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 .ev-bar:hover{opacity:0.8}
 .type-daily{background:#C0DD97;color:#27500A}
 .type-regular{background:#B5D4F4;color:#0C447C}
+.type-spot{background:#A8DFD8;color:#0B4F47}
 .type-bird{background:#FAC775;color:#633806}
 .type-outsource{background:#F4C0D1;color:#72243E}
 .type-pending{background:#FF4444;color:#fff;font-weight:600}
@@ -154,6 +159,8 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 </head>
 <body>
 
+<div id="ptr-indicator"><span>下に引いて更新</span></div>
+
 <div class="sticky-top">
 <header>
   <h1>業務課 現場管理</h1>
@@ -170,6 +177,7 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 <div class="legend">
   <div class="legend-item"><div class="legend-dot" style="background:#C0DD97"></div>日常清掃</div>
   <div class="legend-item"><div class="legend-dot" style="background:#B5D4F4"></div>定期清掃</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#A8DFD8"></div>スポット清掃</div>
   <div class="legend-item"><div class="legend-dot" style="background:#FAC775"></div>鳥害対策</div>
   <div class="legend-item"><div class="legend-dot" style="background:#F4C0D1"></div>外注</div>
   <div class="legend-item"><div class="legend-dot" style="background:#FF4444"></div>未定</div>
@@ -194,6 +202,7 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
       <select id="f-type">
         <option value="daily">日常清掃</option>
         <option value="regular">定期清掃</option>
+        <option value="spot">スポット清掃</option>
         <option value="bird">鳥害対策</option>
         <option value="outsource">外注</option>
         <option value="pending">未定</option>
@@ -280,7 +289,7 @@ const HOLIDAYS_JP = new Set([
   '2027-10-11','2027-11-03','2027-11-23',
 ]);
 
-const TYPE_CLASS = {daily:'type-daily',regular:'type-regular',bird:'type-bird',outsource:'type-outsource',pending:'type-pending',delivery:'type-delivery'};
+const TYPE_CLASS = {daily:'type-daily',regular:'type-regular',spot:'type-spot',bird:'type-bird',outsource:'type-outsource',pending:'type-pending',delivery:'type-delivery'};
 const HOUR_START = 6, HOUR_END = 24, TOTAL_HOURS = 18;
 const HOURS = Array.from({length: TOTAL_HOURS}, (_,i) => HOUR_START + i);
 
@@ -1008,6 +1017,61 @@ async function deleteEvent() {
 
 document.getElementById('overlay').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
 document.getElementById('holiday-overlay').addEventListener('click', function(e) { if(e.target===this) closeHolidayModal(); });
+
+// ===== 引っ張って更新（スマホ用プルトゥリフレッシュ） =====
+(function initPullToRefresh() {
+  const ind = document.getElementById('ptr-indicator');
+  const label = ind.querySelector('span');
+  const THRESHOLD = 70;   // この距離まで引いたら更新
+  const MAX = 100;        // 見た目の最大の引き幅
+  let startY = 0, dist = 0, pulling = false, busy = false;
+
+  function reset() {
+    ind.style.height = '0px';
+    ind.classList.remove('spin');
+    label.textContent = '下に引いて更新';
+    dist = 0; pulling = false;
+  }
+
+  document.addEventListener('touchstart', e => {
+    // ページ最上部にいるとき、かつモーダルが開いていないときだけ有効
+    if (busy) return;
+    if (window.scrollY > 0) return;
+    if (document.querySelector('.overlay.open')) return;
+    startY = e.touches[0].clientY;
+    pulling = true;
+    dist = 0;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', e => {
+    if (!pulling || busy) return;
+    dist = e.touches[0].clientY - startY;
+    if (dist <= 0) { ind.style.height = '0px'; return; }
+    // 引くほど重くなる感じに
+    const shown = Math.min(MAX, dist * 0.5);
+    ind.style.height = shown + 'px';
+    label.textContent = dist >= THRESHOLD ? '離して更新' : '下に引いて更新';
+  }, { passive: true });
+
+  document.addEventListener('touchend', async () => {
+    if (!pulling || busy) { reset(); return; }
+    if (dist >= THRESHOLD) {
+      busy = true;
+      pulling = false;
+      ind.style.height = '46px';
+      ind.classList.add('spin');
+      label.textContent = '更新中...';
+      try {
+        await loadAll(false);
+      } catch(e) {
+        // loadAll 側で失敗表示されるのでここでは何もしない
+      }
+      setTimeout(() => { reset(); busy = false; }, 300);
+    } else {
+      reset();
+    }
+  });
+})();
 
 populateTimeSelects();
 loadAll();
