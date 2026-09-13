@@ -348,27 +348,39 @@ function loadCache() {
 }
 
 // サーバーから全データを取得する。まとめ取り（getBundle）が使えるならそちらを使う
-async function fetchAll() {
-  if (USE_BUNDLE) {
-    try {
-      const b = await jsonp({ action: 'getBundle' });
-      if (b && b.events) {
-        return { events: b.events, holidays: b.holidays || {}, paidLeaves: b.paidLeaves || {},
-                 kibou: b.kibou || {}, refresh: b.refresh || {} };
-      }
-    } catch(e) {
-      // まとめ取りが使えないときは、これまでの5回に自動で切り替える
-    }
-  }
-  const [ev, hol, pl, kb, rf] = await Promise.all([
+function fetchLegacy() {
+  return Promise.all([
     jsonp({ action: 'getAll' }),
     jsonp({ action: 'getHolidays' }),
     jsonp({ action: 'getPaidLeaves' }),
     jsonp({ action: 'getKibou' }),
     jsonp({ action: 'getRefresh' })
-  ]);
-  return { events: ev || {}, holidays: hol || {}, paidLeaves: pl || {},
-           kibou: kb || {}, refresh: rf || {} };
+  ]).then(([ev, hol, pl, kb, rf]) => ({
+    events: ev || {}, holidays: hol || {}, paidLeaves: pl || {},
+    kibou: kb || {}, refresh: rf || {}
+  }));
+}
+
+async function fetchAll() {
+  if (!USE_BUNDLE) return fetchLegacy();
+
+  const bundle = jsonp({ action: 'getBundle' }).then(b => {
+    if (b && b.events) {
+      return { events: b.events, holidays: b.holidays || {}, paidLeaves: b.paidLeaves || {},
+               kibou: b.kibou || {}, refresh: b.refresh || {} };
+    }
+    throw new Error('bundle');
+  });
+
+  // Google がときどき返しそこねるので、12秒待っても来ない／失敗したら
+  // 従来の5回も並行して走らせ、先に返ってきたほうを使う
+  const backup = new Promise(resolve => {
+    const go = () => resolve(fetchLegacy());
+    const t = setTimeout(go, 12000);
+    bundle.then(() => clearTimeout(t), () => { clearTimeout(t); go(); });
+  });
+
+  return Promise.any([bundle, backup]);
 }
 
 async function loadAll(showLoading) {
@@ -387,7 +399,9 @@ async function loadAll(showLoading) {
     } else {
       setSync('err', '読み込み失敗');
       document.getElementById('calendar-wrap').innerHTML =
-        '<div class="err-msg">データの読み込みに失敗しました。<br>ページを再読み込みしてください。</div>';
+        '<div class="err-msg">データを読み込めませんでした。<br>' +
+        '<button onclick="location.reload()" style="margin-top:12px;padding:10px 20px;font-size:16px;' +
+        'border:1px solid #c00;background:#fff;color:#c00;border-radius:6px">もう一度読み込む</button></div>';
     }
   }
 }
