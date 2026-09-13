@@ -375,7 +375,8 @@ async function fetchAll() {
   // Google がときどき返しそこねるので、12秒待っても来ない／失敗したら
   // 従来の5回も並行して走らせ、先に返ってきたほうを使う
   const backup = new Promise(resolve => {
-    const go = () => resolve(fetchLegacy());
+    let started = false;
+    const go = () => { if (started) return; started = true; resolve(fetchLegacy()); };
     const t = setTimeout(go, 12000);
     bundle.then(() => clearTimeout(t), () => { clearTimeout(t); go(); });
   });
