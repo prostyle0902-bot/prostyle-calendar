@@ -265,8 +265,8 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 </div>
 
 <script>
-// まとめ取り（Apps Script 側に getBundle を追加したら true にする）
-const USE_BUNDLE = false;
+// まとめ取り（Apps Script 側の getBundle を使う）
+const USE_BUNDLE = true;
 const API = 'https://script.google.com/macros/s/AKfycbwV_UNDYqwlGhMeoEQiasU348YX_UEKXys7E0TkZaOMfrcXtTx6-JIisyLVMCW2yj3g/exec';
 const STAFF_OWN  = ['平野健雄','安藤正樹','伏田幸枝','小林俊樹','石毛貴英','池田久史','三浦達弥','飯田怜飛','飯田栄'];
 const STAFF_OUT  = ['SUN-X','SIBS','One by One','増田（伸和洗浄）','ロープワーク','RISE','ミノアカ','小池','サンクトラスト','Green Field'];
@@ -310,7 +310,7 @@ function setSync(s, l) {
 function jsonp(params) {
   return new Promise((resolve, reject) => {
     const cbName = '_cb' + (++cbCount);
-    const timeout = setTimeout(() => { delete window[cbName]; reject(new Error('timeout')); }, 25000);
+    const timeout = setTimeout(() => { delete window[cbName]; reject(new Error('timeout')); }, 45000);
     window[cbName] = (data) => {
       clearTimeout(timeout);
       delete window[cbName];
@@ -350,12 +350,15 @@ function loadCache() {
 // サーバーから全データを取得する。まとめ取り（getBundle）が使えるならそちらを使う
 async function fetchAll() {
   if (USE_BUNDLE) {
-    const b = await jsonp({ action: 'getBundle' });
-    if (b && b.events) {
-      return { events: b.events, holidays: b.holidays || {}, paidLeaves: b.paidLeaves || {},
-               kibou: b.kibou || {}, refresh: b.refresh || {} };
+    try {
+      const b = await jsonp({ action: 'getBundle' });
+      if (b && b.events) {
+        return { events: b.events, holidays: b.holidays || {}, paidLeaves: b.paidLeaves || {},
+                 kibou: b.kibou || {}, refresh: b.refresh || {} };
+      }
+    } catch(e) {
+      // まとめ取りが使えないときは、これまでの5回に自動で切り替える
     }
-    throw new Error('bundle');
   }
   const [ev, hol, pl, kb, rf] = await Promise.all([
     jsonp({ action: 'getAll' }),
@@ -1125,4 +1128,3 @@ loadAll(false);
 </script>
 </body>
 </html>
-
