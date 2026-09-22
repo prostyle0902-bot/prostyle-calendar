@@ -81,6 +81,8 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 .free-tag{font-size:11px;padding:2px 7px;border-radius:3px;background:#e8f4fd;color:#1a5fa8;white-space:nowrap}
 .paid-tag{font-size:11px;padding:2px 7px;border-radius:3px;background:#d4edda;color:#1a6e31;cursor:pointer;white-space:nowrap}
 .paid-tag:hover{background:#c3e6cb}
+.half-paid-tag{font-size:11px;padding:2px 7px;border-radius:3px;background:linear-gradient(90deg,#d4edda 50%,#f5fbf6 50%);color:#1a6e31;border:1px solid #a9d6b5;cursor:pointer;white-space:nowrap}
+.half-paid-tag:hover{background:linear-gradient(90deg,#c3e6cb 50%,#eef8f1 50%)}
 .kibou-tag{font-size:11px;padding:2px 7px;border-radius:3px;background:#ffe9c7;color:#b06a00;cursor:pointer;white-space:nowrap}
 .kibou-tag:hover{background:#ffdca6}
 .refresh-tag{font-size:11px;padding:2px 7px;border-radius:3px;background:#ede7f6;color:#6a1b9a;cursor:pointer;white-space:nowrap}
@@ -150,6 +152,7 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
   .half-tag{font-size:13px;padding:3px 8px}
   .free-tag{font-size:13px;padding:3px 8px}
   .paid-tag{font-size:13px;padding:3px 8px}
+  .half-paid-tag{font-size:13px;padding:3px 8px}
   .kibou-tag{font-size:13px;padding:3px 8px}
   .refresh-tag{font-size:13px;padding:3px 8px}
   .mobile-add-btn{display:inline-flex;align-items:center;padding:4px 10px;border-radius:6px;border:1px dashed #ccc;color:#aaa;font-size:13px;cursor:pointer;margin-top:4px}
@@ -186,6 +189,7 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
   <div class="legend-item"><div class="legend-dot" style="background:#fee2e2"></div>休み</div>
   <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(90deg,#fee2e2 50%,#fff 50%);border:1px solid #f3b4b4"></div>半休</div>
   <div class="legend-item"><div class="legend-dot" style="background:#d4edda"></div>有給</div>
+  <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(90deg,#d4edda 50%,#fff 50%);border:1px solid #a9d6b5"></div>半休（有給）</div>
   <div class="legend-item"><div class="legend-dot" style="background:#ffe9c7"></div>希望休</div>
   <div class="legend-item"><div class="legend-dot" style="background:#ede7f6"></div>リフレッシュ休暇</div>
   <div class="legend-item"><div class="legend-dot" style="background:#C9B1E8"></div>納品</div>
@@ -257,6 +261,10 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
     <div class="form-row" id="row-paid-leave">
       <label>有給（タップで選択・解除）</label>
       <div class="btn-grid" id="paid-leave-grid"></div>
+    </div>
+    <div class="form-row" id="row-half-paid">
+      <label>半休（有給）（タップで選択・解除）</label>
+      <div class="btn-grid" id="half-paid-grid"></div>
     </div>
     <div class="form-row">
       <label>希望休（タップで選択・解除）</label>
@@ -607,15 +615,16 @@ function buildHalf(from, to, y, m, todayKey) {
     // 休み・手空きタグ
     const assignedStaff = new Set();
     dayEvs.forEach(ev => { if (Array.isArray(ev.staff)) ev.staff.filter(Boolean).forEach(s => assignedStaff.add(s)); });
-    const dayPaids = paidLeaves[key] || [];
+    const { full: dayPaids, half: dayHalfPaid } = splitHolidays(paidLeaves[key]);
     const dayKibou = kibou[key] || [];
     const dayRefresh = refresh[key] || [];
     const holidayTags = dayHols.map(s => `<span class="holiday-tag" onclick="openHolidayModal('${key}')">${s}</span>`).join('');
     const halfTags = dayHalf.map(s => `<span class="half-tag" onclick="openHolidayModal('${key}')">${s}(半)</span>`).join('');
     const paidTags = dayPaids.map(s => `<span class="paid-tag" onclick="openHolidayModal('${key}')">${s}(有)</span>`).join('');
+    const halfPaidTags = dayHalfPaid.map(s => `<span class="half-paid-tag" onclick="openHolidayModal('${key}')">${s}(有半)</span>`).join('');
     const kibouTags = dayKibou.map(s => `<span class="kibou-tag" onclick="openHolidayModal('${key}')">${s}(希)</span>`).join('');
     const refreshTags = dayRefresh.map(s => `<span class="refresh-tag" onclick="openHolidayModal('${key}')">${s}(R)</span>`).join('');
-    const freeTags = STAFF_HOLIDAY.filter(s => !dayHols.includes(s) && !dayHalf.includes(s) && !dayPaids.includes(s) && !dayKibou.includes(s) && !dayRefresh.includes(s) && !assignedStaff.has(s)).map(s => `<span class="free-tag">${s}</span>`).join('');
+    const freeTags = STAFF_HOLIDAY.filter(s => !dayHols.includes(s) && !dayHalf.includes(s) && !dayPaids.includes(s) && !dayHalfPaid.includes(s) && !dayKibou.includes(s) && !dayRefresh.includes(s) && !assignedStaff.has(s)).map(s => `<span class="free-tag">${s}</span>`).join('');
 
     // 祝日表示
     const holidayJpLabel = isHolidayJp ? `<span class="holiday-jp-label">祝</span>` : '';
@@ -633,7 +642,7 @@ function buildHalf(from, to, y, m, todayKey) {
           <button class="add-btn" onclick="openAdd('${key}')">＋ 現場</button>
         </div>
         <div class="tl-holiday-row">
-          ${holidayTags}${halfTags}${paidTags}${kibouTags}${refreshTags}${freeTags}
+          ${holidayTags}${halfTags}${paidTags}${halfPaidTags}${kibouTags}${refreshTags}${freeTags}
           <span class="holiday-tag" style="background:#f5f5f0;color:#bbb;border:1px dashed #ddd" onclick="openHolidayModal('${key}')">＋ 休み</span>
         </div>
       </div>
@@ -681,15 +690,16 @@ function buildMobileHalf(from, to, y, m, todayKey) {
     }).join('');
 
     // 休み・手空き
-    const dayPaidsMobile = paidLeaves[key] || [];
+    const { full: dayPaidsMobile, half: dayHalfPaidMobile } = splitHolidays(paidLeaves[key]);
     const dayKibouMobile = kibou[key] || [];
     const dayRefreshMobile = refresh[key] || [];
     const holidayTags = dayHols.map(s=>`<span class="holiday-tag" onclick="openHolidayModal('${key}')">${s}</span>`).join('');
     const halfTagsMobile = dayHalf.map(s=>`<span class="half-tag" onclick="openHolidayModal('${key}')">${s}(半)</span>`).join('');
     const paidTagsMobile = dayPaidsMobile.map(s=>`<span class="paid-tag" onclick="openHolidayModal('${key}')">${s}(有)</span>`).join('');
+    const halfPaidTagsMobile = dayHalfPaidMobile.map(s=>`<span class="half-paid-tag" onclick="openHolidayModal('${key}')">${s}(有半)</span>`).join('');
     const kibouTagsMobile = dayKibouMobile.map(s=>`<span class="kibou-tag" onclick="openHolidayModal('${key}')">${s}(希)</span>`).join('');
     const refreshTagsMobile = dayRefreshMobile.map(s=>`<span class="refresh-tag" onclick="openHolidayModal('${key}')">${s}(R)</span>`).join('');
-    const freeTags = STAFF_HOLIDAY.filter(s=>!dayHols.includes(s)&&!dayHalf.includes(s)&&!dayPaidsMobile.includes(s)&&!dayKibouMobile.includes(s)&&!dayRefreshMobile.includes(s)&&!assignedStaff.has(s)).map(s=>`<span class="free-tag">${s}</span>`).join('');
+    const freeTags = STAFF_HOLIDAY.filter(s=>!dayHols.includes(s)&&!dayHalf.includes(s)&&!dayPaidsMobile.includes(s)&&!dayHalfPaidMobile.includes(s)&&!dayKibouMobile.includes(s)&&!dayRefreshMobile.includes(s)&&!assignedStaff.has(s)).map(s=>`<span class="free-tag">${s}</span>`).join('');
 
     rows += `<div class="mobile-row${isToday?' today':''}" style="${bgColor}">
       <div class="mobile-date">
@@ -700,7 +710,7 @@ function buildMobileHalf(from, to, y, m, todayKey) {
       </div>
       <div class="mobile-events">${evItems}</div>
       ${outsourceItems?`<div class="mobile-outsource">${outsourceItems}</div>`:''}
-      <div class="mobile-holiday-row">${holidayTags}${halfTagsMobile}${paidTagsMobile}${kibouTagsMobile}${refreshTagsMobile}${freeTags}<span class="holiday-tag" style="background:#f5f5f0;color:#bbb;border:1px dashed #ddd" onclick="openHolidayModal('${key}')">＋ 休み</span></div>
+      <div class="mobile-holiday-row">${holidayTags}${halfTagsMobile}${paidTagsMobile}${halfPaidTagsMobile}${kibouTagsMobile}${refreshTagsMobile}${freeTags}<span class="holiday-tag" style="background:#f5f5f0;color:#bbb;border:1px dashed #ddd" onclick="openHolidayModal('${key}')">＋ 休み</span></div>
     </div>`;
   }
   return rows;
@@ -936,7 +946,7 @@ function openHolidayModal(dateKey) {
 
 function renderHolidayGrid() {
   const { full: dayHols, half: dayHalf } = splitHolidays(holidays[holidayDate]);
-  const dayPaids = paidLeaves[holidayDate] || [];
+  const { full: dayPaids, half: dayHalfPaid } = splitHolidays(paidLeaves[holidayDate]);
   document.getElementById('holiday-staff-grid').innerHTML = STAFF_HOLIDAY.map(s => {
     const on = dayHols.includes(s);
     return `<div class="holiday-staff-btn${on?' selected':''}" onclick="toggleHoliday('${s}')">${s}</div>`;
@@ -951,11 +961,17 @@ function renderHolidayGrid() {
   const paidRefreshStaff = STAFF_HOLIDAY.filter(s => !NO_PAID_REFRESH.includes(s));
   const showPaidRefresh = paidRefreshStaff.length > 0;
   document.getElementById('row-paid-leave').style.display = showPaidRefresh ? '' : 'none';
+  document.getElementById('row-half-paid').style.display = showPaidRefresh ? '' : 'none';
   document.getElementById('row-refresh').style.display = showPaidRefresh ? '' : 'none';
 
   document.getElementById('paid-leave-grid').innerHTML = paidRefreshStaff.map(s => {
     const on = dayPaids.includes(s);
     return `<div class="holiday-staff-btn${on?' selected':''}" style="${on?'border-color:#1a6e31;background:#d4edda;color:#1a6e31':''}" onclick="togglePaidLeave('${s}')">${s}</div>`;
+  }).join('');
+
+  document.getElementById('half-paid-grid').innerHTML = paidRefreshStaff.map(s => {
+    const on = dayHalfPaid.includes(s);
+    return `<div class="holiday-staff-btn${on?' selected':''}" style="${on?'border-color:#1a6e31;background:linear-gradient(90deg,#d4edda 50%,#f5fbf6 50%);color:#1a6e31':''}" onclick="toggleHalfPaid('${s}')">${s}</div>`;
   }).join('');
   const dayKibou = kibou[holidayDate] || [];
   document.getElementById('kibou-grid').innerHTML = STAFF_HOLIDAY.map(s => {
@@ -969,24 +985,37 @@ function renderHolidayGrid() {
   }).join('');
 }
 
-async function togglePaidLeave(name) {
-  const dayPaids = paidLeaves[holidayDate] || [];
-  const isOn = dayPaids.includes(name);
-  if (isOn) {
-    paidLeaves[holidayDate] = dayPaids.filter(s => s !== name);
-    if (!paidLeaves[holidayDate].length) delete paidLeaves[holidayDate];
+// 有給（半休を含む）を1件だけ登録・解除する
+function setPaidEntry(date, stored, on) {
+  const list = paidLeaves[date] || [];
+  if (on) {
+    if (!list.includes(stored)) paidLeaves[date] = [...list, stored];
   } else {
-    if (!paidLeaves[holidayDate]) paidLeaves[holidayDate] = [];
-    paidLeaves[holidayDate].push(name);
+    paidLeaves[date] = list.filter(s => s !== stored);
+    if (!paidLeaves[date].length) delete paidLeaves[date];
   }
-  renderHolidayGrid();
-  render();
-  setSync('loading', '保存中...');
-  try {
-    await jsonp({ action: isOn?'deletePaidLeave':'savePaidLeave', data: { date: holidayDate, staff: name } });
-    saveCache();
-    setSync('ok', '保存済み');
-  } catch(e) { setSync('err', '保存失敗'); }
+  return jsonp({ action: on ? 'savePaidLeave' : 'deletePaidLeave', data: { date, staff: stored } });
+}
+
+async function togglePaidLeave(name) {
+  const list = paidLeaves[holidayDate] || [];
+  const isOn = list.includes(name);
+  const hadHalf = list.includes(halfName(name));
+  const jobs = [setPaidEntry(holidayDate, name, !isOn)];
+  // 1日の有給にしたら、同じ日の半休（有給）は外す
+  if (!isOn && hadHalf) jobs.push(setPaidEntry(holidayDate, halfName(name), false));
+  await applyHolidayJobs(jobs);
+}
+
+async function toggleHalfPaid(name) {
+  const list = paidLeaves[holidayDate] || [];
+  const stored = halfName(name);
+  const isOn = list.includes(stored);
+  const hadFull = list.includes(name);
+  const jobs = [setPaidEntry(holidayDate, stored, !isOn)];
+  // 半休（有給）にしたら、同じ日の1日の有給は外す
+  if (!isOn && hadFull) jobs.push(setPaidEntry(holidayDate, name, false));
+  await applyHolidayJobs(jobs);
 }
 
 // 休み（半休を含む）を1件だけ登録・解除する。画面は先に書き換え、保存は後から待つ
