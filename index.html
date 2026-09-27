@@ -35,6 +35,7 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 .holiday-chip .chip-name{color:#333;font-weight:500}
 .holiday-chip .chip-count{color:#fff;background:#e05555;border-radius:10px;padding:1px 6px;font-size:11px;font-weight:600}
 .holiday-chip .chip-count.ok{background:#7bc67e}
+.holiday-chip .chip-sub{font-size:10px;color:#999}
 .legend{display:flex;gap:8px;padding:8px 14px;background:#fff;border-bottom:1px solid #e8e8e4;flex-wrap:wrap}
 .legend-item{display:flex;align-items:center;gap:4px;font-size:12px;color:#555}
 .legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
@@ -78,6 +79,8 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 .holiday-tag:hover{background:#fecaca}
 .half-tag{font-size:11px;padding:2px 7px;border-radius:3px;background:linear-gradient(90deg,#fee2e2 50%,#fff7f7 50%);color:#b91c1c;border:1px solid #f3b4b4;cursor:pointer;white-space:nowrap}
 .half-tag:hover{background:linear-gradient(90deg,#fecaca 50%,#fff0f0 50%)}
+.special-tag{font-size:11px;padding:2px 7px;border-radius:3px;background:#e2e8f0;color:#334155;cursor:pointer;white-space:nowrap}
+.special-tag:hover{background:#cbd5e1}
 .free-tag{font-size:11px;padding:2px 7px;border-radius:3px;background:#e8f4fd;color:#1a5fa8;white-space:nowrap}
 .paid-tag{font-size:11px;padding:2px 7px;border-radius:3px;background:#d4edda;color:#1a6e31;cursor:pointer;white-space:nowrap}
 .paid-tag:hover{background:#c3e6cb}
@@ -111,6 +114,9 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 .toggle-btn.selected{border-color:#4a90d9;background:#e8f2fd;color:#1a5fa8;font-weight:500}
 .holiday-staff-btn{padding:8px 6px;border-radius:7px;border:1.5px solid #e0e0e0;background:#fafafa;color:#555;font-size:13px;cursor:pointer;text-align:center;transition:all 0.15s}
 .holiday-staff-btn.selected{border-color:#e05555;background:#fee2e2;color:#b91c1c;font-weight:500}
+.special-kinds{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.special-kind-btn{padding:5px 12px;border-radius:14px;border:1.5px solid #cbd5e1;background:#fff;color:#475569;font-size:13px;cursor:pointer}
+.special-kind-btn.selected{background:#334155;border-color:#334155;color:#fff}
 .modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
 .btn{padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;border:none}
 .btn-primary{background:#1a1a1a;color:#fff}
@@ -150,6 +156,7 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
   .mobile-holiday-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
   .holiday-tag{font-size:13px;padding:3px 8px}
   .half-tag{font-size:13px;padding:3px 8px}
+  .special-tag{font-size:13px;padding:3px 8px}
   .free-tag{font-size:13px;padding:3px 8px}
   .paid-tag{font-size:13px;padding:3px 8px}
   .half-paid-tag{font-size:13px;padding:3px 8px}
@@ -192,6 +199,7 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
   <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(90deg,#d4edda 50%,#fff 50%);border:1px solid #a9d6b5"></div>半休（有給）</div>
   <div class="legend-item"><div class="legend-dot" style="background:#ffe9c7"></div>希望休</div>
   <div class="legend-item"><div class="legend-dot" style="background:#ede7f6"></div>リフレッシュ休暇</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#e2e8f0;border:1px solid #cbd5e1"></div>特別休暇</div>
   <div class="legend-item"><div class="legend-dot" style="background:#C9B1E8"></div>納品</div>
 </div>
 
@@ -258,6 +266,11 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
       <label>半休（タップで選択・解除・0.5日で数えます）</label>
       <div class="btn-grid" id="half-grid"></div>
     </div>
+    <div class="form-row">
+      <label>特別休暇（種類を選んでから名前をタップ・残り休日数には数えません）</label>
+      <div class="special-kinds" id="special-kinds"></div>
+      <div class="btn-grid" id="special-grid"></div>
+    </div>
     <div class="form-row" id="row-paid-leave">
       <label>有給（タップで選択・解除）</label>
       <div class="btn-grid" id="paid-leave-grid"></div>
@@ -292,16 +305,34 @@ const DAYS = ['日','月','火','水','木','金','土'];
 const MAX_HOLIDAYS = 9;
 // 半休は「休み」と同じ保存場所に、名前のうしろへこの目印を付けて記録する
 const HALF_MARK = '(半)';
+// 特別休暇も「休み」と同じ保存場所に「名前(特:忌引き)」の形で記録する
+const SPECIAL_KINDS = ['忌引き', '結婚', '出産', 'その他'];
 
 function halfName(name) { return name + HALF_MARK; }
 function isHalfName(v)  { return typeof v === 'string' && v.slice(-HALF_MARK.length) === HALF_MARK; }
-function baseName(v)    { return isHalfName(v) ? v.slice(0, -HALF_MARK.length) : v; }
+function specialName(name, kind) { return `${name}(特:${kind})`; }
+function parseSpecial(v) {
+  const m = typeof v === 'string' && v.match(/^(.+)\(特:([^)]+)\)$/);
+  return m ? { name: m[1], kind: m[2] } : null;
+}
+function baseName(v) {
+  const sp = parseSpecial(v);
+  if (sp) return sp.name;
+  return isHalfName(v) ? v.slice(0, -HALF_MARK.length) : v;
+}
+// カレンダーに出すときの特別休暇の名前（「その他」は「特休」と出す）
+function specialLabel(kind) { return kind === 'その他' ? '特休' : kind; }
 
-// その日の「休み」を、1日休みの人と半休の人に分ける
+// その日の「休み」を、1日休み・半休・特別休暇に分ける
 function splitHolidays(list) {
-  const full = [], half = [];
-  (list || []).forEach(v => { if (isHalfName(v)) half.push(baseName(v)); else full.push(v); });
-  return { full, half };
+  const full = [], half = [], special = [];
+  (list || []).forEach(v => {
+    const sp = parseSpecial(v);
+    if (sp) special.push(sp);
+    else if (isHalfName(v)) half.push(baseName(v));
+    else full.push(v);
+  });
+  return { full, half, special };
 }
 
 // 3 は「3日」、3.5 は「3.5日」と出す
@@ -560,6 +591,74 @@ function makeRefreshCounterHtml(y, m) {
   </div>`;
 }
 
+// ===== 有給休暇カウンター =====
+// スタッフごとに、有給を付与した日と日数を書いておく。
+// 毎年、付与した日に1行ずつ足していく（古い行は消さずに残す）
+//   from  : 付与した日。この日から1年間が対象期間
+//   days  : その日に付与した日数
+//   carry : 前の期間から繰り越した日数（なければ 0）
+const PAID_LEAVE_GRANTS = {
+  // 例）'平野健雄': [ { from: '2026-04-01', days: 11, carry: 3 } ],
+};
+
+// 付与日から1年後の前日（例：2026-04-01 → 2027-03-31）
+function oneYearEnd(from) {
+  const d = strToDate(from);
+  const e = new Date(d.getFullYear() + 1, d.getMonth(), d.getDate() - 1);
+  return fmt(e.getFullYear(), e.getMonth(), e.getDate());
+}
+
+// 基準日を含む付与期間を探す（なければ null）
+function findPaidGrant(name, refKey) {
+  const list = (PAID_LEAVE_GRANTS[name] || []).filter(g => g.from <= refKey)
+    .sort((a, b) => (a.from < b.from ? 1 : -1));
+  if (!list.length) return null;
+  const g = list[0], end = oneYearEnd(g.from);
+  if (refKey > end) return null;
+  return { from: g.from, end, total: (g.days || 0) + (g.carry || 0) };
+}
+
+// 期間内に使った有給（1日は1、半休（有給）は0.5）
+function countPaidUsed(name, start, end) {
+  let used = 0;
+  Object.keys(paidLeaves).forEach(date => {
+    if (date < start || date > end) return;
+    const { full, half } = splitHolidays(paidLeaves[date]);
+    if (full.includes(name)) used += 1;
+    else if (half.includes(name)) used += 0.5;
+  });
+  return used;
+}
+
+function fmtSlash(key) {
+  const [y, m, d] = key.split('-');
+  return `${y}/${parseInt(m)}/${parseInt(d)}`;
+}
+
+function makePaidCounterHtml(y, m) {
+  const staff = STAFF_HOLIDAY.filter(s => !NO_PAID_REFRESH.includes(s));
+  if (!staff.length) return '';
+  // 今月を見ているときは今日、それ以外はその月の1日を基準にする
+  const now = new Date();
+  const ref = (now.getFullYear() === y && now.getMonth() === m) ? fmt(y, m, now.getDate()) : fmt(y, m, 1);
+  const chips = staff.map(s => {
+    const g = findPaidGrant(s, ref);
+    if (!g) {
+      return `<div class="holiday-chip"><span class="chip-name">${s}</span><span class="chip-count" style="background:#bbb">未設定</span></div>`;
+    }
+    const remain = g.total - countPaidUsed(s, g.from, g.end);
+    const bg = remain < 0 ? '#b91c1c' : remain === 0 ? '#999' : '#1a6e31';
+    return `<div class="holiday-chip"><span class="chip-name">${s}</span>`
+      + `<span class="chip-count" style="background:${bg}">残${fmtDays(remain)}/${fmtDays(g.total)}日</span>`
+      + `<span class="chip-sub">${fmtSlash(g.end)}まで</span></div>`;
+  }).join('');
+  return `<div class="refresh-counter">
+    <div class="refresh-counter-title" style="color:#1a6e31">🌱 有給休暇の残り</div>
+    <div class="refresh-counter-period">半休（有給）は0.5日で数えます。期間は人ごとの付与日から1年です</div>
+    <div class="refresh-chips">${chips}</div>
+  </div>`;
+}
+
 // ===== カレンダー描画 =====
 function buildHalf(from, to, y, m, todayKey) {
   let rows = '';
@@ -572,7 +671,8 @@ function buildHalf(from, to, y, m, todayKey) {
     const isSun = dow === 0, isSat = dow === 6;
     const cls = (isSun?'sun':isSat?'sat':'') + (isToday?' today':'');
     const dayEvs = events[key] || [];
-    const { full: dayHols, half: dayHalf } = splitHolidays(holidays[key]);
+    const { full: dayHols, half: dayHalf, special: daySpecial } = splitHolidays(holidays[key]);
+    const daySpecialNames = daySpecial.map(x => x.name);
 
     // バー（外注・未定以外のタイムライン表示）
     let bars = '';
@@ -620,11 +720,12 @@ function buildHalf(from, to, y, m, todayKey) {
     const dayRefresh = refresh[key] || [];
     const holidayTags = dayHols.map(s => `<span class="holiday-tag" onclick="openHolidayModal('${key}')">${s}</span>`).join('');
     const halfTags = dayHalf.map(s => `<span class="half-tag" onclick="openHolidayModal('${key}')">${s}(半)</span>`).join('');
+    const specialTags = daySpecial.map(x => `<span class="special-tag" onclick="openHolidayModal('${key}')">${x.name}(${specialLabel(x.kind)})</span>`).join('');
     const paidTags = dayPaids.map(s => `<span class="paid-tag" onclick="openHolidayModal('${key}')">${s}(有)</span>`).join('');
     const halfPaidTags = dayHalfPaid.map(s => `<span class="half-paid-tag" onclick="openHolidayModal('${key}')">${s}(有半)</span>`).join('');
     const kibouTags = dayKibou.map(s => `<span class="kibou-tag" onclick="openHolidayModal('${key}')">${s}(希)</span>`).join('');
     const refreshTags = dayRefresh.map(s => `<span class="refresh-tag" onclick="openHolidayModal('${key}')">${s}(R)</span>`).join('');
-    const freeTags = STAFF_HOLIDAY.filter(s => !dayHols.includes(s) && !dayHalf.includes(s) && !dayPaids.includes(s) && !dayHalfPaid.includes(s) && !dayKibou.includes(s) && !dayRefresh.includes(s) && !assignedStaff.has(s)).map(s => `<span class="free-tag">${s}</span>`).join('');
+    const freeTags = STAFF_HOLIDAY.filter(s => !dayHols.includes(s) && !dayHalf.includes(s) && !daySpecialNames.includes(s) && !dayPaids.includes(s) && !dayHalfPaid.includes(s) && !dayKibou.includes(s) && !dayRefresh.includes(s) && !assignedStaff.has(s)).map(s => `<span class="free-tag">${s}</span>`).join('');
 
     // 祝日表示
     const holidayJpLabel = isHolidayJp ? `<span class="holiday-jp-label">祝</span>` : '';
@@ -642,7 +743,7 @@ function buildHalf(from, to, y, m, todayKey) {
           <button class="add-btn" onclick="openAdd('${key}')">＋ 現場</button>
         </div>
         <div class="tl-holiday-row">
-          ${holidayTags}${halfTags}${paidTags}${halfPaidTags}${kibouTags}${refreshTags}${freeTags}
+          ${holidayTags}${halfTags}${specialTags}${paidTags}${halfPaidTags}${kibouTags}${refreshTags}${freeTags}
           <span class="holiday-tag" style="background:#f5f5f0;color:#bbb;border:1px dashed #ddd" onclick="openHolidayModal('${key}')">＋ 休み</span>
         </div>
       </div>
@@ -662,7 +763,8 @@ function buildMobileHalf(from, to, y, m, todayKey) {
     const isHolidayJp = HOLIDAYS_JP.has(key);
     const isSun = dow === 0, isSat = dow === 6;
     const dayEvs = events[key] || [];
-    const { full: dayHols, half: dayHalf } = splitHolidays(holidays[key]);
+    const { full: dayHols, half: dayHalf, special: daySpecial } = splitHolidays(holidays[key]);
+    const daySpecialNames = daySpecial.map(x => x.name);
 
     const dnumColor = (isHolidayJp||isSun)?'color:#e05555':(isSat?'color:#4a90d9':'');
     const bgColor = isToday?'background:#edf5fc':'';
@@ -695,11 +797,12 @@ function buildMobileHalf(from, to, y, m, todayKey) {
     const dayRefreshMobile = refresh[key] || [];
     const holidayTags = dayHols.map(s=>`<span class="holiday-tag" onclick="openHolidayModal('${key}')">${s}</span>`).join('');
     const halfTagsMobile = dayHalf.map(s=>`<span class="half-tag" onclick="openHolidayModal('${key}')">${s}(半)</span>`).join('');
+    const specialTagsMobile = daySpecial.map(x=>`<span class="special-tag" onclick="openHolidayModal('${key}')">${x.name}(${specialLabel(x.kind)})</span>`).join('');
     const paidTagsMobile = dayPaidsMobile.map(s=>`<span class="paid-tag" onclick="openHolidayModal('${key}')">${s}(有)</span>`).join('');
     const halfPaidTagsMobile = dayHalfPaidMobile.map(s=>`<span class="half-paid-tag" onclick="openHolidayModal('${key}')">${s}(有半)</span>`).join('');
     const kibouTagsMobile = dayKibouMobile.map(s=>`<span class="kibou-tag" onclick="openHolidayModal('${key}')">${s}(希)</span>`).join('');
     const refreshTagsMobile = dayRefreshMobile.map(s=>`<span class="refresh-tag" onclick="openHolidayModal('${key}')">${s}(R)</span>`).join('');
-    const freeTags = STAFF_HOLIDAY.filter(s=>!dayHols.includes(s)&&!dayHalf.includes(s)&&!dayPaidsMobile.includes(s)&&!dayHalfPaidMobile.includes(s)&&!dayKibouMobile.includes(s)&&!dayRefreshMobile.includes(s)&&!assignedStaff.has(s)).map(s=>`<span class="free-tag">${s}</span>`).join('');
+    const freeTags = STAFF_HOLIDAY.filter(s=>!dayHols.includes(s)&&!dayHalf.includes(s)&&!daySpecialNames.includes(s)&&!dayPaidsMobile.includes(s)&&!dayHalfPaidMobile.includes(s)&&!dayKibouMobile.includes(s)&&!dayRefreshMobile.includes(s)&&!assignedStaff.has(s)).map(s=>`<span class="free-tag">${s}</span>`).join('');
 
     rows += `<div class="mobile-row${isToday?' today':''}" style="${bgColor}">
       <div class="mobile-date">
@@ -710,7 +813,7 @@ function buildMobileHalf(from, to, y, m, todayKey) {
       </div>
       <div class="mobile-events">${evItems}</div>
       ${outsourceItems?`<div class="mobile-outsource">${outsourceItems}</div>`:''}
-      <div class="mobile-holiday-row">${holidayTags}${halfTagsMobile}${paidTagsMobile}${halfPaidTagsMobile}${kibouTagsMobile}${refreshTagsMobile}${freeTags}<span class="holiday-tag" style="background:#f5f5f0;color:#bbb;border:1px dashed #ddd" onclick="openHolidayModal('${key}')">＋ 休み</span></div>
+      <div class="mobile-holiday-row">${holidayTags}${halfTagsMobile}${specialTagsMobile}${paidTagsMobile}${halfPaidTagsMobile}${kibouTagsMobile}${refreshTagsMobile}${freeTags}<span class="holiday-tag" style="background:#f5f5f0;color:#bbb;border:1px dashed #ddd" onclick="openHolidayModal('${key}')">＋ 休み</span></div>
     </div>`;
   }
   return rows;
@@ -762,6 +865,7 @@ function render() {
     buildSection(1, 15, '上半期 — 1日〜15日', true) + '</div>' +
     '<div style="height:12px"></div>' +
     buildSection(16, lastDay, `下半期 — 16日〜${lastDay}日`, false) + '</div>' +
+    makePaidCounterHtml(y, m) +
     makeRefreshCounterHtml(y, m) +
     '<div style="height:24px"></div>';
 
@@ -945,7 +1049,7 @@ function openHolidayModal(dateKey) {
 }
 
 function renderHolidayGrid() {
-  const { full: dayHols, half: dayHalf } = splitHolidays(holidays[holidayDate]);
+  const { full: dayHols, half: dayHalf, special: daySpecial } = splitHolidays(holidays[holidayDate]);
   const { full: dayPaids, half: dayHalfPaid } = splitHolidays(paidLeaves[holidayDate]);
   document.getElementById('holiday-staff-grid').innerHTML = STAFF_HOLIDAY.map(s => {
     const on = dayHols.includes(s);
@@ -955,6 +1059,15 @@ function renderHolidayGrid() {
   document.getElementById('half-grid').innerHTML = STAFF_HOLIDAY.map(s => {
     const on = dayHalf.includes(s);
     return `<div class="holiday-staff-btn${on?' selected':''}" style="${on?'border-color:#b91c1c;background:linear-gradient(90deg,#fee2e2 50%,#fff7f7 50%);color:#b91c1c':''}" onclick="toggleHalf('${s}')">${s}</div>`;
+  }).join('');
+
+  document.getElementById('special-kinds').innerHTML = SPECIAL_KINDS.map(k =>
+    `<div class="special-kind-btn${k===selectedSpecialKind?' selected':''}" onclick="selectSpecialKind('${k}')">${k}</div>`
+  ).join('');
+  document.getElementById('special-grid').innerHTML = STAFF_HOLIDAY.map(s => {
+    const cur = daySpecial.find(x => x.name === s);
+    const label = cur ? `${s}（${cur.kind}）` : s;
+    return `<div class="holiday-staff-btn${cur?' selected':''}" style="${cur?'border-color:#334155;background:#e2e8f0;color:#334155':''}" onclick="toggleSpecial('${s}')">${label}</div>`;
   }).join('');
 
   // 有給・リフレッシュ対象外スタッフを除いたリスト
@@ -1041,25 +1154,37 @@ async function applyHolidayJobs(jobs) {
   } catch(e) { setSync('err', '保存失敗'); }
 }
 
+// 「休み」の保存場所（休み・半休・特別休暇）は1人1日1件にする。
+// stored に入れたものだけを残し、同じ人のほかの分は外す（stored が null なら全部外す）
+function setHolidayFor(date, name, stored) {
+  const others = (holidays[date] || []).filter(v => baseName(v) === name && v !== stored);
+  const jobs = others.map(v => setHolidayEntry(date, v, false));
+  if (stored && !(holidays[date] || []).includes(stored)) jobs.push(setHolidayEntry(date, stored, true));
+  return jobs;
+}
+
 async function toggleHoliday(name) {
-  const list = holidays[holidayDate] || [];
-  const isOn = list.includes(name);
-  const hadHalf = list.includes(halfName(name));
-  const jobs = [setHolidayEntry(holidayDate, name, !isOn)];
-  // 1日の休みにしたら、同じ日の半休は外す
-  if (!isOn && hadHalf) jobs.push(setHolidayEntry(holidayDate, halfName(name), false));
-  await applyHolidayJobs(jobs);
+  const isOn = (holidays[holidayDate] || []).includes(name);
+  await applyHolidayJobs(setHolidayFor(holidayDate, name, isOn ? null : name));
 }
 
 async function toggleHalf(name) {
-  const list = holidays[holidayDate] || [];
   const stored = halfName(name);
-  const isOn = list.includes(stored);
-  const hadFull = list.includes(name);
-  const jobs = [setHolidayEntry(holidayDate, stored, !isOn)];
-  // 半休にしたら、同じ日の1日の休みは外す
-  if (!isOn && hadFull) jobs.push(setHolidayEntry(holidayDate, name, false));
-  await applyHolidayJobs(jobs);
+  const isOn = (holidays[holidayDate] || []).includes(stored);
+  await applyHolidayJobs(setHolidayFor(holidayDate, name, isOn ? null : stored));
+}
+
+// 特別休暇の種類（次に名前を押したときに使う）
+let selectedSpecialKind = SPECIAL_KINDS[0];
+function selectSpecialKind(kind) {
+  selectedSpecialKind = kind;
+  renderHolidayGrid();
+}
+
+// もう入っていれば外す。入っていなければ、選んでいる種類で入れる
+async function toggleSpecial(name) {
+  const cur = splitHolidays(holidays[holidayDate]).special.find(x => x.name === name);
+  await applyHolidayJobs(setHolidayFor(holidayDate, name, cur ? null : specialName(name, selectedSpecialKind)));
 }
 
 async function toggleKibou(name) {
@@ -1129,11 +1254,12 @@ async function saveEvent() {
     await jsonp({ action: 'save', data: ev });
 
     // 現場に入ったスタッフの同日の休み（休み・有給・希望休・リフレッシュ休暇）を自動削除
-    // （半休は半日働くので、現場に入れてもそのまま残す）
+    // （半休は半日働くので、現場に入れてもそのまま残す。特別休暇は1日の休みと同じく外す）
     const staffToCheck = (selectedStaff || []).filter(s => STAFF_HOLIDAY.includes(s));
     const d = newDate;
     const clearJobs = [];
     staffToCheck.forEach(name => {
+      (holidays[d] || []).filter(v => { const sp = parseSpecial(v); return sp && sp.name === name; }).forEach(v => clearJobs.push(jsonp({ action: 'deleteHoliday', data: { date: d, staff: v } }).then(() => { holidays[d] = (holidays[d]||[]).filter(s=>s!==v); if(!holidays[d].length) delete holidays[d]; })));
       if ((holidays[d] || []).includes(name))   clearJobs.push(jsonp({ action: 'deleteHoliday',   data: { date: d, staff: name } }).then(() => { holidays[d] = (holidays[d]||[]).filter(s=>s!==name); if(!holidays[d].length) delete holidays[d]; }));
       if ((paidLeaves[d] || []).includes(name)) clearJobs.push(jsonp({ action: 'deletePaidLeave', data: { date: d, staff: name } }).then(() => { paidLeaves[d] = (paidLeaves[d]||[]).filter(s=>s!==name); if(!paidLeaves[d].length) delete paidLeaves[d]; }));
       if ((kibou[d] || []).includes(name))      clearJobs.push(jsonp({ action: 'deleteKibou',     data: { date: d, staff: name } }).then(() => { kibou[d] = (kibou[d]||[]).filter(s=>s!==name); if(!kibou[d].length) delete kibou[d]; }));
