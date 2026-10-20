@@ -105,7 +105,12 @@ function offFor_(data, key, name) {
   return null;
 }
 
-// 1マスの中身と色。現場は「出社時間・作業時間・現場名」を1行ずつ
+// 「08:00」→「8:00」
+function shortTime_(t) {
+  return String(t || '').replace(/^0(\d:)/, '$1');
+}
+
+// 1マスの中身と色。現場は「出社時間（なければ作業開始時間） 現場名」を1行ずつ
 function shiftCell_(data, key, name) {
   const lines = [];
   const off = offFor_(data, key, name);
@@ -115,35 +120,37 @@ function shiftCell_(data, key, name) {
     .filter(ev => (Array.isArray(ev.staff) ? ev.staff : []).indexOf(name) >= 0)
     .sort((a, b) => String(a.departure || a.start || '99').localeCompare(String(b.departure || b.start || '99')));
   evs.forEach(ev => {
-    const time = ev.start ? (ev.end ? `${ev.start}〜${ev.end}` : `${ev.start}〜`) : '';
-    const dep = ev.departure ? `${ev.departure}出社 ` : '';
-    lines.push(`${dep}${time} ${ev.place}`.trim());
+    lines.push(`${shortTime_(ev.departure || ev.start)} ${ev.place}`.trim());
   });
 
   let color = null;
   if (off && (off.full || !evs.length)) color = off.color;
-  return { text: lines.join('\n'), color: color };
+  // 休みだけのマスは太字で目立たせる
+  return { text: lines.join('\n'), color: color, bold: !!off && !evs.length };
 }
 
 // 1か月分の表（見出しと中身）を作る
 function buildShiftGrid_(y, m, data) {
   const days = ['日','月','火','水','木','金','土'];
   const lastDay = new Date(y, m, 0).getDate();
-  const values = [], colors = [];
+  const values = [], colors = [], weights = [];
   for (let d = 1; d <= lastDay; d++) {
     const key = `${y}-${('0' + m).slice(-2)}-${('0' + d).slice(-2)}`;
     const dow = new Date(y, m - 1, d).getDay();
-    const rowColor = dow === 0 ? '#fdecec' : dow === 6 ? '#eaf3fc' : null;
-    const row = [`${m}/${d}`, days[dow]], rowColors = [rowColor, rowColor];
+    // 土日の色は日付・曜日の欄だけ（休みの色とまざらないように）
+    const dayColor = dow === 0 ? '#f8c9c9' : dow === 6 ? '#c9def4' : null;
+    const row = [`${m}/${d}`, days[dow]], rowColors = [dayColor, dayColor], rowWeights = ['bold', 'bold'];
     SHIFT_STAFF.forEach(name => {
       const c = shiftCell_(data, key, name);
       row.push(c.text);
-      rowColors.push(c.color || rowColor);
+      rowColors.push(c.color);
+      rowWeights.push(c.bold ? 'bold' : 'normal');
     });
     values.push(row);
     colors.push(rowColors);
+    weights.push(rowWeights);
   }
-  return { values: values, colors: colors };
+  return { values: values, colors: colors, weights: weights };
 }
 
 function writeShiftTable_(ss, y, m, data) {
@@ -155,7 +162,9 @@ function writeShiftTable_(ss, y, m, data) {
   const stamp = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'M/d HH:mm');
 
   sheet.clear();
-  sheet.getRange(1, 1).setValue(`${y}年${m}月 業務課シフト表（現場管理カレンダーから自動作成・${stamp} 更新・手で書き込まないでください）`);
+  sheet.getRange(1, 1).setValue(`${y}年${m}月 業務課シフト表　※時刻は出社時間。カレンダーから自動作成（${stamp} 更新）・手で書き込まないでください`)
+    .setWrap(false).setFontWeight('bold');
+  sheet.setRowHeight(1, 24);
   sheet.getRange(2, 1, 1, cols).setValues([['日付', '曜日'].concat(SHIFT_STAFF)])
     .setFontWeight('bold').setBackground('#1a1a1a').setFontColor('#ffffff').setHorizontalAlignment('center');
 
@@ -163,6 +172,7 @@ function writeShiftTable_(ss, y, m, data) {
   body.setNumberFormat('@');
   body.setValues(grid.values);
   body.setBackgrounds(grid.colors);
+  body.setFontWeights(grid.weights);
   body.setWrap(true).setVerticalAlignment('top').setFontSize(10);
   body.setBorder(true, true, true, true, true, true, '#d0d0d0', SpreadsheetApp.BorderStyle.SOLID);
   sheet.getRange(3, 1, grid.values.length, 2).setHorizontalAlignment('center');
@@ -171,5 +181,5 @@ function writeShiftTable_(ss, y, m, data) {
   sheet.setFrozenColumns(2);
   sheet.setColumnWidth(1, 50);
   sheet.setColumnWidth(2, 36);
-  sheet.setColumnWidths(3, SHIFT_STAFF.length, 150);
+  sheet.setColumnWidths(3, SHIFT_STAFF.length, 140);
 }
