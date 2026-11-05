@@ -125,6 +125,30 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
 .btn-delete{background:#fee2e2;color:#b91c1c;margin-right:auto}
 .loading-msg{text-align:center;padding:40px;color:#999;font-size:13px}
 .err-msg{text-align:center;padding:20px;color:#e05555;font-size:13px;line-height:1.8}
+/* 去年の同じ月にやっていて、まだ予定に入っていない現場 */
+.remind{background:#fff;border:1px solid #f0d9a8;border-left:3px solid #e8a33d;border-radius:8px;margin:8px 14px;overflow:hidden}
+.remind-head{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;-webkit-user-select:none;user-select:none}
+.remind-badge{background:#e8a33d;color:#fff;font-size:12px;font-weight:700;min-width:22px;height:22px;border-radius:11px;display:flex;align-items:center;justify-content:center;padding:0 6px;flex-shrink:0}
+.remind-badge.none{background:#bdbdb5}
+.remind-title{flex:1;font-size:13px;color:#555;line-height:1.5}
+.remind-arrow{font-size:11px;color:#aaa;flex-shrink:0}
+.remind-body{display:none;border-top:1px solid #f0ece2;padding:4px 0}
+.remind.open .remind-body{display:block}
+.remind-row{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #f5f3ec}
+.remind-row:last-child{border-bottom:none}
+.remind-main{flex:1;min-width:0}
+.remind-place{font-size:13px;font-weight:600;color:#333;word-break:break-all}
+.remind-sub{font-size:11px;color:#999;margin-top:2px;line-height:1.5}
+.remind-add{background:#fff;border:1px solid #e8a33d;color:#b8740f;border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer;flex-shrink:0}
+.remind-add:hover{background:#fdf6e9}
+.remind-note{font-size:11px;color:#aaa;padding:8px 12px;line-height:1.7;border-top:1px solid #f5f3ec}
+@media(max-width:600px){
+  .remind-title{font-size:14px}
+  .remind-place{font-size:15px}
+  .remind-sub{font-size:12px}
+  .remind-add{font-size:13px;padding:8px 12px}
+  .remind-note{font-size:12px}
+}
 @media(max-width:600px){
   body{font-size:16px}
   .month{font-size:20px;font-weight:700}
@@ -202,6 +226,15 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
   <div class="legend-item"><div class="legend-dot" style="background:#ede7f6"></div>リフレッシュ休暇</div>
   <div class="legend-item"><div class="legend-dot" style="background:#e2e8f0;border:1px solid #cbd5e1"></div>特別休暇</div>
   <div class="legend-item"><div class="legend-dot" style="background:#C9B1E8"></div>納品</div>
+</div>
+
+<div id="remind" class="remind" style="display:none">
+  <div class="remind-head" onclick="toggleRemind()">
+    <span class="remind-badge" id="remind-count">…</span>
+    <span class="remind-title" id="remind-title">去年の同じ月を見ています…</span>
+    <span class="remind-arrow" id="remind-arrow">▼</span>
+  </div>
+  <div class="remind-body" id="remind-body"></div>
 </div>
 
 <div id="calendar-wrap"><div class="loading-msg">読み込み中...</div></div>
@@ -959,6 +992,8 @@ function changeMonth(d) {
   // データは全部の月の分が手元にあるので、待たずにすぐ表示する
   scrollToTodayNext = true;
   render();
+  renderRemind();
+  loadRemind(false);
   refreshIfStale();
 }
 
@@ -1437,9 +1472,190 @@ document.getElementById('holiday-overlay').addEventListener('click', function(e)
   });
 })();
 
+/* =========================================================
+   去年の同じ月にやっていた現場を思い出す
+   「去年リマインド.gs」を入れた Apps Script の URL と合言葉を、
+   下の2つに入れると、カレンダーの上に出てきます。
+   空のままなら何も出ません（入れ方は REMIND_README.md）。
+   ========================================================= */
+const REMIND_API = '';
+const REMIND_TOKEN = '';
+const REMIND_CACHE = 'genba_remind_v1';
+
+let remindData = {};     // { '2026-11': 返事 }
+let remindBusy = {};     // いま読んでいる月
+
+function remindYm() {
+  return `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function remindEsc(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function remindYen(n) {
+  return '¥' + Number(n || 0).toLocaleString('ja-JP');
+}
+
+function remindJsonp(ym, fresh) {
+  return new Promise((resolve, reject) => {
+    const cbName = '_rcb' + (++cbCount);
+    let done = false;
+    const finish = (fn, v) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      delete window[cbName];
+      const el = document.getElementById(cbName);
+      if (el) el.remove();
+      fn(v);
+    };
+    // 初めての月は Apps Script が集計するので、少し長めに待つ
+    const timer = setTimeout(() => finish(reject, new Error('timeout')), 90000);
+    window[cbName] = d => finish(resolve, d);
+    const qs = `action=remind&token=${encodeURIComponent(REMIND_TOKEN)}&ym=${ym}`
+      + `&fresh=${fresh ? 1 : 0}&callback=${cbName}&t=${Date.now()}`;
+    const sc = document.createElement('script');
+    sc.id = cbName;
+    sc.src = `${REMIND_API}?${qs}`;
+    sc.onerror = () => finish(reject, new Error('error'));
+    sc.onload = () => setTimeout(() => finish(reject, new Error('bad response')), 0);
+    document.head.appendChild(sc);
+  });
+}
+
+async function loadRemind(fresh) {
+  if (!REMIND_API || !REMIND_TOKEN) return;
+  const ym = remindYm();
+  if (remindBusy[ym]) return;
+  // 手元の控えは2時間まで使う。読めなかったぶんは控えに残さない（次に開いたらまた試す）
+  const have = remindData[ym];
+  const stillNew = have && have.status === 'ok' && Date.now() - (have._t || 0) < 2 * 60 * 60 * 1000;
+  if (!fresh && stillNew) { renderRemind(); return; }
+  remindBusy[ym] = true;
+  renderRemind();
+  try {
+    const d = await remindJsonp(ym, fresh);
+    if (d && d.status === 'ok') {
+      d._t = Date.now();
+      remindData[ym] = d;
+      const keep = {};
+      Object.keys(remindData).forEach(k => { if (remindData[k].status === 'ok') keep[k] = remindData[k]; });
+      try { localStorage.setItem(REMIND_CACHE, JSON.stringify(keep)); } catch (e) {}
+    } else {
+      remindData[ym] = { status: 'err', message: (d && d.message) || '読めませんでした' };
+    }
+  } catch (e) {
+    remindData[ym] = { status: 'err', message: 'つながりませんでした' };
+  }
+  remindBusy[ym] = false;
+  renderRemind();
+}
+
+function renderRemind() {
+  const box = document.getElementById('remind');
+  if (!box) return;
+  if (!REMIND_API || !REMIND_TOKEN) { box.style.display = 'none'; return; }
+  box.style.display = '';
+
+  const ym = remindYm();
+  const d = remindData[ym];
+  const badge = document.getElementById('remind-count');
+  const title = document.getElementById('remind-title');
+  const body = document.getElementById('remind-body');
+
+  if (!d) {
+    badge.textContent = '…';
+    badge.className = 'remind-badge none';
+    title.textContent = remindBusy[ym] ? '去年の同じ月を見ています…' : '去年の同じ月を見る（タップ）';
+    body.innerHTML = '';
+    return;
+  }
+
+  if (d.status !== 'ok') {
+    badge.textContent = '!';
+    badge.className = 'remind-badge none';
+    title.textContent = '去年の同じ月を読めませんでした（タップでもう一度）';
+    body.innerHTML = `<div class="remind-note">${remindEsc(d.message)}</div>`;
+    return;
+  }
+
+  const lastMonth = parseInt(String(d.lastYm).slice(5), 10);
+  const todo = d.todo || [];
+  const c = d.counts || {};
+
+  badge.textContent = todo.length;
+  badge.className = 'remind-badge' + (todo.length ? '' : ' none');
+  title.textContent = todo.length
+    ? `去年の${lastMonth}月にやっていて、今月まだ予定に入っていない現場が ${todo.length}件`
+    : `去年の${lastMonth}月の現場は、ぜんぶ今月の予定に入っています`;
+
+  const rows = todo.map((s, i) => {
+    const sub = [
+      s.client,
+      s.amount ? '去年 ' + remindYen(s.amount) : '',
+      s.days > 1 ? `去年は${s.days}日` : '',
+      s.kind,
+      (s.from || []).join('・'),
+    ].filter(Boolean).join('　/　');
+    return `<div class="remind-row">
+      <div class="remind-main">
+        <div class="remind-place">${remindEsc(s.place)}</div>
+        <div class="remind-sub">${remindEsc(sub)}</div>
+      </div>
+      <button class="remind-add" onclick="addFromRemind(${i})">予定に入れる</button>
+    </div>`;
+  }).join('');
+
+  const src = d.sources || {};
+  body.innerHTML = rows + `<div class="remind-note">
+      去年（${remindEsc(d.lastYm)}）の現場 ${c.lastYear || 0}件のうち、今月の予定に ${c.inThisMonth || 0}件、
+      前後の月に ${c.inNearbyMonth || 0}件 入っています。<br>
+      出どころ　予測表：${remindEsc(src.forecast)}　/　board：${remindEsc(src.board)}<br>
+      ${remindEsc(d.computedAt)} 時点　<span class="linkish" style="text-decoration:underline;cursor:pointer"
+        onclick="event.stopPropagation();loadRemind(true)">いま読み直す</span>
+    </div>`;
+}
+
+function toggleRemind() {
+  const box = document.getElementById('remind');
+  const ym = remindYm();
+  const d = remindData[ym];
+  // まだ読めていない・読めなかったときは、タップでもう一度読む
+  if (!d || d.status !== 'ok') { loadRemind(!!d); return; }
+  box.classList.toggle('open');
+  document.getElementById('remind-arrow').textContent = box.classList.contains('open') ? '▲' : '▼';
+}
+
+/* 去年の現場を、今年の同じ日に入れる（金額は去年のものなので入れず、備考に残す） */
+function addFromRemind(i) {
+  const d = remindData[remindYm()];
+  const s = d && d.todo && d.todo[i];
+  if (!s) return;
+  const y = current.getFullYear(), m = current.getMonth();
+  const lastDay = new Date(y, m + 1, 0).getDate();
+  const day = Math.min(Math.max(parseInt(String(s.first).slice(8), 10) || 1, 1), lastDay);
+  openAdd(fmt(y, m, day));
+  document.getElementById('f-place').value = s.place || '';
+  document.getElementById('f-client').value = s.client || '';
+  const span = s.last && s.last !== s.first ? `${s.first}〜${s.last}` : (s.first || '');
+  document.getElementById('f-memo').value =
+    `去年の同じ月：${span}${s.days > 1 ? `（${s.days}日）` : ''}`
+    + (s.amount ? `　請負 ${remindYen(s.amount)}` : '');
+}
+
+try {
+  const cached = JSON.parse(localStorage.getItem(REMIND_CACHE) || 'null');
+  if (cached && typeof cached === 'object') remindData = cached;
+} catch (e) {}
+
 populateTimeSelects();
 if (loadCache()) { render(); setSync('loading', '最新を確認中...'); }
 loadAll(false);
+renderRemind();
+loadRemind(false);
 </script>
 </body>
 </html>
