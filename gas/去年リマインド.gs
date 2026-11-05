@@ -128,10 +128,11 @@ function buildRemind_(ym) {
   const fromSheet = readForecast_(ly, m);
   const fromBoard = readBoard_(ly, m);
 
-  // 現場名でまとめる（日常清掃のように何日も出てくるものを1件にする）
+  // 現場名でまとめる（日常清掃のように何日も出てくるものを1件にする）。
+  // 言いかえ表も当てはめるので、「佐原信金」と「佐原信用金庫」は1件になる
   const sites = {};
   fromSheet.rows.concat(fromBoard.rows).forEach(r => {
-    const key = tidy_(r.place);
+    const key = alias_(tidy_(r.place));
     if (!key) return;
     const s = sites[key] || (sites[key] = {
       place: r.place, client: r.client || '', amount: 0, days: 0,
@@ -143,6 +144,8 @@ function buildRemind_(ym) {
     if (r.date && (!s.last || r.date > s.last)) s.last = r.date;
     if (!s.client && r.client) s.client = r.client;
     if (!s.kind && r.kind) s.kind = r.kind;
+    // 書き方がちがうときは、いちばん長いもの（略していないほう）を見せる
+    if (r.place && r.place.length > s.place.length) s.place = r.place;
     if (s.from.indexOf(r.from) < 0) s.from.push(r.from);
   });
 
