@@ -211,7 +211,9 @@ function readForecast_(year, month) {
 
   const sheets = ss.getSheets();
   const sheet = sheets.filter(s => s.getName().indexOf('粗利') >= 0)[0] || sheets[0];
-  const values = sheet.getDataRange().getValues();
+  // 画面に見えているとおりの文字で読む。
+  // getValues() だと日付が Date になり、スクリプトの時間帯しだいで1日ずれることがある
+  const values = sheet.getDataRange().getDisplayValues();
 
   // 見出しの行を探す（「日付」が入っている行）
   let hr = -1;
@@ -399,6 +401,62 @@ function boardTest() {
 }
 
 
+/* 予測表をどう読めているか確かめる。
+   実行して「実行ログ」を見ると、どのファイルの、どの欄を、
+   どう読んだのかが出る。0件になるときはこれを見る。 */
+function yosokuTest() {
+  const now = new Date();
+  const year = now.getFullYear() - 1, month = now.getMonth() + 1;
+  Logger.log(`スクリプトの時間帯：${Session.getScriptTimeZone()}`);
+  Logger.log(`探すファイル：${year}年${month}月_予測表`);
+
+  const it = DriveApp.getFilesByName(`${year}年${month}月_予測表`);
+  if (!it.hasNext()) { Logger.log('→ 見つかりませんでした'); return; }
+  const file = it.next();
+  Logger.log(`→ 見つかった：${file.getName()}　${file.getUrl()}`);
+  if (it.hasNext()) Logger.log('※ 同じ名前のファイルが2つ以上あります。1つめを使っています');
+
+  const ss = SpreadsheetApp.openById(file.getId());
+  Logger.log(`ファイルの時間帯：${ss.getSpreadsheetTimeZone()}`);
+  Logger.log(`タブ：${ss.getSheets().map(x => x.getName()).join(' / ')}`);
+
+  const sheets = ss.getSheets();
+  const sheet = sheets.filter(x => x.getName().indexOf('粗利') >= 0)[0] || sheets[0];
+  const values = sheet.getDataRange().getDisplayValues();
+  Logger.log(`使うタブ：${sheet.getName()}　${values.length}行 × ${values[0] ? values[0].length : 0}列`);
+
+  let hr = -1;
+  for (let i = 0; i < Math.min(8, values.length); i++) {
+    if (values[i].some(v => tidy_(v) === H_DATE)) { hr = i; break; }
+  }
+  Logger.log(`見出しの行：${hr < 0 ? '見つからない' : (hr + 1) + '行目'}`);
+  if (hr < 0) { Logger.log(values.slice(0, 5).map((r, i) => `${i + 1}行目: ${JSON.stringify(r)}`).join('\n')); return; }
+
+  const head = values[hr].map(tidy_);
+  Logger.log(`そろえた見出し：${JSON.stringify(head)}`);
+  const blocks = splitBlocks_(head);
+  Logger.log(`読む欄：${JSON.stringify(blocks)}`);
+
+  Logger.log('--- はじめの8行を、どう読んだか ---');
+  blocks.forEach((b, n) => {
+    Logger.log(`［${n + 1}つめの欄：${b.kind}］`);
+    for (let i = hr + 1; i < Math.min(hr + 9, values.length); i++) {
+      const row = values[i];
+      const d = readDate_(row[b.date], year);
+      Logger.log(`  ${i + 1}行目 日付=${JSON.stringify(row[b.date])}→${JSON.stringify(d)}`
+        + ` 区分=${JSON.stringify(b.genre >= 0 ? row[b.genre] : '')}`
+        + ` 現場=${JSON.stringify(row[b.place])}`
+        + ` 客=${JSON.stringify(b.client >= 0 ? row[b.client] : '')}`
+        + ` 金額=${JSON.stringify(b.amount >= 0 ? row[b.amount] : '')}`);
+    }
+  });
+
+  const r = readForecast_(year, month);
+  Logger.log(`--- 読めた件数：${r.rows.length}件（${r.ok ? 'ok' : r.reason}）---`);
+  r.rows.slice(0, 10).forEach(x => Logger.log(`  ${x.date} ${x.place} / ${x.client} / ${x.amount} / ${x.kind}`));
+}
+
+
 /* =========================================================
    6. 今年のカレンダーを読む
    ========================================================= */
@@ -533,10 +591,13 @@ function isStop_(v) {
   return STOP_WORDS.some(w => s.indexOf(tidy_(w)) >= 0);
 }
 
-// 「11/01」「11月1日」や、日付そのものを読む
+// 「11/01」「11月1日」「2025/11/01」や、日付そのものを読む
 function readDate_(v, year) {
   if (v instanceof Date) return { m: v.getMonth() + 1, d: v.getDate() };
-  const s = String(v == null ? '' : v).replace(/[\s　]/g, '');
+  const s = String(v == null ? '' : v).replace(/[\s\u3000]/g, '');
+  // 年から始まる書き方（2025/11/01・2025-11-1・2025年11月1日）
+  const y = s.match(/^\d{4}[\/\-年](\d{1,2})[\/\-月](\d{1,2})/);
+  if (y) return { m: +y[1], d: +y[2] };
   const m = s.match(/^(\d{1,2})[\/月\-](\d{1,2})/);
   if (m) return { m: +m[1], d: +m[2] };
   return null;
