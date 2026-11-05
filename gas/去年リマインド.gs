@@ -643,7 +643,11 @@ function cacheGet_(ym) {
   } catch (e) { return null; }
 }
 
+/* ふつうは6時間とっておく。
+   去年の現場が1件も読めなかったときは、どこかおかしいので10分だけにする
+   （おかしな結果が6時間も残らないように） */
 function cachePut_(ym, data) {
-  try { CacheService.getScriptCache().put('remind_' + ym, JSON.stringify(data), 21600); }
+  const bad = !data || !data.counts || !data.counts.lastYear;
+  try { CacheService.getScriptCache().put('remind_' + ym, JSON.stringify(data), bad ? 600 : 21600); }
   catch (e) { /* 控えに置けなくても、その場で計算すれば出せる */ }
 }
