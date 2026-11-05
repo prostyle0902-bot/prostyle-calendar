@@ -31,9 +31,15 @@ const H_OUTSRC = '外注先';
        「佐原信用金庫本店」と「佐原信金笹川支店」は別の現場になる。
    いちばん左に、正しい（長いほう）の書き方を置いてください。 */
 const SAME_SITE = [
-  // ['佐原信用金庫', '佐原信金'],
-  // ['佐原コミュニティーセンター', '佐原コミセン'],
+  ['佐原信用金庫', '佐原信金'],
+  ['佐原コミュニティーセンター', '佐原コミセン'],
+  ['横河ソリューションサービス', '横河SS', '横河'],
+  ['ネオマファーム', 'ネオマフォーム'],
 ];
+
+/* 予測表の「区分」の欄（現場名の左どなり）が、ここに並べたものの行は読まない。
+   鳥害対策は毎年くりかえす仕事ではないので、思い出さなくてよい。 */
+const SKIP_KINDS = ['鳩', '鳥害', '鳥害対策'];
 
 // 「合計」の行まで来たら、そこから下は読まない
 const STOP_WORDS = ['合計', '外注費', '売上'];
@@ -236,6 +242,7 @@ function readForecast_(year, month) {
       // 「壁大18000、お掃除21000」「山ノ内不足分を請求する」のような
       // 書き置きの行は現場ではないので飛ばす
       if (!client0 && !amount0) continue;
+      if (b.genre >= 0 && skipKind_(row[b.genre])) continue;
       if (/\d\s*円/.test(String(row[b.place]))) continue;
 
       rows.push({
@@ -267,9 +274,13 @@ function splitBlocks_(head) {
     };
     const place = find(H_PLACE);
     if (place < 0) return;      // 飲食事業部（店舗名）はここで外れる
+    // 日付・曜日と現場名のあいだにある、見出しのない欄が「区分」（ビルメン・鳩など）
+    let genre = -1;
+    for (let i = from + 1; i < place; i++) if (!head[i]) { genre = i; break; }
     blocks.push({
       date: from,
       place: place,
+      genre: genre,
       client: find(H_CLIENT),
       amount: find(H_AMOUNT),
       kind: find(H_OUTSRC) >= 0 ? '外注' : '日勤',
@@ -293,7 +304,8 @@ const BOARD_DATE_KEYS = [
 function readBoard_(year, month) {
   const key = prop_('BOARD_API_KEY'), tok = prop_('BOARD_API_TOKEN');
   if (!key || !tok) {
-    return { ok: false, reason: 'board の APIキー・APIトークンが、まだスクリプト プロパティに入っていません', rows: [] };
+    // キーを入れるまでは board は使わない。予測表だけで出す
+    return { ok: false, off: true, reason: '使っていません（APIキーを入れると使えます）', rows: [] };
   }
 
   const rows = [];
@@ -503,6 +515,13 @@ function tidy_(v) {
   s = s.replace(/[ァ-ヶ]/g, c => String.fromCharCode(c.charCodeAt(0) - 0x60));
   s = s.replace(/[のノ之]/g, '');
   return s.toLowerCase();
+}
+
+// 読まない区分（鳥害対策など）かどうか
+function skipKind_(v) {
+  const t = tidy_(v);
+  if (!t) return false;
+  return SKIP_KINDS.some(w => t.indexOf(tidy_(w)) >= 0);
 }
 
 function isStop_(v) {
