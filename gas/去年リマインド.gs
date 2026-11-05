@@ -24,6 +24,17 @@ const H_CLIENT = '請求先お客様名';
 const H_AMOUNT = '請負金額';
 const H_OUTSRC = '外注先';
 
+/* 同じ現場なのに、年によって書き方がちがうものを、ここで教える。
+   前と後ろに付くもの（支店名など）は残したまま、会社の名前のところだけそろえる。
+   例：['佐原信用金庫', '佐原信金'] と書いておくと
+       「佐原信用金庫本店」と「佐原信金本店」は同じ現場、
+       「佐原信用金庫本店」と「佐原信金笹川支店」は別の現場になる。
+   いちばん左に、正しい（長いほう）の書き方を置いてください。 */
+const SAME_SITE = [
+  // ['佐原信用金庫', '佐原信金'],
+  // ['佐原コミュニティーセンター', '佐原コミセン'],
+];
+
 // 「合計」の行まで来たら、そこから下は読まない
 const STOP_WORDS = ['合計', '外注費', '売上'];
 
@@ -219,11 +230,19 @@ function readForecast_(year, month) {
       if (d) curDate = d.m === month ? `${year}-${('0' + d.m).slice(-2)}-${('0' + d.d).slice(-2)}` : '';
 
       if (!curDate || !placeCell) continue;
+
+      const client0 = b.client >= 0 ? String(row[b.client] || '').trim() : '';
+      const amount0 = readMoney_(b.amount >= 0 ? row[b.amount] : 0);
+      // 「壁大18000、お掃除21000」「山ノ内不足分を請求する」のような
+      // 書き置きの行は現場ではないので飛ばす
+      if (!client0 && !amount0) continue;
+      if (/\d\s*円/.test(String(row[b.place]))) continue;
+
       rows.push({
         date: curDate,
         place: String(row[b.place]).trim(),
-        client: b.client >= 0 ? String(row[b.client] || '').trim() : '',
-        amount: readMoney_(b.amount >= 0 ? row[b.amount] : 0),
+        client: client0,
+        amount: amount0,
         kind: b.kind,
         from: '予測表',
       });
@@ -413,13 +432,58 @@ function placesIn_(events, y, m, slack) {
 /* 現場名が合うかを見る。
    そろえた名前がぴったり同じか、どちらかがもう一方を含んでいれば「同じ現場」とみなす
    （「済生会宇都宮病院」と「済生会宇都宮病院(ガラス)」のような書き方のちがいを拾うため）。 */
-function matches_(key, list) {
+function matches_(key0, list0) {
+  const key = alias_(key0);
+  const list = list0.map(alias_);
   for (const p of list) {
     if (p === key) return true;
     if (key.length >= 4 && p.indexOf(key) >= 0) return true;
     if (p.length >= 4 && key.indexOf(p) >= 0) return true;
+    // かなの打ちまちがいも同じ現場とみなす（「コミュニティー」と「コミニティー」）。
+    // ただし漢字がちがえば別の現場なので（「梅屋敷院」と「梅屋敷分院」は別の院）、
+    // 漢字の部分がそっくり同じで、かなのちがいだけのときに限る。
+    if (key.length >= 5 && p.length >= 5
+        && kanaless_(key) === kanaless_(p)
+        && dice_(key, p) >= 0.7) return true;
   }
   return false;
+}
+
+/* SAME_SITE に書いた言いかえを当てはめる。
+   会社の名前のところだけ「正しい書き方」に直し、支店名などはそのまま残す */
+function alias_(key) {
+  for (const group of SAME_SITE) {
+    const head = tidy_(group[0]);
+    for (const w of group) {
+      const t = tidy_(w);
+      if (t && key.indexOf(t) >= 0) return head + key.replace(t, '');
+    }
+  }
+  return key;
+}
+
+/* かなを取りのぞいた、漢字・数字・英字だけの形。
+   tidy_ を通したあとはカタカナもひらがなになっているので、これで漢字だけが残る */
+function kanaless_(s) {
+  return String(s).replace(/[ぁ-ゖ]/g, '');
+}
+
+/* ふたつの名前の似ぐあいを 0〜1 で返す（2文字ずつに切って、重なりを数える） */
+function dice_(a, b) {
+  if (a.length < 2 || b.length < 2) return a === b ? 1 : 0;
+  const grams = t => {
+    const m = {};
+    for (let i = 0; i < t.length - 1; i++) {
+      const k = t.substr(i, 2);
+      m[k] = (m[k] || 0) + 1;
+    }
+    return m;
+  };
+  const A = grams(a), B = grams(b);
+  let common = 0, na = 0, nb = 0;
+  Object.keys(A).forEach(k => { na += A[k]; if (B[k]) common += Math.min(A[k], B[k]); });
+  Object.keys(B).forEach(k => { nb += B[k]; });
+  return na + nb ? (2 * common) / (na + nb) : 0;
 }
 
 
@@ -427,12 +491,17 @@ function matches_(key, list) {
    7. 小さな道具
    ========================================================= */
 
-// 見出しや名前を見比べるために、空白・記号を取って、全角を半角にそろえる
+/* 見出しや名前を見比べるためにそろえる。
+   空白・記号を取り、全角を半角に、カタカナをひらがなにして、
+   書き方のゆれやすい「の・ノ・之」は取ってしまう
+   （「山ノ内病院」と「山之内病院」、「アジカン」と「あじかん」を同じ扱いにするため）。 */
 function tidy_(v) {
   let s = String(v == null ? '' : v);
   s = s.replace(/[Ａ-Ｚａ-ｚ０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
   s = s.replace(/[（]/g, '(').replace(/[）]/g, ')');
   s = s.replace(/[\s　・,，、.。\-ー－_／\/]/g, '');
+  s = s.replace(/[ァ-ヶ]/g, c => String.fromCharCode(c.charCodeAt(0) - 0x60));
+  s = s.replace(/[のノ之]/g, '');
   return s.toLowerCase();
 }
 
