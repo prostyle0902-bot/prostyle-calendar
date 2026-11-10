@@ -619,21 +619,17 @@ function makeChipsHtml(start, end) {
   }).join('');
 }
 
-function makeCounterHtml(y, m, isFirst) {
-  let start, end, label;
-  if (isFirst) {
-    const prevM = m === 0 ? 11 : m - 1;
-    const prevY = m === 0 ? y - 1 : y;
-    start = fmt(prevY, prevM, 16);
-    end = fmt(y, m, 15);
-    label = `${prevY}年${prevM+1}月16日 〜 ${y}年${m+1}月15日`;
-  } else {
-    const nextM = m === 11 ? 0 : m + 1;
-    const nextY = m === 11 ? y + 1 : y;
-    start = fmt(y, m, 16);
-    end = fmt(nextY, nextM, 15);
-    label = `${y}年${m+1}月16日 〜 ${nextY}年${nextM+1}月15日`;
-  }
+// 残り休日数は〆期間（16日〜翌月15日）ごとに1つだけ出す。
+// 今月を見ているときは今日が入る〆期間、ほかの月は「前月16日〜その月15日」
+function makeCounterHtml(y, m) {
+  const now = new Date();
+  const useSecond = now.getFullYear() === y && now.getMonth() === m && now.getDate() >= 16;
+  const sy = useSecond ? y : (m === 0 ? y - 1 : y);
+  const sm = useSecond ? m : (m === 0 ? 11 : m - 1);
+  const ey = sm === 11 ? sy + 1 : sy;
+  const em = sm === 11 ? 0 : sm + 1;
+  const start = fmt(sy, sm, 16), end = fmt(ey, em, 15);
+  const label = `${sy}年${sm+1}月16日 〜 ${ey}年${em+1}月15日`;
   return `<div class="holiday-counter">
     <div class="holiday-counter-title">残り休日数（〆期間）</div>
     <div class="holiday-counter-period">${label}</div>
@@ -926,14 +922,9 @@ function render() {
 
   function buildSection(from, to, label, isFirst) {
     const sectionId = isFirst ? 'section-first' : 'section-second';
-    const chipsId = isFirst ? 'chips-first' : 'chips-second';
-    const counterHtml = makeCounterHtml(y, m, isFirst).replace(
-      'class="holiday-chips"',
-      `class="holiday-chips" id="${chipsId}"`
-    );
     return `
       <div id="${sectionId}">
-      ${counterHtml}
+      ${isFirst ? makeCounterHtml(y, m) : ''}
       <div class="section-title">${label}</div>
       <div class="timeline-wrap">
         <div class="timeline-grid">
@@ -949,14 +940,6 @@ function render() {
         ${buildMobileHalf(from, to, y, m, todayKey)}
       </div>`;
   }
-
-  // 固定カウンターを更新
-  const p1start = fmt(m===0?y-1:y, m===0?11:m-1, 16);
-  const p1end = fmt(y, m, 15);
-  const p2start = fmt(y, m, 16);
-  const p2nextM = m===11?0:m+1, p2nextY = m===11?y+1:y;
-  const p2end = fmt(p2nextY, p2nextM, 15);
-
 
   document.getElementById('calendar-wrap').innerHTML =
     buildSection(1, 15, '上半期 — 1日〜15日', true) + '</div>' +
