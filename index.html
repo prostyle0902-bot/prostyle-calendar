@@ -248,7 +248,7 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
     <div class="form-row"><label>現場名・作業場所 *</label><input id="f-place" placeholder="例：〇〇病院 3階廊下"></div>
     <div class="form-row"><label>お客様名</label><input id="f-client" placeholder="例：山田商事"></div>
     <div class="form-row"><label>作業種別</label>
-      <select id="f-type">
+      <select id="f-type" onchange="updateCostRow()">
         <option value="daily">日常清掃</option>
         <option value="regular">定期清掃</option>
         <option value="spot">スポット清掃</option>
@@ -276,7 +276,8 @@ header h1{font-size:18px;font-weight:500;letter-spacing:0.05em}
         <select id="f-end" class="time-select"></select>
       </div>
     </div>
-    <div class="form-row"><label>請負金額（円）</label><input id="f-amount" type="number" placeholder="例：45000"></div>
+    <div class="form-row"><label id="amount-label">請負金額（円）</label><input id="f-amount" type="number" placeholder="例：45000"></div>
+    <div class="form-row" id="row-cost" style="display:none"><label id="cost-label">外注費（円）</label><input id="f-cost" type="number" placeholder="例：30000"></div>
     <div class="form-row"><label>使用道具・備考</label><textarea id="f-memo" placeholder="使用道具・備考など"></textarea></div>
     <div class="modal-btns">
       <button class="btn btn-delete" id="delete-btn" onclick="deleteEvent()" style="display:none">削除</button>
@@ -1029,6 +1030,16 @@ function renderStaffGrid() {
   document.getElementById('staff-grid').innerHTML =
     `<div class="staff-section-label">自社スタッフ</div>` + STAFF_OWN.map(makeBtn).join('') +
     `<div class="staff-section-label">外注</div>` + STAFF_OUT.map(makeBtn).join('');
+  updateCostRow();
+}
+
+// 外注費の欄は、種別「外注」のときと、外注先を選んだ（応援に来てもらう）ときだけ出す
+function updateCostRow() {
+  const isOutsource = document.getElementById('f-type').value === 'outsource';
+  const hasOut = selectedStaff.some(s => STAFF_OUT.includes(s));
+  document.getElementById('row-cost').style.display = (isOutsource || hasOut) ? '' : 'none';
+  document.getElementById('cost-label').textContent = isOutsource ? '外注への発注金額（円）' : '応援の外注費（円）';
+  document.getElementById('amount-label').textContent = isOutsource ? '請負金額（お客様からの金額・円）' : '請負金額（円）';
 }
 
 function toggleStaff(name) {
@@ -1060,6 +1071,7 @@ function openAdd(dateKey) {
   document.getElementById('f-client').value = '';
   document.getElementById('f-type').value = 'daily';
   document.getElementById('f-amount').value = '';
+  document.getElementById('f-cost').value = '';
   document.getElementById('f-memo').value = '';
   setTimeVal('f-departure', '');
   setTimeVal('f-start', '');
@@ -1084,6 +1096,7 @@ function openEdit(dateKey, id) {
   document.getElementById('f-client').value = ev.client||'';
   document.getElementById('f-type').value = ev.type||'daily';
   document.getElementById('f-amount').value = ev.amount||'';
+  document.getElementById('f-cost').value = ev.cost||'';
   document.getElementById('f-memo').value = ev.memo||'';
   setTimeVal('f-departure', ev.departure||'');
   setTimeVal('f-start', ev.start||'');
@@ -1102,6 +1115,7 @@ function copyEvent() {
     client:    document.getElementById('f-client').value,
     type:      document.getElementById('f-type').value,
     amount:    document.getElementById('f-amount').value,
+    cost:      document.getElementById('f-cost').value,
     memo:      document.getElementById('f-memo').value,
     departure: document.getElementById('f-departure').value,
     start:     document.getElementById('f-start').value,
@@ -1122,6 +1136,7 @@ function copyEvent() {
     document.getElementById('f-client').value = ev.client;
     document.getElementById('f-type').value = ev.type;
     document.getElementById('f-amount').value = ev.amount;
+    document.getElementById('f-cost').value = ev.cost;
     document.getElementById('f-memo').value = ev.memo;
     setTimeVal('f-departure', ev.departure);
     setTimeVal('f-start', ev.start);
@@ -1338,13 +1353,15 @@ async function saveEvent() {
     date: newDate, place,
     client: document.getElementById('f-client').value.trim(),
     type: document.getElementById('f-type').value,
-    outsource: '',
+    // 選んだ外注先（応援のときは予測表の外注欄の「外注先」に入る）
+    outsource: selectedStaff.filter(s => STAFF_OUT.includes(s)).join('・'),
     staff: selectedStaff,
     cars: selectedCars,
     departure: document.getElementById('f-departure').value,
     start: document.getElementById('f-start').value,
     end: document.getElementById('f-end').value,
     amount: document.getElementById('f-amount').value.trim(),
+    cost: document.getElementById('row-cost').style.display === 'none' ? '' : document.getElementById('f-cost').value.trim(),
     memo: document.getElementById('f-memo').value.trim()
   };
   closeModal();
